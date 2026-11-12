@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-12T12:12:58.758Z",
+  "generatedAt": "2026-11-12T12:35:48.324Z",
   "agent": "cartographer",
-  "anchors": 39,
+  "anchors": 40,
   "namedStreets": 16,
   "roadPolylines": 25,
   "railStationOrder": [
@@ -37,7 +37,7 @@
     "east": 6.112
   },
   "sources": {
-    "osm": 26,
+    "osm": 27,
     "approx": 13
   },
   "passed": true,

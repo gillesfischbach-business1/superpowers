@@ -4,6 +4,7 @@ import { loadWorld, writeReport, readReport, Gate, estimateWindows } from './_li
 import { circleHitsBox, closestOnPolyline, terrainHeight } from '../public/js/core/geo.js';
 import { INTERIORS } from '../public/js/core/interiors.js';
 import { QUESTS } from '../public/js/core/quests.js';
+import { parseHours, isOpenAt, describeStatus } from '../public/js/core/hours.js';
 
 console.log('QA — the gatekeeper. Reachability, geometry, budgets, content.');
 const gate = new Gate('qa');
@@ -35,12 +36,20 @@ const interiorIds = new Set(Object.keys(INTERIORS));
 const badInteriorRefs = world.landmarks.filter((l) => l.interior && !interiorIds.has(l.interior));
 const questProblems = QUESTS.filter((q) => !q.title || !q.desc || !(q.money >= 0) || !(q.xp > 0));
 
+// a day in the life: the town has to work at noon and at midnight
+const venues = Object.entries(INTERIORS);
+const badHours = venues.filter(([, spec]) => !spec.hours || !parseHours(spec.hours).ok);
+const openNoon = venues.filter(([, spec]) => isOpenAt(parseHours(spec.hours), 2, 12 * 60));
+const openLate = venues.filter(([, spec]) => isOpenAt(parseHours(spec.hours), 5, 23 * 60));
+const sampleClosed = venues.find(([, spec]) => /off/.test(spec.hours) || !isOpenAt(parseHours(spec.hours), 1, 4 * 60));
+
 // station sanity
 const badStations = world.rail.stations.filter((s) => !(s.platformY > s.elevation));
 
 console.log(`  upstream reports ${reports.length - missing.length}/${reports.length} · failed ${failed.length}`);
 console.log(`  ${world.pois.length} POIs · ${world.doors.length} doors · ${Object.keys(INTERIORS).length} interiors`);
 console.log(`  ${world.cars.length} cars · ${(world.forestPaths || []).length} trails · ${world.clearings.length} glades`);
+console.log(`  hours: ${openNoon.length}/${venues.length} open Tue noon · ${openLate.length} open Fri 23:00 · ${badHours.length} unparseable`);
 console.log(`  instances: ${windows} windows, ${world.trees.length} trees, ${world.props.length} props → budget ${instanceBudget}`);
 
 gate.check('every upstream report exists', missing.length === 0, missing.map((m) => m.name).join(', '));
@@ -64,10 +73,14 @@ gate.check('no car is parked on the rail line', railDanger.length === 0, `${rail
 gate.check('every car has a colour, a quarter and finite coordinates', badCars.length === 0, `${world.cars.length} cars`);
 gate.check('forest trails stay inside the world bounds', trailsOffMap.length === 0, `${(world.forestPaths || []).length} trails`);
 gate.check('station platforms sit above the rail bed', badStations.length === 0);
+gate.check('every visitable interior runs on a real schedule', badHours.length === 0, badHours.map(([id, spec]) => `${id}: ${spec.hours}`).join(', ') || `${venues.length} venues`);
+gate.check('the town is open at lunchtime', openNoon.length >= 10, `${openNoon.length} open Tue 12:00`);
+gate.check('the town is alive after dark', openLate.length >= 5, `${openLate.length} open Fri 23:00`);
+gate.check('every notice is human readable', sampleClosed ? /open|closed/.test(describeStatus(parseHours(sampleClosed[1].hours), 1, 4 * 60)) : true, sampleClosed ? `${sampleClosed[0]}: ${describeStatus(parseHours(sampleClosed[1].hours), 1, 4 * 60)}` : '—');
 gate.check('enough content for a session (buildings > 500, trees > 800)', world.buildings.length > 500 && world.trees.length > 800);
 
 const result = writeReport('qa.json', {
-  agent: 'qa', upstream: reports.map((r) => ({ name: r.name, passed: r.report?.passed ?? false })),
+  agent: 'qa', hours: { openNoon: openNoon.length, openLate: openLate.length, venues: venues.length }, upstream: reports.map((r) => ({ name: r.name, passed: r.report?.passed ?? false })),
   blockedPois: blockedPois.map((p) => p.name), unreachableDoors: unreachableDoors.length,
   nan, instanceBudget, spawnBlocked, quests: QUESTS.length,
   cars: world.cars.length, pubs: pubsInWorld.length, trails: (world.forestPaths || []).length,

@@ -65,6 +65,10 @@ export class UI {
     $('level').textContent = `Level ${level}`;
     $('xp').textContent = `${xp} XP`;
   }
+  setDay(name, waiting = false) {
+    const el = $('day');
+    if (el) el.textContent = waiting ? `${name.slice(0, 3)} ⏩` : name.slice(0, 3);
+  }
   setClock(minutes, weather, temp) {
     const h = Math.floor(minutes / 60) % 24, m = Math.floor(minutes % 60);
     $('clock').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;

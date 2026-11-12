@@ -382,6 +382,12 @@ export const LANDMARKS = [
     blurb: 'Station bar on Avenue Grande-Duchesse Charlotte, opposite Dudelange-Ville.'
   },
   {
+    id: 'why_not', name: 'Why Not', kind: 'pub', lat: 49.48014, lon: 6.08540,
+    rotation: 0.14, size: { w: 15, d: 12, h: 9 }, src: 'osm',
+    interior: 'why_not',
+    blurb: '81 Avenue Grande-Duchesse Charlotte — late bar, published hours, last round at one.'
+  },
+  {
     id: 'yuppy_cafe', name: 'Yuppy Café', kind: 'pub', lat: 49.48192, lon: 6.08395,
     rotation: 0.1, size: { w: 14, d: 12, h: 9 }, src: 'osm',
     interior: 'yuppy_cafe',

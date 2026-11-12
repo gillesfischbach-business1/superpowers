@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T12:13:00.012Z",
+  "generatedAt": "2026-11-12T12:35:49.538Z",
   "agent": "retail",
   "supermarkets": 3,
   "restaurants": 9,
@@ -76,6 +76,12 @@
       "id": "cafe_benfica",
       "name": "Café Benfica — Rue de la Libération",
       "alcoholic": 3,
+      "soft": 2
+    },
+    {
+      "id": "why_not",
+      "name": "Why Not — 81 Avenue Grande-Duchesse Charlotte",
+      "alcoholic": 5,
       "soft": 2
     },
     {
@@ -704,12 +710,12 @@
     {
       "label": "three or more visitable pubs",
       "ok": true,
-      "detail": "opa_cafe, dukes_bar, bar_rio, yuppy_cafe, red_black, medya, cafe_benfica, cafe_italia"
+      "detail": "opa_cafe, dukes_bar, bar_rio, yuppy_cafe, red_black, medya, cafe_benfica, why_not, cafe_italia"
     },
     {
       "label": "every pub pours something alcoholic and something soft",
       "ok": true,
-      "detail": "38 alcoholic / 25 soft"
+      "detail": "43 alcoholic / 27 soft"
     },
     {
       "label": "drink strength is on a sane 0–0.45 scale",
@@ -720,6 +726,36 @@
       "label": "pub prices are plausible (€1–€15)",
       "ok": true,
       "detail": "max €6.50"
+    },
+    {
+      "label": "every venue publishes parseable opening hours",
+      "ok": true,
+      "detail": "28 venues"
+    },
+    {
+      "label": "opening hours are plausible (20–168 h per week)",
+      "ok": true,
+      "detail": "between 30 and 168 h"
+    },
+    {
+      "label": "the source of every schedule is declared",
+      "ok": true,
+      "detail": "web / typical"
+    },
+    {
+      "label": "the town has nightlife",
+      "ok": true,
+      "detail": "6 pubs open Friday 23:00"
+    },
+    {
+      "label": "late licences run past 02:30 at the weekend",
+      "ok": true,
+      "detail": "dukes_bar, red_black"
+    },
+    {
+      "label": "shops respect Luxembourg Sunday trading",
+      "ok": true,
+      "detail": "0 open Sunday 15:00"
     }
   ]
 }

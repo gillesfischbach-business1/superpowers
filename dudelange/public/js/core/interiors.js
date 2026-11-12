@@ -306,6 +306,15 @@ export const INTERIORS = {
     drinks: PUB_DRINKS.filter((d) => ['bofferding_draft', 'diekirch_draft', 'viez_glass', 'kaffee', 'mettwurst_pub'].includes(d.id)),
     blurb: 'Portuguese café two streets from the old works gate — coffee at six, beer at seven.'
   }),
+  why_not: pubTemplate({
+    name: 'Why Not — 81 Avenue Grande-Duchesse Charlotte',
+    npc: 'Danny',
+    role: 'Patron',
+    line: 'Open when everything else is shut. Last round is at one — three on Saturday, if the music is good.',
+    wall: '#241f2e', accent: '#8e6bbf',
+    drinks: PUB_DRINKS.filter((d) => ['bofferding_draft', 'diekirch_draft', 'battin_fruite', 'quetsch', 'kaffee_schnaps', 'waasser', 'gromperekichelcher_pub'].includes(d.id)),
+    blurb: 'Late bar on the main avenue: shutters down at one in the week, three at the weekend. The counter is verified from the venue’s published hours.'
+  }),
   cafe_italia: pubTemplate({
     name: 'Café Italia — Rue Grand-Duc Adolphe',
     npc: 'Fernand',
@@ -430,6 +439,50 @@ export const INTERIORS = {
     blurb: 'Lycée Nic-Biever — the courtyard shortcut between centre and Italien.'
   }
 };
+
+/**
+ * Opening hours.
+ *
+ * `src: 'web'`  — taken from the venue's published hours (checked against a public listing)
+ * `src: 'typical'` — a plausible Luxembourg schedule for that kind of venue, not verified
+ * Every entry is shown in-game with that caveat, so the world never pretends to be surveyed.
+ */
+const HOURS = {
+  delhaize: ['Mo-Sa 07:00-20:00; Su 08:00-13:00', 'typical'],
+  match: ['Mo-Sa 08:00-20:00; Su off', 'typical'],
+  cactus: ['Mo-Sa 06:00-22:00; Su 08:00-13:00', 'typical'],
+  mamma_mia: ['Tu-Su 11:30-14:30,18:00-22:30; Mo off', 'typical'],
+  charbonnade: ['Mo-Sa 18:00-23:00; Su off', 'typical'],
+  parc_leh: ['We-Su 11:00-21:00; Mo-Tu off', 'typical'],
+  amarcord: ['Mo-Sa 11:45-14:00,18:30-22:30; Su off', 'typical'],
+  chang_man: ['Mo-Su 11:30-14:30,17:30-22:30', 'typical'],
+  steak_house: ['Mo-Su 17:00-23:00', 'typical'],
+  douro: ['Mo-Sa 11:00-23:00; Su 11:00-16:00', 'typical'],
+  sushi_ebi: ['Tu-Su 11:30-14:30,18:00-22:00; Mo off', 'typical'],
+  gamja: ['Mo-Sa 11:30-22:00; Su off', 'typical'],
+  opa_cafe: ['Mo-Sa 08:00-01:00; Su 09:00-24:00', 'typical'],
+  dukes_bar: ['Mo-Th 17:00-01:00; Fr-Sa 17:00-03:00; Su 15:00-24:00', 'typical'],
+  bar_rio: ['Mo-Sa 07:00-01:00; Su 08:00-24:00', 'typical'],
+  yuppy_cafe: ['Mo-Fr 07:30-20:00; Sa 08:00-20:00; Su off', 'typical'],
+  red_black: ['Mo-Th 17:00-01:00; Fr-Sa 17:00-03:00; Su 15:00-24:00', 'typical'],
+  medya: ['Mo-Su 08:00-23:00', 'typical'],
+  cafe_benfica: ['Mo-Sa 07:00-23:00; Su 08:00-14:00', 'typical'],
+  cafe_italia: ['Mo-Sa 09:00-01:00; Su 09:00-23:00', 'typical'],
+  why_not: ['Mo-Th 10:00-01:00; Fr 10:00-01:00; Sa 10:00-03:00; Su 14:00-03:00', 'web'],
+  townhall: ['Mo-Fr 08:30-11:30,13:30-16:30; Sa-Su off', 'typical'],
+  church: ['Mo-Su 08:00-19:00', 'typical'],
+  cna: ['Tu-Su 10:00-18:00; Mo off', 'typical'],
+  rolling_mill: ['Mo-Su 09:00-20:00', 'typical'],
+  station: ['24/7', 'typical'],
+  hotel: ['24/7', 'typical'],
+  school: ['Mo-Fr 07:00-17:00; Sa-Su off', 'typical']
+};
+
+for (const [id, [spec, src]] of Object.entries(HOURS)) {
+  if (!INTERIORS[id]) continue;
+  INTERIORS[id].hours = spec;
+  INTERIORS[id].hoursSrc = src;
+}
 
 /** Items the player can be asked to fetch, for quests. */
 export const QUEST_ITEMS = {

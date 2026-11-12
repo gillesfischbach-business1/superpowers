@@ -1,14 +1,14 @@
 {
-  "updated": "2026-11-12T12:13:00.916Z",
+  "updated": "2026-11-12T12:35:50.414Z",
   "running": false,
-  "eventId": 31,
+  "eventId": 33,
   "agents": {
     "cartographer": {
       "status": "done",
-      "startedAt": "2026-11-12T12:12:58.370Z",
+      "startedAt": "2026-11-12T12:35:48.053Z",
       "log": [
         "Cartographer — reading OpenStreetMap anchors for Dudelange",
-        "  39 anchors · 16 named streets · 25 road polylines overall",
+        "  40 anchors · 16 named streets · 25 road polylines overall",
         "  rail chainage: burange:1336 → ville:2332 → centre:2860 → usines:3553",
         "  ✔ all anchors inside the playable bbox",
         "  ✔ at least 15 named streets traced from OSM — 16 named",
@@ -21,12 +21,12 @@
         "report → data/reports/cartographer.json"
       ],
       "exitCode": 0,
-      "duration": 395,
-      "finishedAt": "2026-11-12T12:12:58.769Z"
+      "duration": 278,
+      "finishedAt": "2026-11-12T12:35:48.334Z"
     },
     "geologist": {
       "status": "done",
-      "startedAt": "2026-11-12T12:12:58.771Z",
+      "startedAt": "2026-11-12T12:35:48.336Z",
       "log": [
         "Geologist — sampling the Diddelengerbaach valley and the Minett cuesta",
         "  north–south profile: 285 m … 331 m (EU-DEM mean 317 m)",
@@ -41,18 +41,18 @@
         "report → data/reports/geologist.json"
       ],
       "exitCode": 0,
-      "duration": 267,
-      "finishedAt": "2026-11-12T12:12:59.039Z"
+      "duration": 269,
+      "finishedAt": "2026-11-12T12:35:48.606Z"
     },
     "urbanist": {
       "status": "done",
-      "startedAt": "2026-11-12T12:12:59.040Z",
+      "startedAt": "2026-11-12T12:35:48.607Z",
       "log": [
         "Urbanist — cutting lots along the real street network",
         "  857 buildings · 100 streets · 45.39 km",
         "  4 forest trails · 8 glades · 1920 undergrowth clumps",
         "  34 parked cars (1 owned)",
-        "  8 pubs, all traced from OSM: Opa Café, Duke’s Bar, Bar’Rio, Yuppy Café, Red & Black, Café Medya, Café Benfica, Café Italia",
+        "  9 pubs, all traced from OSM: Opa Café, Duke’s Bar, Bar’Rio, Why Not, Yuppy Café, Red & Black, Café Medya, Café Benfica, Café Italia",
         "  neischmelz     16 buildings",
         "  centre        159 buildings",
         "  outskirts      13 buildings",
@@ -73,21 +73,21 @@
         "  ✔ woodland has undergrowth and glades — 1920 clumps · 8 glades",
         "  ✔ enough parked cars to steal — 34 cars",
         "  ✔ no car parked inside a building — 0 offenders",
-        "  ✔ every pub is a real OSM venue you can walk into — 8 pubs · 0 approximated",
+        "  ✔ every pub is a real OSM venue you can walk into — 9 pubs · 0 approximated",
         "urbanist: 14/14 gates green",
         "report → data/reports/urbanist.json"
       ],
       "exitCode": 0,
-      "duration": 335,
-      "finishedAt": "2026-11-12T12:12:59.376Z"
+      "duration": 329,
+      "finishedAt": "2026-11-12T12:35:48.938Z"
     },
     "architect": {
       "status": "done",
-      "startedAt": "2026-11-12T12:12:59.377Z",
+      "startedAt": "2026-11-12T12:35:48.939Z",
       "log": [
         "Architect — facades, roofscapes and furnished interiors",
         "  7 architectural styles · 31,224 windows · 239 shopfronts",
-        "  interiors: 27 (3 shops, 9 restaurants)",
+        "  interiors: 28 (3 shops, 9 restaurants)",
         "    neischmelz     16",
         "    italien       282",
         "    centre        223",
@@ -97,7 +97,7 @@
         "    usines          5",
         "  ✔ at least 6 distinct building styles — neischmelz, italien, centre, outskirts, burange, budersberg, usines",
         "  ✔ window grid under 60k instances — 31224",
-        "  ✔ at least 15 visitable interiors — 27",
+        "  ✔ at least 15 visitable interiors — 28",
         "  ✔ every interior is complete",
         "  ✔ at least 3 supermarkets — delhaize, match, cactus",
         "  ✔ at least 8 restaurants — 9",
@@ -106,12 +106,12 @@
         "report → data/reports/architect.json"
       ],
       "exitCode": 0,
-      "duration": 287,
-      "finishedAt": "2026-11-12T12:12:59.666Z"
+      "duration": 274,
+      "finishedAt": "2026-11-12T12:35:49.214Z"
     },
     "rail-engineer": {
       "status": "done",
-      "startedAt": "2026-11-12T12:12:59.667Z",
+      "startedAt": "2026-11-12T12:35:49.215Z",
       "log": [
         "Rail engineer — line 60a, four stops, underpasses and tunnels",
         "  northbound: Burange@60.3s → Ville@132.5s → Centre@182.5s",
@@ -128,16 +128,18 @@
         "report → data/reports/rail.json"
       ],
       "exitCode": 0,
-      "duration": 307,
-      "finishedAt": "2026-11-12T12:12:59.976Z"
+      "duration": 282,
+      "finishedAt": "2026-11-12T12:35:49.499Z"
     },
     "retail-hospitality": {
       "status": "done",
-      "startedAt": "2026-11-12T12:12:59.977Z",
+      "startedAt": "2026-11-12T12:35:49.501Z",
       "log": [
         "Retail & hospitality — stocking shops and writing menus",
-        "  3 supermarkets · 9 restaurants · 8 pubs · 72 purchasable lines",
-        "  38 alcoholic drinks · 25 soft options · strongest 0.38",
+        "  3 supermarkets · 9 restaurants · 9 pubs · 72 purchasable lines",
+        "  43 alcoholic drinks · 27 soft options · strongest 0.38",
+        "  hours: 28/28 venues parse · 6 pubs open Friday 23:00 · 2 after 02:30",
+        "  0 of 3 shops open Sunday afternoon (Luxembourg keeps Sunday trading short)",
         "  Luxembourgish specialities on shelves: Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Kugelhopf, Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Bofferding 33 cl, Bouneschlupp, Judd mat Gaardebounen, Kugelhopf",
         "  ✔ three visitable supermarkets — delhaize, match, cactus",
         "  ✔ eight or more restaurants — mamma_mia, charbonnade, parc_leh, amarcord, chang_man, steak_house, douro, sushi_ebi, gamja",
@@ -146,27 +148,34 @@
         "  ✔ at least six Luxembourgish products — 28",
         "  ✔ menu prices are plausible (€1–€40) — avg €9.52",
         "  ✔ no duplicate item ids across vendors",
-        "  ✔ three or more visitable pubs — opa_cafe, dukes_bar, bar_rio, yuppy_cafe, red_black, medya, cafe_benfica, cafe_italia",
-        "  ✔ every pub pours something alcoholic and something soft — 38 alcoholic / 25 soft",
+        "  ✔ three or more visitable pubs — opa_cafe, dukes_bar, bar_rio, yuppy_cafe, red_black, medya, cafe_benfica, why_not, cafe_italia",
+        "  ✔ every pub pours something alcoholic and something soft — 43 alcoholic / 27 soft",
         "  ✔ drink strength is on a sane 0–0.45 scale — all within range",
         "  ✔ pub prices are plausible (€1–€15) — max €6.50",
-        "retail: 11/11 gates green",
+        "  ✔ every venue publishes parseable opening hours — 28 venues",
+        "  ✔ opening hours are plausible (20–168 h per week) — between 30 and 168 h",
+        "  ✔ the source of every schedule is declared — web / typical",
+        "  ✔ the town has nightlife — 6 pubs open Friday 23:00",
+        "  ✔ late licences run past 02:30 at the weekend — dukes_bar, red_black",
+        "  ✔ shops respect Luxembourg Sunday trading — 0 open Sunday 15:00",
+        "retail: 17/17 gates green",
         "report → data/reports/retail.json"
       ],
       "exitCode": 0,
-      "duration": 37,
-      "finishedAt": "2026-11-12T12:13:00.015Z"
+      "duration": 39,
+      "finishedAt": "2026-11-12T12:35:49.541Z"
     },
     "systems": {
       "status": "done",
-      "startedAt": "2026-11-12T12:13:00.017Z",
+      "startedAt": "2026-11-12T12:35:49.542Z",
       "log": [
         "Systems engineer — determinism, collisions, saves and the UI contract",
         "  world hash 957aea222dba6349 (857 buildings, 5213 trees)",
         "  collision push-out 5.11 m · open-ground drift 0.000 m · save round-trip ok",
-        "  6/6 API routes present · 27 interiors wired · 11/11 quests hooked",
+        "  6/6 API routes present · 28 interiors wired · 11/11 quests hooked",
         "  car push-out 1.92 m · timetable over 15 min: burange → ville → centre → usines → terminus → usines → centre → ville → burange → terminus → burange → ville",
         "  3 forest trails · 34 drivable cars · 63 drunk-system hooks",
+        "  hours: Wed 00:30 open · 40 h/wk · “closed — opens Tu 17:00” · “open until 01:30 Fr”",
         "  ✔ identical seed produces an identical world — 957aea222dba6349",
         "  ✔ collision solver pushes a player out of a building — 5.11 m",
         "  ✔ collision solver leaves open ground alone — 0.000 m",
@@ -182,23 +191,30 @@
         "  ✔ stealing a car is wired to interaction and rewards — hot-wire → quest event",
         "  ✔ forest trails are surrounded by trees (walkable woods) — 3 forest trails · 33/28/62 trees near each",
         "  ✔ tree trunks are solid but the woods stay passable — 3897 trunks · 5213 trees",
+        "  ✔ overnight opening hours wrap past midnight — Tu-Sa 17:00-01:00",
+        "  ✔ 24/7 and weekly totals are understood — 40 h/wk · 24/7 = 168 h",
+        "  ✔ closed venues say when they open again — closed — opens Tu 17:00",
+        "  ✔ open venues say when last orders are — open until 01:30 Fr",
+        "  ✔ the clock advances into a new day and can be waited out — T waits · day chip",
+        "  ✔ closed doors are enforced, not decorative — enterInterior checks venueStatus",
         "  ✔ body payloads are size limited",
         "  ✔ performance budget: windows + trees under 40k instances — 36437",
-        "systems: 17/17 gates green",
+        "systems: 23/23 gates green",
         "report → data/reports/systems.json"
       ],
       "exitCode": 0,
-      "duration": 570,
-      "finishedAt": "2026-11-12T12:13:00.588Z"
+      "duration": 548,
+      "finishedAt": "2026-11-12T12:35:50.091Z"
     },
     "qa": {
       "status": "done",
-      "startedAt": "2026-11-12T12:13:00.589Z",
+      "startedAt": "2026-11-12T12:35:50.092Z",
       "log": [
         "QA — the gatekeeper. Reachability, geometry, budgets, content.",
         "  upstream reports 7/7 · failed 0",
-        "  43 POIs · 30 doors · 27 interiors",
+        "  44 POIs · 31 doors · 28 interiors",
         "  34 cars · 4 trails · 8 glades",
+        "  hours: 22/28 open Tue noon · 8 open Fri 23:00 · 0 unparseable",
         "  instances: 31224 windows, 5213 trees, 1691 props → budget 40699",
         "  ✔ every upstream report exists",
         "  ✔ every upstream stage passed",
@@ -210,23 +226,27 @@
         "  ✔ instance budget under 90k — 40699",
         "  ✔ all landmark interiors exist",
         "  ✔ quest content is complete — 11 quests",
-        "  ✔ every pub has a door on the street — 8/8 pubs",
+        "  ✔ every pub has a door on the street — 9/9 pubs",
         "  ✔ no car is parked on the rail line — 0 on the tracks",
         "  ✔ every car has a colour, a quarter and finite coordinates — 34 cars",
         "  ✔ forest trails stay inside the world bounds — 4 trails",
         "  ✔ station platforms sit above the rail bed",
+        "  ✔ every visitable interior runs on a real schedule — 28 venues",
+        "  ✔ the town is open at lunchtime — 22 open Tue 12:00",
+        "  ✔ the town is alive after dark — 8 open Fri 23:00",
+        "  ✔ every notice is human readable — delhaize: closed — opens 07:00",
         "  ✔ enough content for a session (buildings > 500, trees > 800)",
-        "qa: 16/16 gates green",
+        "qa: 20/20 gates green",
         "report → data/reports/qa.json",
         "  QA wrote qa.json"
       ],
       "exitCode": 0,
-      "duration": 284,
-      "finishedAt": "2026-11-12T12:13:00.874Z"
+      "duration": 277,
+      "finishedAt": "2026-11-12T12:35:50.371Z"
     },
     "release": {
       "status": "done",
-      "startedAt": "2026-11-12T12:13:00.875Z",
+      "startedAt": "2026-11-12T12:35:50.372Z",
       "log": [
         "Release manager — collecting reports and stamping the build",
         "  ✔ all eight upstream reports exist",
@@ -238,8 +258,8 @@
         "  → docs/build-report.md"
       ],
       "exitCode": 0,
-      "duration": 39,
-      "finishedAt": "2026-11-12T12:13:00.915Z"
+      "duration": 40,
+      "finishedAt": "2026-11-12T12:35:50.413Z"
     }
   }
 }

@@ -6,6 +6,7 @@ import { buildWorld, resolveCollisions } from '../public/js/core/world.js';
 import { INTERIORS } from '../public/js/core/interiors.js';
 import { QUESTS } from '../public/js/core/quests.js';
 import { simulate } from '../public/js/core/train.js';
+import { parseHours, isOpenAt, weeklyHours, statusAt, describeStatus } from '../public/js/core/hours.js';
 
 console.log('Systems engineer — determinism, collisions, saves and the UI contract');
 const gate = new Gate('systems');
@@ -35,6 +36,8 @@ const roundTrip = JSON.stringify(read) === JSON.stringify(state);
 const serverSrc = fs.readFileSync(path.join(process.cwd(), 'server', 'index.js'), 'utf8');
 const routes = ['/api/health', '/api/save/', '/api/leaderboard', '/api/agents/status', '/api/agents/run', '/api/agents/stream'].filter((r) => serverSrc.includes(r));
 const mainSrc = fs.readFileSync(path.join(process.cwd(), 'public', 'js', 'game', 'main.js'), 'utf8');
+const uiSrc = fs.readFileSync(path.join(process.cwd(), 'public', 'js', 'game', 'ui.js'), 'utf8');
+const indexSrc = fs.readFileSync(path.join(process.cwd(), 'public', 'index.html'), 'utf8');
 const interiorsUsed = Object.keys(INTERIORS).filter((id) => mainSrc.includes(id) || a.landmarks.some((l) => l.interior === id));
 const questHooks = QUESTS.filter((q) => mainSrc.includes(`'${q.id}'`)).length;
 
@@ -63,7 +66,26 @@ const treesPerTrail = forestTrails.map((trail) => a.trees.filter(
 console.log(`  collision push-out ${pushed.toFixed(2)} m · open-ground drift ${drift.toFixed(3)} m · save round-trip ${roundTrip ? 'ok' : 'broken'}`);
 console.log(`  ${routes.length}/6 API routes present · ${interiorsUsed.length} interiors wired · ${questHooks}/${QUESTS.length} quests hooked`);
 console.log(`  car push-out ${carPush.toFixed(2)} m · timetable over 15 min: ${run.dwells.join(' → ')}`);
+// hours engine: OSM semantics, one clock, doors that actually close
+const overnight = parseHours('Tu-Sa 17:00-01:00');
+const allDay = parseHours('24/7');
+const tuesday = parseHours('Tu-Sa 17:00-01:30');
+const hoursProbe = {
+  midNight: isOpenAt(overnight, 3, 30),          // Wed 00:30 → still Tuesday night
+  beforeOpen: isOpenAt(overnight, 2, 60),        // Tue 01:00 → shut
+  saturdayEarly: isOpenAt(overnight, 6, 30),     // Sat 00:30 → Friday spill
+  weekendShut: isOpenAt(overnight, 0, 22 * 60),  // Sun night → shut
+  alwaysOpen: isOpenAt(allDay, 0, 3 * 60) && weeklyHours(allDay) === 168,
+  weekly: weeklyHours(overnight),
+  closingText: describeStatus(tuesday, 1, 22 * 60),
+  openText: describeStatus(tuesday, 4, 23 * 60 + 59),
+  waiting: /app\.waiting/.test(mainSrc) && /KeyT/.test(mainSrc) && /app\.day = \(app\.day \+ 1\) % 7/.test(mainSrc),
+  dayChip: /setDay\(/.test(uiSrc) && /id="day"/.test(indexSrc),
+  gated: /venueStatus\(spec\)/.test(mainSrc) && mainSrc.includes('closed') && /toast/.test(mainSrc)
+};
+
 console.log(`  ${trailFootfall} forest trails · ${a.cars.length} drivable cars · ${(mainSrc.match(/drunk/g) || []).length} drunk-system hooks`);
+console.log(`  hours: Wed 00:30 ${hoursProbe.midNight ? 'open' : 'shut'} · ${hoursProbe.weekly} h/wk · “${hoursProbe.closingText}” · “${hoursProbe.openText}”`);
 
 gate.check('identical seed produces an identical world', hashA === hashB, hashA);
 gate.check('collision solver pushes a player out of a building', pushed > 0.5, `${pushed.toFixed(2)} m`);
@@ -80,6 +102,12 @@ gate.check('drunk state is part of the save payload', mainSrc.includes('drunk: p
 gate.check('stealing a car is wired to interaction and rewards', mainSrc.includes('Hot-wire this car') && mainSrc.includes("questEvent('steal')"), 'hot-wire → quest event');
 gate.check('forest trails are surrounded by trees (walkable woods)', trailFootfall >= 3 && treesPerTrail.every((n) => n > 12), `${trailFootfall} forest trails · ${treesPerTrail.join('/')} trees near each`);
 gate.check('tree trunks are solid but the woods stay passable', a.colliders.filter((c) => c.type === 'tree').length > 1000 && a.trees.length < 6000, `${a.colliders.filter((c) => c.type === 'tree').length} trunks · ${a.trees.length} trees`);
+gate.check('overnight opening hours wrap past midnight', hoursProbe.midNight && hoursProbe.saturdayEarly && !hoursProbe.beforeOpen && !hoursProbe.weekendShut, 'Tu-Sa 17:00-01:00');
+gate.check('24/7 and weekly totals are understood', hoursProbe.alwaysOpen && hoursProbe.weekly === 40, `40 h/wk · 24/7 = 168 h`);
+gate.check('closed venues say when they open again', /opens/.test(hoursProbe.closingText), hoursProbe.closingText);
+gate.check('open venues say when last orders are', /open until/.test(hoursProbe.openText), hoursProbe.openText);
+gate.check('the clock advances into a new day and can be waited out', hoursProbe.waiting && hoursProbe.dayChip, 'T waits · day chip');
+gate.check('closed doors are enforced, not decorative', hoursProbe.gated, 'enterInterior checks venueStatus');
 gate.check('body payloads are size limited', serverSrc.includes('payload too large'));
 gate.check('performance budget: windows + trees under 40k instances', estimateWindows(a.buildings) + a.trees.length < 40000, String(estimateWindows(a.buildings) + a.trees.length));
 

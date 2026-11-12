@@ -23,6 +23,7 @@ npm start            # http://localhost:5173        the game
 | `E` | interact — doors, tills, taps, train doors, NPCs, and hot-wiring a parked car |
 | `M` | town map · `J` journal/quests · `P` build agents · `Esc` pause |
 | `F` | get out of the car you are driving |
+| `T` (hold) | wait — the clock runs 55× faster until you let go |
 | `E` at a platform | board the 60a when the doors open |
 
 Start in the centre, walk north to Dudelange-Ville or south to Dudelange-Usines, buy groceries at
@@ -40,10 +41,15 @@ counter; two thefts complete the *Wheels of your own* quest.
 carved through 5 278 trees with 3 950 solid trunks, 1 920 clumps of fern and bramble, and eight
 glades with a fire ring and a lantern.
 
-**Pubs** — eight real cafés from OSM (Opa Café, Duke’s Bar, Bar’Rio, Café Italia, Yuppy Café,
-Red & Black, Café Medya, Café Benfica). Order at the bar, play darts, and watch the meter climb:
-the walk weaves, the camera rolls, speech slurs, the car gets harder to steer — and at 1.25 you
-wake up on a bench by the town hall a little poorer.
+**Pubs** — nine real cafés (Opa Café, Duke’s Bar, Bar’Rio, Café Italia, Yuppy Café, Red & Black,
+Café Medya, Café Benfica, Why Not). Order at the bar, play darts, and watch the meter climb: the
+walk weaves, the camera rolls, speech slurs, the car gets harder to steer — and at 1.25 you wake up
+on a bench by the town hall a little poorer.
+
+**Opening hours** — every shop, pub, restaurant, station hall and hotel runs on a real schedule.
+Monday at 07:00 the bakery counters are lit; Sunday at 15:00 the supermarkets are dark. A closed
+door refuses to open and tells you when to come back; Hold `T` and the clock fast-forwards until it does.
+The day chip in the HUD shows the weekday and a ⏩ while you wait.
 
 ## Getting around
 
@@ -63,13 +69,33 @@ walk between, five undergrowth clumps per 10 m² of forest edge, and four waymar
 Mont Saint-Jean, Parc Le’h, the valley and the ridge — cut through the trees with glades, log seats
 and lanterns where you can stop.
 
-**Pubs.** Four real Dudelange pubs are walkable: **Opa Café** (31 Place de l’Hôtel de Ville),
-**Duke’s Bar** (Rue de la Libération), **Bar’Rio** (Avenue Grande-Duchesse Charlotte, opposite the
-station) and **Café Italia** (Rue Grand-Duc Adolphe). Order at the bar: Bofferding, Diekirch, Battin
-fruité, Viez, Crémant, Quetsch, Kaffi mat Schnaps, or something soft. Every alcoholic drink fills the
+**Pubs.** Nine cafés are walkable: **Opa Café** (31 Place de l’Hôtel de Ville), **Duke’s Bar**
+(Rue de la Libération), **Bar’Rio** (Avenue Grande-Duchesse Charlotte, opposite the station),
+**Café Italia** (Rue Grand-Duc Adolphe), **Yuppy Café**, **Red & Black**, **Café Medya**,
+**Café Benfica** and **Why Not** (81 Avenue Grande-Duchesse Charlotte). Order at the bar: Bofferding,
+Diekirch, Battin fruité, Viez, Crémant, Quetsch, Kaffi mat Schnaps, or something soft. Every alcoholic drink fills the
 drunkenness meter: the camera rolls, your walk weaves, speech slurs, darts get worse, driving gets
 sloppier and the HUD blurs. Drink too much and you black out — you wake on a bench by the town hall,
 lighter by €15–40, and the meter resets to tipsy. Sober up by waiting or by drinking water.
+
+**Opening hours.** All 28 visitable interiors publish an OSM-style `opening_hours` string, parsed by
+`public/js/core/hours.js` — a small, dependency-free subset: day ranges (`Mo-Fr`), multiple services
+(`08:00-12:00,13:30-18:00`), overnight closing (`Tu-Sa 17:00-01:00` spills into the next morning),
+`off`, and `24/7`.
+
+| where | when |
+|---|---|
+| shops | Mon–Sat 06:00–22:00 (Cactus & Delhaize), Sunday 08:00–13:00 only |
+| restaurants | lunch + dinner, closed one weekday |
+| pubs | 17:00 → 01:00 midweek, 02:00–03:00 at the weekend |
+| station halls & the hotel | 05:00/24 h — the 60a runs late |
+
+Walk into a closed door and the prompt reads *“closed — opens Tu 17:00”*; `E` gives you a quiet
+blip instead of an interior. Hold `T` to wait: time runs 55× faster, the day chip turns to `Tue ⏩`,
+and the world rolls over to the next day at midnight. Each schedule carries `hoursSrc`: `web` for the
+venues whose published hours were looked up (Why Not), `typical` for the rest — plausible schedules
+in the right Luxembourg rhythm, never invented precision. Overnight specs, `24/7` and weekly totals
+are checked by both `tests/hours.test.mjs` and the retail/systems/qa gates.
 
 ## The multi-agent pipeline
 
@@ -92,7 +118,7 @@ Nine specialist agents each own a stage, a script and a set of acceptance gates.
 ```bash
 npm run pipeline          # all nine stages via the CLI
 npm run pipeline:qa       # qa + release only
-npm test                  # 17 invariants (world, cars, trains, forests, pubs, shell, importer)
+npm test                  # 22 invariants (world, cars, trains, forests, pubs, hours, shell, importer)
 npm run import:places -- dataset.json   # ingest a Google Maps dataset export
 ```
 
@@ -112,7 +138,12 @@ Every stage writes `data/reports/<agent>.json`, and the release agent composes
   park in front.
 - **Shops, restaurants and pubs** — real names and coordinates (Cactus, Proxy Delhaize, Match,
   Mamma Mia, La Charbonnade, Ebi Sushi, Douro, Amarcord, Steak House, Chang Man, Gamja, Parc Le'h,
-  Mille 9 Sens, Opa Café, Duke's Bar, Bar'Rio, Café Italia).
+  Mille 9 Sens, Opa Café, Duke's Bar, Bar'Rio, Café Italia, Yuppy Café, Red & Black, Café Medya,
+  Café Benfica, Why Not).
+- **Opening hours** — every interior carries `hours` + `hoursSrc`. Only Why Not uses its published
+  schedule (`web`); the others are `typical` Luxembourg rhythms, so the town shuts at night without
+  pretending to know a specific landlord's timetable. The Google importer carries real `openingHours`
+  through when you feed it a dataset.
 
 ### Importing richer venue data (Google Maps)
 
@@ -136,7 +167,7 @@ never edits the world by itself, and it flags places that fall outside the curre
 
 ```
 public/            index.html, agents.html, css, vendored three
-public/js/core/    town-data (real data), geo, world (generation), interiors, quests, train
+public/js/core/    town-data (real data), geo, world (generation), interiors, quests, train, hours
 public/js/game/    textures, world-render, ui, audio, main
 server/            zero-dependency http server + pipeline orchestrator
 scripts/           the nine agent stage scripts, shared _lib, import-places

@@ -36,13 +36,38 @@ approximation. `public/js/core/town-data.js` carries a `src` field on each entry
 | Red & Black | Route de Zoufftgen | Italien |
 | Café Medya | Rue Louis Pasteur | Burange |
 | Café Benfica | Rue de la Libération | Italien |
+| Why Not | 81 Avenue Grande-Duchesse Charlotte | centre |
+
+Why Not comes from Nominatim free-text search on `81 Avenue Grande-Duchesse Charlotte`
+(node 12097342638, 49.48014 / 6.08540); the 81 address number is the one published in its own
+opening-hours listing.
 
 Rue Grand-Duc Adolphe was added as a real OSM polyline (ways 137523303 / 273971692) so that
 Café Italia has a street in front of it instead of sitting in a field.
 
+## Opening hours
+
+Every visitable interior (`public/js/core/interiors.js`, `HOURS` table) carries two fields:
+
+| field | meaning |
+|---|---|
+| `hours` | an OSM `opening_hours` substring: day ranges, several services, overnight closes, `off`, `24/7` |
+| `hoursSrc` | `web` = published by the venue and looked up · `typical` = a plausible Luxembourg rhythm |
+
+Only **Why Not** is `web`: its listing gives Mon–Thu 10:00–01:00, Fri 10:00–01:00, Sat 10:00–03:00,
+Sun 14:00–03:00. Every other schedule is `typical` — legal Sunday closing for shops (08:00–13:00),
+restaurants with one rest day, pubs from late afternoon to 01:00/02:00/03:00 at the weekend, station
+halls open before the first 60a and 24/7 for the hotel. Nothing pretends to be a specific
+landlord's timetable. Feed a Google dataset through `npm run import:places` and its `openingHours`
+field is carried through so that a `web`-grade schedule can replace the typical one per venue.
+
+The engine (`public/js/core/hours.js`) is a dependency-free subset of the OSM spec, shared by the
+game, `npm test` and three pipeline gates (retail, systems, qa).
+
 ## Importing richer venue facts (Google Maps Scraper)
 
-The game's own data is OSM-based, so ratings, price brackets and opening hours are missing.
+The game's own data is OSM-based, so ratings and price brackets are missing, and most opening
+hours are the `typical` kind described above.
 `scripts/import-places.mjs` ingests a **Google Maps Scraper** dataset
 (`compass/crawler-google-places` on Apify) and normalises it into the project:
 

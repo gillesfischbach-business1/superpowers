@@ -10,6 +10,7 @@ import {
 } from '../core/geo.js';
 import { INTERIORS } from '../core/interiors.js';
 import { nextStopIndex as nextStopIndexCore, brakingSpeed } from '../core/train.js';
+import { parseHours, statusAt, describeStatus, formatMinutes, DAY_NAMES } from '../core/hours.js';
 import { QUESTS } from '../core/quests.js';
 import { createTown } from './world-render.js';
 import { UI } from './ui.js';
@@ -31,6 +32,8 @@ const app = {
   mode: 'loading',
   keys: Object.create(null),
   time: 8.5 * 60,
+  day: 2, // Tuesday — the town starts on a working day
+  waiting: false,
   weather: 'clear',
   night: 0,
   player: {
@@ -51,6 +54,34 @@ const app = {
 };
 
 const el = (id) => document.getElementById(id);
+
+/* ------------------------------------------------------------- open hours */
+const hoursCache = new Map();
+function hoursFor(spec) {
+  if (!spec || !spec.hours) return null;
+  let parsed = hoursCache.get(spec.hours);
+  if (!parsed) { parsed = parseHours(spec.hours); hoursCache.set(spec.hours, parsed); }
+  return parsed;
+}
+function venueStatus(spec) {
+  const parsed = hoursFor(spec);
+  if (!parsed) return { open: true, unknown: true };
+  return statusAt(parsed, app.day, app.time);
+}
+function venueStatusText(spec) {
+  const parsed = hoursFor(spec);
+  if (!parsed) return 'hours unknown';
+  return describeStatus(parsed, app.day, app.time);
+}
+function doorHint(interiorId) {
+  const spec = INTERIORS[interiorId];
+  if (!spec || !spec.hours) return '';
+  const st = venueStatus(spec);
+  if (st.unknown) return '';
+  if (st.open) return st.until >= 1439 ? ' · open all night' : ` · open until ${formatMinutes(st.until)}`;
+  const sameDay = st.opensDay === app.day;
+  return ` · closed, opens ${sameDay ? '' : DAY_NAMES[st.opensDay].slice(0, 3) + ' '}${formatMinutes(st.opensAt)}`;
+}
 
 /* --------------------------------------------------------------- bootstrap */
 init().catch((err) => {
@@ -641,7 +672,7 @@ function findInteractable() {
     if (d <= radius && (!best || d < best.d)) best = { ...obj, d, prompt };
   };
   for (const it of app.town.interactables) {
-    if (it.kind === 'door') consider(it, it.radius || 4.5, `Enter ${it.name}`);
+    if (it.kind === 'door') consider(it, it.radius || 4.5, `Enter ${it.name}${doorHint(it.interior)}`);
     if (it.kind === 'station') consider(it, 34, `${it.name} — station` );
   }
   for (const n of app.npcs) consider({ kind: 'npc', npc: n, x: n.x, z: n.z, name: n.name }, 3.6, `Talk to ${n.name}`);
@@ -831,6 +862,12 @@ let interiorState = null;
 function enterInterior(id, name) {
   const spec = INTERIORS[id];
   if (!spec) { app.ui.toast('That door is locked.'); return; }
+  const status = venueStatus(spec);
+  if (status.unknown === false && status.open === false) {
+    app.audio.blip(190, 0.09, 'square', 0.03);
+    app.ui.toast(`${name} is closed — ${venueStatusText(spec).replace(/^closed — /, '')}.`, 'bad');
+    return;
+  }
   app.audio.door();
   app.ui.flash();
   app.interior = { id, spec };
@@ -1343,8 +1380,10 @@ function frame() {
   const t = performance.now() / 1000;
 
   if (app.mode !== 'menu') {
-    app.time += dt * 0.55;
-    if (app.time > 1440) app.time -= 1440;
+    const waiting = (app.keys.KeyT && (app.mode === 'foot' || app.mode === 'interior')) ? 55 : 1;
+    app.waiting = waiting > 1;
+    app.time += dt * 0.55 * waiting;
+    while (app.time >= 1440) { app.time -= 1440; app.day = (app.day + 1) % 7; }
     updateDaylight();
   }
   updatePlayer(dt, t);
@@ -1629,6 +1668,7 @@ function updateHUD(force = false) {
   const weatherLabel = { clear: 'Clear', overcast: 'Overcast', rain: 'Rain', fog: 'Fog' }[app.weather] || 'Clear';
   const temp = Math.round(13 - app.night * 7 + (app.weather === 'rain' ? -2 : 0));
   app.ui.setClock(app.time, weatherLabel, temp);
+  app.ui.setDay(DAY_NAMES[app.day], app.waiting);
   app.ui.setCoords(ll.lat, ll.lon);
   app.ui.compass(p.yaw * 180 / Math.PI);
   app.ui.setMoney(p.money);

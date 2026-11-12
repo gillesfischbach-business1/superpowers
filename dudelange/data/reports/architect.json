@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T12:12:59.656Z",
+  "generatedAt": "2026-11-12T12:35:49.205Z",
   "agent": "architect",
   "styles": {
     "neischmelz": 16,
@@ -229,6 +229,17 @@
       "items": 5
     },
     {
+      "id": "why_not",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Danny",
+      "items": 7
+    },
+    {
       "id": "cafe_italia",
       "kind": "pub",
       "size": {
@@ -333,7 +344,7 @@
     {
       "label": "at least 15 visitable interiors",
       "ok": true,
-      "detail": "27"
+      "detail": "28"
     },
     {
       "label": "every interior is complete",

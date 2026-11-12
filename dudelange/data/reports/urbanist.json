@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T12:12:59.361Z",
+  "generatedAt": "2026-11-12T12:35:48.924Z",
   "agent": "urbanist",
   "buildings": 857,
   "perDistrict": {
@@ -53,6 +53,11 @@
     {
       "id": "bar_rio",
       "name": "Bar’Rio",
+      "src": "osm"
+    },
+    {
+      "id": "why_not",
+      "name": "Why Not",
       "src": "osm"
     },
     {
@@ -152,7 +157,7 @@
     {
       "label": "every pub is a real OSM venue you can walk into",
       "ok": true,
-      "detail": "8 pubs · 0 approximated"
+      "detail": "9 pubs · 0 approximated"
     }
   ]
 }

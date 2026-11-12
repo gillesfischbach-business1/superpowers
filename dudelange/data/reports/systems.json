@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T12:13:00.582Z",
+  "generatedAt": "2026-11-12T12:35:50.085Z",
   "agent": "systems",
   "worldHash": "957aea222dba6349",
   "collisionPushOut": 5.11,
@@ -14,7 +14,7 @@
     "/api/agents/stream"
   ],
   "questHooks": 11,
-  "interiorsWired": 27,
+  "interiorsWired": 28,
   "cars": {
     "count": 34,
     "pushOut": 1.92,
@@ -125,6 +125,36 @@
       "label": "tree trunks are solid but the woods stay passable",
       "ok": true,
       "detail": "3897 trunks · 5213 trees"
+    },
+    {
+      "label": "overnight opening hours wrap past midnight",
+      "ok": true,
+      "detail": "Tu-Sa 17:00-01:00"
+    },
+    {
+      "label": "24/7 and weekly totals are understood",
+      "ok": true,
+      "detail": "40 h/wk · 24/7 = 168 h"
+    },
+    {
+      "label": "closed venues say when they open again",
+      "ok": true,
+      "detail": "closed — opens Tu 17:00"
+    },
+    {
+      "label": "open venues say when last orders are",
+      "ok": true,
+      "detail": "open until 01:30 Fr"
+    },
+    {
+      "label": "the clock advances into a new day and can be waited out",
+      "ok": true,
+      "detail": "T waits · day chip"
+    },
+    {
+      "label": "closed doors are enforced, not decorative",
+      "ok": true,
+      "detail": "enterInterior checks venueStatus"
     },
     {
       "label": "body payloads are size limited",
