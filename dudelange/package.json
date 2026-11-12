@@ -10,7 +10,8 @@
     "pipeline:qa": "node scripts/run-pipeline.mjs qa",
     "test": "node --test tests/*.test.mjs",
     "import:places": "node scripts/import-places.mjs",
-    "serve": "node scripts/serve-forever.mjs --port 5173"
+    "serve": "node scripts/serve-forever.mjs --port 5173",
+    "pack": "node scripts/pack.mjs"
   },
   "keywords": [],
   "author": "",

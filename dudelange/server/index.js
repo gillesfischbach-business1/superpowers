@@ -194,6 +194,25 @@ const server = http.createServer(async (req, res) => {
     /* ------------------------------------------------------- static */
     if (pathname === '/agents' || pathname === '/agents/') return serveFile(res, path.join(PUBLIC, 'agents.html'));
     if (pathname === '/diag' || pathname === '/diag/') return serveFile(res, path.join(PUBLIC, 'diag.html'));
+    if (pathname === '/download' || pathname === '/download/' || pathname === '/download/diddeleng.zip') {
+      const zips = fs.existsSync(ROOT)
+        ? fs.readdirSync(ROOT).filter((f) => f.startsWith('diddeleng-') && f.endsWith('.zip'))
+        : [];
+      if (!zips.length) {
+        return json(res, 404, { error: 'no zip yet — run `npm run pack`' });
+      }
+      zips.sort((a, b) => fs.statSync(path.join(ROOT, b)).mtimeMs - fs.statSync(path.join(ROOT, a)).mtimeMs);
+      const file = path.join(ROOT, zips[0]);
+      const stat = fs.statSync(file);
+      res.writeHead(200, {
+        'content-type': 'application/zip',
+        'content-length': stat.size,
+        'content-disposition': `attachment; filename="${zips[0]}"`,
+        'cache-control': 'no-store'
+      });
+      return fs.createReadStream(file).pipe(res);
+    }
+
     if (pathname === '/vendor/three.module.js') return serveFile(res, path.join(ROOT, 'node_modules', 'three', 'build', 'three.module.js'));
     if (pathname === '/vendor/three.core.js') return serveFile(res, path.join(ROOT, 'node_modules', 'three', 'build', 'three.core.js'));
 
