@@ -27,9 +27,12 @@ test('the game boots through world build and reaches the renderer', async () => 
   const report = errors.join('\n');
   const box = byId('errors');
 
-  // Node has no WebGL. Reaching that point proves the module graph loaded, the
-  // classes were initialised in the right order, and the world was generated.
-  assert.match(report, /WebGL/i, `boot never reached the renderer:\n${report}`);
+  // With a stubbed WebGL 2 context the whole boot has to complete: module graph,
+  // class order, world generation, town render, UI, quests, save load.
+  assert.equal(errors.length, 0, `boot logged errors:\n${report}`);
+  assert.equal(String(box.textContent), '', `error box is not empty: ${box.textContent}`);
+  assert.equal(String(byId('loadtext').textContent), 'Dudelange is ready.');
+  assert.match(String(globalThis.__diddelengPhase || ''), /Release/i, 'boot did not reach the release step');
 
   for (const fatal of ['is not defined', 'Cannot access', 'before initialization', 'does not provide an export', 'is not a function', 'Cannot read properties of undefined']) {
     assert.ok(!report.includes(fatal), `boot crashed before the GPU: ${fatal}\n${report}`);

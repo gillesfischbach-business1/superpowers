@@ -18,6 +18,7 @@ const ROOT = path.resolve(__dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
 const SAVES = path.join(ROOT, 'data', 'saves');
 const REPORTS = path.join(ROOT, 'data', 'reports');
+const CLIENT_ERRORS = [];   // last failures reported by a real browser
 const PORT = Number(process.env.PORT || 5173);
 const HOST = process.env.HOST || '0.0.0.0';
 
@@ -114,6 +115,27 @@ const server = http.createServer(async (req, res) => {
         saves: (await listSaves()).length,
         pipeline: pipeline.status()
       });
+    }
+
+    if (pathname === '/api/errors') {
+      if (req.method === 'POST') {
+        const body = await readBody(req, 16 * 1024).catch(() => null);
+        if (!body) return json(res, 400, { error: 'bad body' });
+        const entry = {
+          at: new Date().toISOString(),
+          kind: String(body.kind || 'error').slice(0, 40),
+          phase: String(body.phase || '').slice(0, 80),
+          message: String(body.message || '').slice(0, 900),
+          stack: String(body.stack || '').slice(0, 2500),
+          url: String(body.url || '').slice(0, 300),
+          ua: String(body.ua || '').slice(0, 300)
+        };
+        CLIENT_ERRORS.push(entry);
+        while (CLIENT_ERRORS.length > 25) CLIENT_ERRORS.shift();
+        console.log(`  client ${entry.kind} [${entry.phase || 'boot'}]: ${entry.message}`);
+        return json(res, 200, { ok: true });
+      }
+      return json(res, 200, { errors: CLIENT_ERRORS.slice().reverse(), count: CLIENT_ERRORS.length });
     }
 
     if (pathname === '/api/world/meta') {

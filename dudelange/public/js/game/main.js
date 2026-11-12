@@ -85,6 +85,15 @@ function doorHint(interiorId) {
 
 async function init() {
   window.__diddelengBooted = true;
+
+  // Fail fast and clearly: three.js needs WebGL 2, and a sandboxed preview frame
+  // is exactly the place that refuses to hand one out.
+  const probe = document.createElement('canvas');
+  if (!probe.getContext('webgl2')) {
+    throw new Error('WebGL 2 is not available in this browser or frame — the 3D view cannot start. '
+      + 'Enable hardware acceleration, open the game in its own tab, or use the single-file build (/standalone).');
+  }
+
   app.ui = new UIEmpty();
   app.ui.setLoadProgress(0.04, 'Reading the geography of the Minett…');
   step('Cartographer — OSM anchors, streets, rail line 60a');
@@ -129,6 +138,7 @@ async function init() {
   step('Release — build report written to data/reports');
   app.mode = 'menu';
   app.renderer.setAnimationLoop(frame);
+  if (window.__diddelengReport) window.__diddelengReport('booted', 'renderer running', '');
   app.ui.ready(() => {
     app.mode = 'foot';
     app.audio.resume();
@@ -138,7 +148,10 @@ async function init() {
 }
 
 function tick() { return new Promise((r) => setTimeout(r, 90)); }
-function step(text) { app.ui.loadingStep(`✓ ${text}`); }
+function step(text) {
+  window.__diddelengPhase = text;              // reported with any boot failure
+  app.ui.loadingStep(`✓ ${text}`);
+}
 
 class UIEmpty {
   loadingStep(t) { const li = document.createElement('li'); li.textContent = t; document.getElementById('loadsteps').appendChild(li); }
@@ -1803,11 +1816,15 @@ async function pollAgents(force) {
 init().catch((err) => {
   console.error(err);
   const message = String((err && err.message) || err);
-  const noGpu = /WebGL|webgl|GPU/i.test(message);
-  const box = el('errors');
-  box.classList.remove('hidden');
-  box.textContent = `Game failed to start:\n${err && err.stack ? err.stack : err}`;
-  el('loadtext').textContent = noGpu
-    ? 'This browser did not give the page a WebGL context — try opening the game in its own tab.'
-    : 'Something went wrong — see the error log bottom-left.';
+  const stack = String((err && err.stack) || '');
+  // One rendering path for every failure: the guard in index.html owns the
+  // panel, so a boot error and a stray exception look the same to the player.
+  if (window.__diddelengFail) window.__diddelengFail(message, stack);
+  else {
+    if (window.__diddelengReport) window.__diddelengReport('boot', message, stack);
+    const box = el('errors');
+    box.classList.remove('hidden');
+    box.textContent = `Game failed to start:\n${stack || message}`;
+    el('loadtext').textContent = 'Something went wrong — see the error box bottom-left.';
+  }
 });

@@ -11,25 +11,93 @@
 </script>
 <script>
   // A module that fails to load never reaches the game's own try/catch, which
-  // used to leave the loading screen frozen with no explanation.
+  // used to leave the loading screen frozen with no explanation. So the failure
+  // path lives here, in plain script: it survives a broken bundle, it reports
+  // the phase it died in, and it says out loud whether the frame gave the page
+  // a WebGL context at all.
   (function () {
-    var reported = false;
-    function fail(message) {
+    var reported = false;   // the panel is already showing
+    var beaconSent = false; // the server already knows about this failure
+
+    function diagnostics() {
+      var d = { phase: window.__diddelengPhase || 'boot', webgl2: 'unknown', webgl1: 'unknown', storage: 'unknown', frame: 'unknown', protocol: location.protocol };
+      try {
+        var c = document.createElement('canvas');
+        d.webgl2 = c.getContext('webgl2') ? 'yes' : 'no';
+        d.webgl1 = (c.getContext('webgl') || c.getContext('experimental-webgl')) ? 'yes' : 'no';
+      } catch (e) { d.webgl2 = 'threw: ' + (e && e.message); }
+      try { localStorage.getItem('__diddeleng_probe'); d.storage = 'yes'; } catch (e) { d.storage = 'blocked (' + (e && e.name) + ')'; }
+      try { d.frame = window.top === window ? 'top-level' : 'embedded'; } catch (e) { d.frame = 'cross-origin embedded'; }
+      return d;
+    }
+
+    function report(kind, message, stack) {
+      try {
+        var payload = JSON.stringify({
+          kind: kind, phase: window.__diddelengPhase || 'boot', message: String(message || ''),
+          stack: String(stack || ''), url: location.href, ua: navigator.userAgent, diag: diagnostics()
+        });
+        if (navigator.sendBeacon) navigator.sendBeacon('/api/errors', new Blob([payload], { type: 'application/json' }));
+        else fetch('/api/errors', { method: 'POST', headers: { 'content-type': 'application/json' }, body: payload, keepalive: true }).catch(function () {});
+        beaconSent = true;
+      } catch (e) { /* reporting must never throw */ }
+    }
+
+    function el(tag, text) { var n = document.createElement(tag); if (text) n.textContent = text; return n; }
+
+    function fail(message, stack) {
       if (reported) return;
       reported = true;
-      var box = document.getElementById('errors');
       var text = document.getElementById('loadtext');
-      if (box) { box.classList.remove('hidden'); box.textContent = 'Game failed to start:\n' + message; }
-      if (text) text.textContent = 'Something went wrong — see the error box bottom-left.';
+      if (!beaconSent) report('boot', message, stack);
+      var d = diagnostics();
+      var box = document.getElementById('errors');
+      if (box) {
+        box.classList.remove('hidden');
+        box.textContent = '';
+        box.appendChild(el('b', 'Game failed to start'));
+        box.appendChild(el('div', String(message || 'unknown error')));
+        box.appendChild(el('div', 'phase: ' + d.phase + ' · WebGL 2: ' + d.webgl2 + ' · ' + d.frame + ' · storage: ' + d.storage));
+        if (d.webgl2 === 'no') {
+          box.appendChild(el('div', 'The 3D view needs WebGL 2, and this frame refused to provide one. '
+            + 'Open the game in its own browser tab, or play the single-file build, which runs without the server.'));
+        }
+        if (location.protocol.indexOf('http') === 0) {
+          var links = el('div');
+          var own = el('a', 'open the single-file build in a new tab ↗');
+          own.href = '/standalone'; own.target = '_blank'; own.rel = 'noopener';
+          var dl = el('a', 'download it');
+          dl.href = '/download/standalone.html';
+          links.appendChild(own); links.appendChild(document.createTextNode(' · ')); links.appendChild(dl);
+          links.style.cssText = 'margin-top:8px;display:flex;gap:8px;flex-wrap:wrap';
+          box.appendChild(links);
+        }
+        if (stack) {
+          var more = document.createElement('details');
+          more.appendChild(el('summary', 'technical detail'));
+          var pre = el('pre', String(stack)); pre.style.cssText = 'white-space:pre-wrap;max-height:30vh;overflow:auto';
+          more.appendChild(pre);
+          box.appendChild(more);
+        }
+      }
+      if (text) text.textContent = d.webgl2 === 'no'
+        ? 'This browser or frame did not give the page WebGL 2 — see the error box bottom-left.'
+        : 'Something went wrong — see the error box bottom-left.';
     }
+
+    window.__diddelengReport = report;
+    window.__diddelengFail = fail;
+
     window.addEventListener('error', function (e) {
       var msg = (e && e.message) || 'the page failed to load';
-      if (/WebGL/i.test(msg)) msg += '  (this browser or iframe is not giving the page a WebGL context)';
-      fail(msg);
+      report('error', msg, e && e.error && e.error.stack);
+      fail(msg, e && e.error && e.error.stack);
     }, true);
     window.addEventListener('unhandledrejection', function (e) {
       var r = e && e.reason;
-      fail((r && (r.stack || r.message)) || String(r));
+      var text = (r && (r.stack || r.message)) || String(r);
+      report('rejection', (r && r.message) || text, r && r.stack);
+      fail((r && r.message) || text, r && r.stack);
     });
     setTimeout(function () {
       if (window.__diddelengBooted) return;

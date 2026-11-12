@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-12T14:44:58.881Z",
+  "updated": "2026-11-12T23:08:01.583Z",
   "running": false,
-  "eventId": 40,
+  "eventId": 42,
   "agents": {
     "cartographer": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:56.564Z",
+      "startedAt": "2026-11-12T23:07:59.394Z",
       "log": [
         "Cartographer — reading OpenStreetMap anchors for Dudelange",
         "  40 anchors · 16 named streets · 25 road polylines overall",
@@ -21,12 +21,12 @@
         "report → data/reports/cartographer.json"
       ],
       "exitCode": 0,
-      "duration": 266,
-      "finishedAt": "2026-11-12T14:44:56.833Z"
+      "duration": 297,
+      "finishedAt": "2026-11-12T23:07:59.693Z"
     },
     "geologist": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:56.835Z",
+      "startedAt": "2026-11-12T23:07:59.694Z",
       "log": [
         "Geologist — sampling the Diddelengerbaach valley and the Minett cuesta",
         "  north–south profile: 285 m … 331 m (EU-DEM mean 317 m)",
@@ -41,12 +41,12 @@
         "report → data/reports/geologist.json"
       ],
       "exitCode": 0,
-      "duration": 275,
-      "finishedAt": "2026-11-12T14:44:57.111Z"
+      "duration": 247,
+      "finishedAt": "2026-11-12T23:07:59.943Z"
     },
     "urbanist": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:57.112Z",
+      "startedAt": "2026-11-12T23:07:59.944Z",
       "log": [
         "Urbanist — cutting lots along the real street network",
         "  857 buildings · 100 streets · 45.39 km",
@@ -78,12 +78,12 @@
         "report → data/reports/urbanist.json"
       ],
       "exitCode": 0,
-      "duration": 312,
-      "finishedAt": "2026-11-12T14:44:57.425Z"
+      "duration": 302,
+      "finishedAt": "2026-11-12T23:08:00.248Z"
     },
     "architect": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:57.426Z",
+      "startedAt": "2026-11-12T23:08:00.249Z",
       "log": [
         "Architect — facades, roofscapes and furnished interiors",
         "  7 architectural styles · 31,224 windows · 239 shopfronts",
@@ -106,12 +106,12 @@
         "report → data/reports/architect.json"
       ],
       "exitCode": 0,
-      "duration": 282,
-      "finishedAt": "2026-11-12T14:44:57.709Z"
+      "duration": 258,
+      "finishedAt": "2026-11-12T23:08:00.508Z"
     },
     "rail-engineer": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:57.710Z",
+      "startedAt": "2026-11-12T23:08:00.509Z",
       "log": [
         "Rail engineer — line 60a, four stops, underpasses and tunnels",
         "  northbound: Burange@60.3s → Ville@132.5s → Centre@182.5s",
@@ -128,12 +128,12 @@
         "report → data/reports/rail.json"
       ],
       "exitCode": 0,
-      "duration": 285,
-      "finishedAt": "2026-11-12T14:44:57.996Z"
+      "duration": 264,
+      "finishedAt": "2026-11-12T23:08:00.774Z"
     },
     "retail-hospitality": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:57.997Z",
+      "startedAt": "2026-11-12T23:08:00.775Z",
       "log": [
         "Retail & hospitality — stocking shops and writing menus",
         "  3 supermarkets · 9 restaurants · 9 pubs · 72 purchasable lines",
@@ -166,12 +166,12 @@
         "report → data/reports/retail.json"
       ],
       "exitCode": 0,
-      "duration": 40,
-      "finishedAt": "2026-11-12T14:44:58.038Z"
+      "duration": 37,
+      "finishedAt": "2026-11-12T23:08:00.813Z"
     },
     "systems": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:58.039Z",
+      "startedAt": "2026-11-12T23:08:00.814Z",
       "log": [
         "Systems engineer — determinism, collisions, saves and the UI contract",
         "  world hash 957aea222dba6349 (857 buildings, 5213 trees)",
@@ -209,12 +209,12 @@
         "report → data/reports/systems.json"
       ],
       "exitCode": 0,
-      "duration": 518,
-      "finishedAt": "2026-11-12T14:44:58.558Z"
+      "duration": 469,
+      "finishedAt": "2026-11-12T23:08:01.284Z"
     },
     "qa": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:58.559Z",
+      "startedAt": "2026-11-12T23:08:01.285Z",
       "log": [
         "QA — the gatekeeper. Reachability, geometry, budgets, content.",
         "  upstream reports 7/7 · failed 0",
@@ -251,12 +251,12 @@
         "  QA wrote qa.json"
       ],
       "exitCode": 0,
-      "duration": 279,
-      "finishedAt": "2026-11-12T14:44:58.839Z"
+      "duration": 259,
+      "finishedAt": "2026-11-12T23:08:01.545Z"
     },
     "release": {
       "status": "done",
-      "startedAt": "2026-11-12T14:44:58.840Z",
+      "startedAt": "2026-11-12T23:08:01.546Z",
       "log": [
         "Release manager — collecting reports and stamping the build",
         "  ✔ all eight upstream reports exist",
@@ -268,8 +268,8 @@
         "  → docs/build-report.md"
       ],
       "exitCode": 0,
-      "duration": 39,
-      "finishedAt": "2026-11-12T14:44:58.880Z"
+      "duration": 35,
+      "finishedAt": "2026-11-12T23:08:01.582Z"
     }
   }
 }
