@@ -76,5 +76,7 @@ writeReport('retail.json', {
     alcoholic: (spec.shop.items || []).filter((d) => d.booze > 0).length,
     soft: (spec.shop.items || []).filter((d) => !(d.booze > 0)).length
   })), strongestDrink: +Math.max(...drinks.map((d) => d.booze)).toFixed(2),
+  hours: venues.map((v) => ({ id: v.id, spec: v.hours, src: v.src, ref: v.ref || null, weekly: +weeklyHours(v.parsed).toFixed(1) })),
+  hoursSourced: sourced.length, hoursTypical: venues.length - sourced.length,
   catalogue: allItems, ...gate.finish()
 });

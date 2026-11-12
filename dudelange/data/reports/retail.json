@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T12:39:52.247Z",
+  "generatedAt": "2026-11-12T12:40:11.382Z",
   "agent": "retail",
   "supermarkets": 3,
   "restaurants": 9,
@@ -92,6 +92,206 @@
     }
   ],
   "strongestDrink": 0.38,
+  "hours": [
+    {
+      "id": "delhaize",
+      "spec": "Mo-Sa 07:30-20:00; Su 07:30-13:00",
+      "src": "web",
+      "ref": "delhaize.lu / Proxy Dudelange, 59A Route de Zoufftgen",
+      "weekly": 80.5
+    },
+    {
+      "id": "match",
+      "spec": "Mo-Sa 08:00-20:00; Su off",
+      "src": "typical",
+      "ref": null,
+      "weekly": 72
+    },
+    {
+      "id": "cactus",
+      "spec": "Mo-Sa 05:00-23:00; Su 09:00-21:00",
+      "src": "web",
+      "ref": "cactus.lu / Cactus shoppi Dudelange Esso, 214 Route de Luxembourg",
+      "weekly": 120
+    },
+    {
+      "id": "mamma_mia",
+      "spec": "Tu-Su 11:30-14:00,18:30-22:30; Mo off",
+      "src": "web",
+      "ref": "restaurantguru + gastronomie.lu, 27 Pl. de l’Hôtel de Ville",
+      "weekly": 39
+    },
+    {
+      "id": "charbonnade",
+      "spec": "Tu-Sa 11:00-14:00,18:00-22:00; Su,Mo off",
+      "src": "web",
+      "ref": "restaurantguru, 10 Rue du Commerce",
+      "weekly": 35
+    },
+    {
+      "id": "parc_leh",
+      "spec": "Tu-Su 12:00-14:00,19:00-22:00; Mo off",
+      "src": "web",
+      "ref": "restaurant-parcleh.lu, 1 Rue de la Forêt",
+      "weekly": 30
+    },
+    {
+      "id": "amarcord",
+      "spec": "Mo-Su 10:00-23:00",
+      "src": "web",
+      "ref": "tripadvisor + restaurantguru, 1a Rue du Centenaire",
+      "weekly": 91
+    },
+    {
+      "id": "chang_man",
+      "spec": "Mo 11:30-14:30,18:00-22:00; Tu off; We-Su 11:30-14:30,18:00-22:00",
+      "src": "web",
+      "ref": "changman.lu, 99 Rue de la Libération",
+      "weekly": 42
+    },
+    {
+      "id": "steak_house",
+      "spec": "We 18:30-22:00; Th-Su 12:00-14:00,18:30-22:00; Mo,Tu off",
+      "src": "web",
+      "ref": "steakhousedudelang.wixsite.com, 13 Rue du Commerce",
+      "weekly": 25.5
+    },
+    {
+      "id": "douro",
+      "spec": "Tu-Su 11:45-13:45,18:30-21:15; Mo off",
+      "src": "web",
+      "ref": "restaurantguru + miammiam.lu, 229 Rue de la Libération",
+      "weekly": 28.5
+    },
+    {
+      "id": "sushi_ebi",
+      "spec": "Tu-Fr 11:00-14:00,17:30-22:00; Sa 17:30-22:00; Su 11:30-14:00,17:30-22:00; Mo off",
+      "src": "web",
+      "ref": "restaurantguru, near Dudelange-Ville station",
+      "weekly": 41.5
+    },
+    {
+      "id": "gamja",
+      "spec": "Mo 18:00-22:00; Tu-Sa 12:00-14:00,18:00-22:00; Su 12:00-14:00",
+      "src": "web",
+      "ref": "restaurantguru + tripadvisor, 11 Pl. de l’Hôtel de Ville",
+      "weekly": 36
+    },
+    {
+      "id": "opa_cafe",
+      "spec": "Mo-Sa 08:00-01:00; Su 09:00-24:00",
+      "src": "typical",
+      "ref": null,
+      "weekly": 117
+    },
+    {
+      "id": "dukes_bar",
+      "spec": "Mo-Th 10:00-01:00; Fr,Sa 10:00-03:00; Su 10:00-01:00",
+      "src": "web",
+      "ref": "restaurantguru, 15 Rue de la Libération",
+      "weekly": 109
+    },
+    {
+      "id": "bar_rio",
+      "spec": "Mo-Sa 06:00-01:00; Su 07:00-01:00",
+      "src": "web",
+      "ref": "restaurantguru + polomap, 6 Av. Grande-Duchesse Charlotte",
+      "weekly": 132
+    },
+    {
+      "id": "yuppy_cafe",
+      "spec": "Mo-Th 08:00-21:00; Fr 08:00-23:00; Sa 09:00-20:00; Su 09:00-19:00",
+      "src": "web",
+      "ref": "yellow.lu + restaurantguru, 32 Av. Grande-Duchesse Charlotte",
+      "weekly": 88
+    },
+    {
+      "id": "red_black",
+      "spec": "Mo-Th 17:00-01:00; Fr-Sa 17:00-03:00; Su 15:00-24:00",
+      "src": "typical",
+      "ref": null,
+      "weekly": 61
+    },
+    {
+      "id": "medya",
+      "spec": "Mo-Su 08:00-23:00",
+      "src": "typical",
+      "ref": null,
+      "weekly": 105
+    },
+    {
+      "id": "cafe_benfica",
+      "spec": "Mo 09:00-18:00; Tu 09:00-01:00; We,Th 09:00-23:00; Fr,Sa 09:00-01:00; Su 09:00-18:00",
+      "src": "web",
+      "ref": "infobel + waze, 179 Rue de la Libération",
+      "weekly": 94
+    },
+    {
+      "id": "why_not",
+      "spec": "Mo-Th 10:00-01:00; Fr 10:00-01:00; Sa 10:00-03:00; Su 14:00-03:00",
+      "src": "web",
+      "ref": "venue listing, 81 Av. Grande-Duchesse Charlotte",
+      "weekly": 105
+    },
+    {
+      "id": "cafe_italia",
+      "spec": "Mo-Sa 09:00-01:00; Su 09:00-23:00",
+      "src": "typical",
+      "ref": null,
+      "weekly": 110
+    },
+    {
+      "id": "townhall",
+      "spec": "Mo-Fr 08:30-11:30,13:30-16:30; Sa-Su off",
+      "src": "typical",
+      "ref": null,
+      "weekly": 30
+    },
+    {
+      "id": "church",
+      "spec": "Mo-Su 08:00-19:00",
+      "src": "typical",
+      "ref": null,
+      "weekly": 77
+    },
+    {
+      "id": "cna",
+      "spec": "Tu-Su 10:00-18:00; Mo off",
+      "src": "typical",
+      "ref": null,
+      "weekly": 48
+    },
+    {
+      "id": "rolling_mill",
+      "spec": "Mo-Su 09:00-20:00",
+      "src": "typical",
+      "ref": null,
+      "weekly": 77
+    },
+    {
+      "id": "station",
+      "spec": "24/7",
+      "src": "typical",
+      "ref": null,
+      "weekly": 168
+    },
+    {
+      "id": "hotel",
+      "spec": "24/7",
+      "src": "typical",
+      "ref": null,
+      "weekly": 168
+    },
+    {
+      "id": "school",
+      "spec": "Mo-Fr 07:00-17:00; Sa-Su off",
+      "src": "typical",
+      "ref": null,
+      "weekly": 50
+    }
+  ],
+  "hoursSourced": 16,
+  "hoursTypical": 12,
   "catalogue": [
     {
       "id": "milk",
