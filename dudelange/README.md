@@ -103,6 +103,17 @@ plausible Luxembourg rhythms rather than invented precision. Overnight specs, `2
 totals are checked by `tests/hours.test.mjs` and the retail/systems/qa gates, including that every
 sourced schedule names where it came from.
 
+## Download it as one file
+
+```bash
+npm run pack        # → diddeleng-<version>-<sha>.zip  (commit-exact, via git archive)
+npm run pack -- --out ~/Downloads/diddeleng.zip
+```
+
+The archive is the committed tree — 92 files, ~2.7 MB unpacked, no `node_modules`, no save files —
+and it runs on its own: unzip, `npm install` (one dependency: three), `npm start`. While the preview
+is up it is also served at `/download/diddeleng.zip` (linked from `/diag`).
+
 ## The multi-agent pipeline
 
 Nine specialist agents each own a stage, a script and a set of acceptance gates. The orchestrator
