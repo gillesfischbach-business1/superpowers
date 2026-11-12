@@ -1,6 +1,7 @@
 {
-  "generatedAt": "2026-11-12T12:40:12.146Z",
+  "generatedAt": "2026-11-12T14:33:41.409Z",
   "agent": "qa",
+  "clientModules": 12,
   "hours": {
     "openNoon": 24,
     "openLate": 9,
@@ -122,6 +123,21 @@
       "label": "station platforms sit above the rail bed",
       "ok": true,
       "detail": ""
+    },
+    {
+      "label": "every client import resolves to a real export",
+      "ok": true,
+      "detail": "12 modules"
+    },
+    {
+      "label": "the page loads the whole client bundle",
+      "ok": true,
+      "detail": "12 modules reachable"
+    },
+    {
+      "label": "the client bundle has no import cycles",
+      "ok": true,
+      "detail": "none"
     },
     {
       "label": "every visitable interior runs on a real schedule",

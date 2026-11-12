@@ -9,6 +9,35 @@
 <script type="importmap">
   { "imports": { "three": "/vendor/three.module.js" } }
 </script>
+<script>
+  // A module that fails to load never reaches the game's own try/catch, which
+  // used to leave the loading screen frozen with no explanation.
+  (function () {
+    var reported = false;
+    function fail(message) {
+      if (reported) return;
+      reported = true;
+      var box = document.getElementById('errors');
+      var text = document.getElementById('loadtext');
+      if (box) { box.classList.remove('hidden'); box.textContent = 'Game failed to start:\n' + message; }
+      if (text) text.textContent = 'Something went wrong — see the error box bottom-left.';
+    }
+    window.addEventListener('error', function (e) {
+      var msg = (e && e.message) || 'the page failed to load';
+      if (/WebGL/i.test(msg)) msg += '  (this browser or iframe is not giving the page a WebGL context)';
+      fail(msg);
+    }, true);
+    window.addEventListener('unhandledrejection', function (e) {
+      var r = e && e.reason;
+      fail((r && (r.stack || r.message)) || String(r));
+    });
+    setTimeout(function () {
+      if (window.__diddelengBooted) return;
+      var text = document.getElementById('loadtext');
+      if (text) text.textContent = 'Still loading… if this persists, open the browser console.';
+    }, 12000);
+  })();
+</script>
 </head>
 <body>
 <canvas id="game"></canvas>

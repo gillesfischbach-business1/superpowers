@@ -3,9 +3,9 @@
  * Boot, player controller, vehicles, train line 60a, interiors, quests, save.
  */
 import * as THREE from 'three';
-import { buildWorld } from '../core/world.js';
+import { buildWorld, resolveCollisions } from '../core/world.js';
 import {
-  terrainHeight, terrainNormal, project, unproject, clamp, lerp, resolveCollisions,
+  terrainHeight, terrainNormal, project, unproject, clamp, lerp,
   polylineAt, resamplePolyline, polylineLength, closestOnPolyline
 } from '../core/geo.js';
 import { INTERIORS } from '../core/interiors.js';
@@ -83,16 +83,8 @@ function doorHint(interiorId) {
   return ` · closed, opens ${sameDay ? '' : DAY_NAMES[st.opensDay].slice(0, 3) + ' '}${formatMinutes(st.opensAt)}`;
 }
 
-/* --------------------------------------------------------------- bootstrap */
-init().catch((err) => {
-  console.error(err);
-  const box = el('errors');
-  box.classList.remove('hidden');
-  box.textContent = `Game failed to start:\n${err && err.stack ? err.stack : err}`;
-  el('loadtext').textContent = 'Something went wrong — see the error log bottom-left.';
-});
-
 async function init() {
+  window.__diddelengBooted = true;
   app.ui = new UIEmpty();
   app.ui.setLoadProgress(0.04, 'Reading the geography of the Minett…');
   step('Cartographer — OSM anchors, streets, rail line 60a');
@@ -1806,3 +1798,16 @@ async function pollAgents(force) {
     }
   } catch (e) { /* server without pipeline */ }
 }
+
+/* --------------------------------------------------------------- bootstrap */
+init().catch((err) => {
+  console.error(err);
+  const message = String((err && err.message) || err);
+  const noGpu = /WebGL|webgl|GPU/i.test(message);
+  const box = el('errors');
+  box.classList.remove('hidden');
+  box.textContent = `Game failed to start:\n${err && err.stack ? err.stack : err}`;
+  el('loadtext').textContent = noGpu
+    ? 'This browser did not give the page a WebGL context — try opening the game in its own tab.'
+    : 'Something went wrong — see the error log bottom-left.';
+});

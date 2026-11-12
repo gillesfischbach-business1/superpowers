@@ -5,6 +5,7 @@ import { circleHitsBox, closestOnPolyline, terrainHeight } from '../public/js/co
 import { INTERIORS } from '../public/js/core/interiors.js';
 import { QUESTS } from '../public/js/core/quests.js';
 import { parseHours, isOpenAt, describeStatus } from '../public/js/core/hours.js';
+import { auditModuleGraph } from './_module-graph.mjs';
 
 console.log('QA — the gatekeeper. Reachability, geometry, budgets, content.');
 const gate = new Gate('qa');
@@ -36,6 +37,11 @@ const interiorIds = new Set(Object.keys(INTERIORS));
 const badInteriorRefs = world.landmarks.filter((l) => l.interior && !interiorIds.has(l.interior));
 const questProblems = QUESTS.filter((q) => !q.title || !q.desc || !(q.money >= 0) || !(q.xp > 0));
 
+// the browser bundle: a missing export is a blank page, not a warning
+const graph = auditModuleGraph();
+const html = fs.readFileSync(path.join(process.cwd(), 'public', 'index.html'), 'utf8');
+const entryInHtml = /<script[^>]*type="module"[^>]*src="\/js\/game\/main\.js"/.test(html);
+
 // a day in the life: the town has to work at noon and at midnight
 const venues = Object.entries(INTERIORS);
 const badHours = venues.filter(([, spec]) => !spec.hours || !parseHours(spec.hours).ok);
@@ -49,6 +55,7 @@ const badStations = world.rail.stations.filter((s) => !(s.platformY > s.elevatio
 console.log(`  upstream reports ${reports.length - missing.length}/${reports.length} · failed ${failed.length}`);
 console.log(`  ${world.pois.length} POIs · ${world.doors.length} doors · ${Object.keys(INTERIORS).length} interiors`);
 console.log(`  ${world.cars.length} cars · ${(world.forestPaths || []).length} trails · ${world.clearings.length} glades`);
+console.log(`  client bundle: ${graph.modules.length} modules · ${graph.problems.length} broken imports · ${graph.cycles.length} cycles · entry ${entryInHtml ? 'wired' : 'MISSING'}`);
 console.log(`  hours: ${openNoon.length}/${venues.length} open Tue noon · ${openLate.length} open Fri 23:00 · ${badHours.length} unparseable`);
 console.log(`  instances: ${windows} windows, ${world.trees.length} trees, ${world.props.length} props → budget ${instanceBudget}`);
 
@@ -73,6 +80,9 @@ gate.check('no car is parked on the rail line', railDanger.length === 0, `${rail
 gate.check('every car has a colour, a quarter and finite coordinates', badCars.length === 0, `${world.cars.length} cars`);
 gate.check('forest trails stay inside the world bounds', trailsOffMap.length === 0, `${(world.forestPaths || []).length} trails`);
 gate.check('station platforms sit above the rail bed', badStations.length === 0);
+gate.check('every client import resolves to a real export', graph.problems.length === 0, graph.problems.join(' · ') || `${graph.modules.length} modules`);
+gate.check('the page loads the whole client bundle', entryInHtml && graph.modules.length >= 12, `${graph.modules.length} modules reachable`);
+gate.check('the client bundle has no import cycles', graph.cycles.length === 0, graph.cycles.join(' · ') || 'none');
 gate.check('every visitable interior runs on a real schedule', badHours.length === 0, badHours.map(([id, spec]) => `${id}: ${spec.hours}`).join(', ') || `${venues.length} venues`);
 gate.check('the town is open at lunchtime', openNoon.length >= 10, `${openNoon.length} open Tue 12:00`);
 gate.check('the town is alive after dark', openLate.length >= 5, `${openLate.length} open Fri 23:00`);
@@ -80,7 +90,7 @@ gate.check('every notice is human readable', sampleClosed ? /open|closed/.test(d
 gate.check('enough content for a session (buildings > 500, trees > 800)', world.buildings.length > 500 && world.trees.length > 800);
 
 const result = writeReport('qa.json', {
-  agent: 'qa', hours: { openNoon: openNoon.length, openLate: openLate.length, venues: venues.length }, upstream: reports.map((r) => ({ name: r.name, passed: r.report?.passed ?? false })),
+  agent: 'qa', clientModules: graph.modules.length, hours: { openNoon: openNoon.length, openLate: openLate.length, venues: venues.length }, upstream: reports.map((r) => ({ name: r.name, passed: r.report?.passed ?? false })),
   blockedPois: blockedPois.map((p) => p.name), unreachableDoors: unreachableDoors.length,
   nan, instanceBudget, spawnBlocked, quests: QUESTS.length,
   cars: world.cars.length, pubs: pubsInWorld.length, trails: (world.forestPaths || []).length,
