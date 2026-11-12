@@ -156,6 +156,12 @@ needs (status + MIME), then boots the game in a frame and reports the loader sta
 usually a missing export or a blocked GPU context, and both are now named on screen instead of
 frozen behind a loading bar.
 
+When a boot fails, the page says so in its own words: the error box carries the message, the boot
+phase it died in, and a live probe of the frame (`WebGL 2: yes/no`, `storage`, `embedded`), plus a
+link to the single-file build. The same payload is beaconed to `POST /api/errors`, so
+`GET /api/errors` replays the last 25 client failures with their diagnostics — no console access,
+no guessing.
+
 Role briefs live in `agents/roles/`; the machine-readable contract is `agents/manifest.json`.
 Every stage writes `data/reports/<agent>.json`, and the release agent composes
 `docs/build-report.md`.

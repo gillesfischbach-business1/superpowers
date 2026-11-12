@@ -128,11 +128,20 @@ const server = http.createServer(async (req, res) => {
           message: String(body.message || '').slice(0, 900),
           stack: String(body.stack || '').slice(0, 2500),
           url: String(body.url || '').slice(0, 300),
-          ua: String(body.ua || '').slice(0, 300)
+          ua: String(body.ua || '').slice(0, 300),
+          diag: body.diag && typeof body.diag === 'object' ? {
+            webgl2: String(body.diag.webgl2 || '').slice(0, 60),
+            webgl1: String(body.diag.webgl1 || '').slice(0, 60),
+            storage: String(body.diag.storage || '').slice(0, 60),
+            frame: String(body.diag.frame || '').slice(0, 60),
+            protocol: String(body.diag.protocol || '').slice(0, 20)
+          } : null
         };
         CLIENT_ERRORS.push(entry);
         while (CLIENT_ERRORS.length > 25) CLIENT_ERRORS.shift();
-        console.log(`  client ${entry.kind} [${entry.phase || 'boot'}]: ${entry.message}`);
+        const d = entry.diag;
+        console.log(`  client ${entry.kind} [${entry.phase || 'boot'}]: ${entry.message}`
+          + (d ? ` · webgl2=${d.webgl2} webgl1=${d.webgl1} storage=${d.storage} frame=${d.frame}` : ''));
         return json(res, 200, { ok: true });
       }
       return json(res, 200, { errors: CLIENT_ERRORS.slice().reverse(), count: CLIENT_ERRORS.length });
