@@ -114,6 +114,11 @@ The archive is the committed tree — 92 files, ~2.7 MB unpacked, no `node_modul
 and it runs on its own: unzip, `npm install` (one dependency: three), `npm start`. While the preview
 is up it is also served at `/download/diddeleng.zip` (linked from `/diag`).
 
+**No server at all:** `npm run build:standalone` bundles the whole game — three.js, every module,
+the stylesheet — into one `diddeleng-standalone.html` (~740 kB). Open it from a `file://` URL or any
+static host and it plays; only the save slot and the agent feed need the Node server, and the game
+already tolerates their absence. It is served at `/standalone` too.
+
 ## The multi-agent pipeline
 
 Nine specialist agents each own a stage, a script and a set of acceptance gates. The orchestrator

@@ -194,6 +194,20 @@ const server = http.createServer(async (req, res) => {
     /* ------------------------------------------------------- static */
     if (pathname === '/agents' || pathname === '/agents/') return serveFile(res, path.join(PUBLIC, 'agents.html'));
     if (pathname === '/diag' || pathname === '/diag/') return serveFile(res, path.join(PUBLIC, 'diag.html'));
+    if (pathname === '/standalone' || pathname === '/standalone.html') {
+      const file = path.join(ROOT, 'diddeleng-standalone.html');
+      if (!fs.existsSync(file)) return json(res, 404, { error: 'run `npm run build:standalone` first' });
+      return serveFile(res, file);
+    }
+
+    if (pathname === '/download/standalone.html') {
+      const file = path.join(ROOT, 'diddeleng-standalone.html');
+      if (!fs.existsSync(file)) return json(res, 404, { error: 'run `npm run build:standalone` first' });
+      res.setHeader('content-disposition', 'attachment; filename="diddeleng-standalone.html"');
+      res.setHeader('cache-control', 'no-store');
+      return serveFile(res, file);
+    }
+
     if (pathname === '/download' || pathname === '/download/' || pathname === '/download/diddeleng.zip') {
       const zips = fs.existsSync(ROOT)
         ? fs.readdirSync(ROOT).filter((f) => f.startsWith('diddeleng-') && f.endsWith('.zip'))

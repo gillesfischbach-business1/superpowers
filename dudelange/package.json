@@ -11,7 +11,8 @@
     "test": "node --test tests/*.test.mjs",
     "import:places": "node scripts/import-places.mjs",
     "serve": "node scripts/serve-forever.mjs --port 5173",
-    "pack": "node scripts/pack.mjs"
+    "pack": "node scripts/pack.mjs",
+    "build:standalone": "node scripts/build-standalone.mjs"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +23,8 @@
   "type": "module",
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
   }
 }
