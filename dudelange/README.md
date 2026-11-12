@@ -10,6 +10,7 @@ network access at runtime. Three.js is vendored in `public/vendor/`.
 
 ```
 npm install
+npm run serve        # supervisor: restarts the server if it ever stops
 npm start            # http://localhost:5173        the game
                      # http://localhost:5173/agents the build dashboard
                      # http://localhost:5173/diag   self-check: WebGL, assets, boot
@@ -126,6 +127,12 @@ npm run pipeline:qa       # qa + release only
 npm test                  # 28 invariants (world, cars, trains, forests, pubs, hours, module graph, boot, shell, importer)
 npm run import:places -- dataset.json   # ingest a Google Maps dataset export
 ```
+
+The server binds `0.0.0.0:5173`, answers `/health` (and `/healthz`, `/ping`) in under a millisecond
+without touching the world, allows CORS preflight, and sends `no-cache` for every asset so a fixed
+build can never be served stale. `npm run serve` wraps it in `scripts/serve-forever.mjs`, a
+single-instance supervisor: a pid lock stops duplicates, it stands down if another server already
+answers, and it restarts the child within a second of it stopping.
 
 If the page stays empty, open `/diag`: it checks the WebGL 2 context, fetches every file the page
 needs (status + MIME), then boots the game in a frame and reports the loader state. A blank build is

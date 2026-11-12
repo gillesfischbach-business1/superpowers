@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T14:35:58.956Z",
+  "generatedAt": "2026-11-12T14:40:01.252Z",
   "agent": "systems",
   "worldHash": "957aea222dba6349",
   "collisionPushOut": 5.11,
@@ -155,6 +155,16 @@
       "label": "closed doors are enforced, not decorative",
       "ok": true,
       "detail": "enterInterior checks venueStatus"
+    },
+    {
+      "label": "liveness answers without touching the world, and preflight is allowed",
+      "ok": true,
+      "detail": "/health · /healthz · CORS preflight"
+    },
+    {
+      "label": "a supervisor keeps the port bound",
+      "ok": true,
+      "detail": ""
     },
     {
       "label": "body payloads are size limited",

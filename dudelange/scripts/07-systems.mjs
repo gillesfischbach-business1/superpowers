@@ -108,6 +108,10 @@ gate.check('closed venues say when they open again', /opens/.test(hoursProbe.clo
 gate.check('open venues say when last orders are', /open until/.test(hoursProbe.openText), hoursProbe.openText);
 gate.check('the clock advances into a new day and can be waited out', hoursProbe.waiting && hoursProbe.dayChip, 'T waits · day chip');
 gate.check('closed doors are enforced, not decorative', hoursProbe.gated, 'enterInterior checks venueStatus');
+gate.check('liveness answers without touching the world, and preflight is allowed',
+  /'\/health'/.test(serverSrc) && /healthz/.test(serverSrc) && /access-control-allow-origin/.test(serverSrc),
+  '/health · /healthz · CORS preflight');
+gate.check('a supervisor keeps the port bound', fs.existsSync(path.join(process.cwd(), 'scripts', 'serve-forever.mjs')) && /owning/.test(fs.readFileSync(path.join(process.cwd(), 'scripts', 'serve-forever.mjs'), 'utf8')));
 gate.check('body payloads are size limited', serverSrc.includes('payload too large'));
 gate.check('performance budget: windows + trees under 40k instances', estimateWindows(a.buildings) + a.trees.length < 40000, String(estimateWindows(a.buildings) + a.trees.length));
 

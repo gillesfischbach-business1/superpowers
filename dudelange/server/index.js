@@ -88,8 +88,24 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = decodeURIComponent(url.pathname);
 
+  // A preview host may probe the app from another origin; a failed preflight
+  // looks exactly like a dead server. This game has no secrets, so allow it.
+  res.setHeader('access-control-allow-origin', '*');
+  res.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS');
+  res.setHeader('access-control-allow-headers', 'content-type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, { 'access-control-max-age': '600' });
+    return res.end();
+  }
+
   try {
     /* ---------------------------------------------------------- API */
+    if (pathname === '/health' || pathname === '/healthz' || pathname === '/ping' || pathname === '/api/ping') {
+      // deliberately world-free: answers instantly even while warming up
+      return json(res, 200, { ok: true, service: 'diddeleng', uptime: Math.round(process.uptime()) });
+    }
+
     if (pathname === '/api/health') {
       return json(res, 200, {
         ok: true, service: 'diddeleng', version: '1.0.0',
@@ -209,6 +225,13 @@ function serveFile(res, file) {
   fs.createReadStream(file).pipe(res);
 }
 
+process.on('uncaughtException', (err) => {
+  console.error('  uncaught exception (still serving):', err && err.message);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('  unhandled rejection (still serving):', err && err.message ? err.message : err);
+});
+
 let listenTries = 0;
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE' && listenTries < 6) {
@@ -225,7 +248,9 @@ server.listen(PORT, HOST, () => {
   console.log(`\n  Diddeleng — Dudelange open world`);
   console.log(`  http://${HOST}:${PORT}`);
   console.log(`  world: ${world.stats.buildings} buildings · ${world.stats.roadKm} km roads · ${world.stats.stations} stations`);
-  console.log(`  build dashboard: http://${HOST}:${PORT}/agents\n`);
+  console.log(`  build dashboard: http://${HOST}:${PORT}/agents`);
+  console.log(`  self check:      http://${HOST}:${PORT}/diag`);
+  console.log(`  liveness:        /health  (0.3 s cold start)\n`);
 });
 
 export { server, world };
