@@ -97,12 +97,26 @@ const node = (id) => {
     dataset: {}, children: [],
     appendChild(child) { n.children.push(child); return child; },
     removeChild() {}, remove() {}, insertBefore() {},
-    addEventListener() {}, removeEventListener() {},
+    _handlers: new Map(),
+    addEventListener(type, fn) {
+      if (!n._handlers.has(type)) n._handlers.set(type, []);
+      n._handlers.get(type).push(fn);
+    },
+    removeEventListener(type, fn) {
+      const list = n._handlers.get(type) || [];
+      n._handlers.set(type, list.filter((f) => f !== fn));
+    },
+    dispatch(type, event = {}) {
+      const payload = { type, target: n, currentTarget: n, preventDefault() {}, stopPropagation() {}, ...event };
+      for (const fn of n._handlers.get(type) || []) fn(payload);
+      return payload;
+    },
     setAttribute() {}, getAttribute() { return null; }, hasAttribute() { return false; },
     querySelector() { return node('q'); }, querySelectorAll() { return []; },
     getContext(kind) { return kind === '2d' ? ctx2d : useFakeGL ? fakeGL : null; },
     getBoundingClientRect() { return { left: 0, top: 0, width: 1280, height: 720 }; },
-    focus() {}, blur() {}, click() {}, scrollIntoView() {},
+    focus() {}, blur() {}, scrollIntoView() {},
+    click() { if (typeof n.onclick === 'function') return n.onclick({ target: n }); return undefined; },
     insertAdjacentHTML() {}, cloneNode() { return node(id); },
     offsetWidth: 1280, offsetHeight: 720, clientWidth: 1280, clientHeight: 720,
     _text: ''
@@ -138,23 +152,77 @@ export function installDomStub({ webgl = true } = {}) {
     createElementNS: (_ns, tag) => node(tag),
     querySelector: (sel) => node(sel),
     querySelectorAll: () => [],
-    addEventListener() {}, removeEventListener() {},
+    addEventListener: (type, fn) => globalThis.addEventListener(type, fn),
+    removeEventListener: (type, fn) => globalThis.removeEventListener(type, fn),
     createTextNode: (text) => ({ textContent: text }),
     body: node('body'), documentElement: node('html'), head: node('head'),
     pointerLockElement: null, hidden: false, visibilityState: 'visible'
   };
 
   globalThis.window = globalThis;
+  globalThis.self = globalThis;     // three only starts its animation loop when `self` exists
   globalThis.top = globalThis;      // top-level frame unless a test says otherwise
   globalThis.devicePixelRatio = 1;
   globalThis.innerWidth = 1280;
   globalThis.innerHeight = 720;
-  globalThis.addEventListener = () => {};
-  globalThis.removeEventListener = () => {};
+  const listeners = new Map();
+  globalThis.addEventListener = (type, fn) => {
+    if (!listeners.has(type)) listeners.set(type, []);
+    listeners.get(type).push(fn);
+  };
+  globalThis.removeEventListener = (type, fn) => {
+    listeners.set(type, (listeners.get(type) || []).filter((f) => f !== fn));
+  };
   globalThis.dispatchEvent = () => true;
+  // Fire an event the way a browser would, so tests can actually press keys.
+  const fire = (type, event = {}) => {
+    const payload = { type, target: globalThis, currentTarget: globalThis, preventDefault() {}, stopPropagation() {}, ...event };
+    for (const fn of listeners.get(type) || []) fn(payload);
+    return payload;
+  };
   globalThis.matchMedia = () => ({ matches: false, addEventListener() {}, addListener() {} });
-  globalThis.requestAnimationFrame = () => 0;
+  // three's setAnimationLoop rides on requestAnimationFrame. Capturing the
+  // callbacks lets a test drive real frames — the only way to reach the code
+  // that once threw "ride is not defined" on the very first rendered frame.
+  // Track every timer: playing the game arms a 4 s audio tick and a 30 s
+  // autosave, and a test process must not stay alive waiting for them.
+  const timers = new Set();
+  const realSetTimeout = globalThis.setTimeout;
+  const realClearTimeout = globalThis.clearTimeout;
+  const realSetInterval = globalThis.setInterval;
+  const realClearInterval = globalThis.clearInterval;
+  globalThis.setTimeout = (fn, ms, ...args) => {
+    const handle = realSetTimeout((...a) => { timers.delete(handle); if (typeof fn === 'function') fn(...a); }, ms, ...args);
+    timers.add(handle);
+    return handle;
+  };
+  globalThis.clearTimeout = (handle) => { timers.delete(handle); realClearTimeout(handle); };
+  globalThis.setInterval = (fn, ms, ...args) => {
+    const handle = realSetInterval(fn, ms, ...args);
+    timers.add(handle);
+    return handle;
+  };
+  globalThis.clearInterval = (handle) => { timers.delete(handle); realClearInterval(handle); };
+  const clearTimers = () => {
+    for (const handle of timers) { realClearTimeout(handle); realClearInterval(handle); }
+    timers.clear();
+  };
+
+  const rafQueue = [];
+  let virtualNow = Date.now();
+  globalThis.performance = { now: () => virtualNow, timeOrigin: 0 };
+  globalThis.requestAnimationFrame = (fn) => { rafQueue.push(fn); return rafQueue.length; };
   globalThis.cancelAnimationFrame = () => {};
+  const pumpFrames = (count, stepMs = 16) => {
+    let fired = 0;
+    for (let i = 0; i < count; i++) {
+      virtualNow += stepMs;
+      const callbacks = rafQueue.splice(0, rafQueue.length);
+      if (!callbacks.length) break;
+      for (const cb of callbacks) { cb(virtualNow); fired += 1; }
+    }
+    return fired;
+  };
   globalThis.localStorage = { getItem() { return null; }, setItem() {}, removeItem() {} };
   globalThis.location = { href: 'http://localhost:5173/', protocol: 'http:', host: 'localhost:5173', search: '' };
   const beacons = [];
@@ -171,17 +239,38 @@ export function installDomStub({ webgl = true } = {}) {
     },
     configurable: true
   });
-  globalThis.performance = globalThis.performance || { now: () => Date.now() };
+  // WebAudio, faithful enough for AudioEngine.ensure(): every node chains
+  // connect() and every param has the scheduling methods the engine calls.
+  const param = (value = 0) => ({
+    value,
+    setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {},
+    setTargetAtTime() {}, cancelScheduledValues() {}, setValueCurveAtTime() {}
+  });
+  const audioNode = (extra = {}) => ({ connect(next) { return next; }, disconnect() {}, ...extra });
   globalThis.AudioContext = class {
-    constructor() { this.destination = {}; this.state = 'running'; this.currentTime = 0; }
-    createGain() { return { gain: { value: 0, setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {}, cancelScheduledValues() {} }, connect() {}, disconnect() {} }; }
-    createOscillator() { return { type: '', frequency: { value: 0, setValueAtTime() {}, linearRampToValueAtTime() {} }, detune: { value: 0 }, connect() {}, disconnect() {}, start() {}, stop() {} }; }
-    createBuffer() { return { getChannelData() { return new Float32Array(8); } }; }
-    createBufferSource() { return { buffer: null, playbackRate: { value: 1 }, loop: false, connect() {}, start() {}, stop() {} }; }
-    createBiquadFilter() { return { type: '', frequency: { value: 0 }, Q: { value: 0 }, gain: { value: 0 }, connect() {}, disconnect() {} }; }
-    createStereoPanner() { return { pan: { value: 0 }, connect() {} }; }
-    createDynamicsCompressor() { return { threshold: { value: 0 }, knee: { value: 0 }, ratio: { value: 0 }, attack: { value: 0 }, release: { value: 0 }, connect() {} }; }
-    resume() {}
+    constructor() {
+      this.destination = audioNode();
+      this.state = 'running';
+      this.currentTime = 0;
+      this.sampleRate = 44100;
+    }
+    createGain() { return audioNode({ gain: param(1) }); }
+    createOscillator() { return audioNode({ type: 'sine', frequency: param(440), detune: param(0), start() {}, stop() {} }); }
+    createBuffer(channels = 1, length = 8) {
+      const data = Array.from({ length: channels }, () => new Float32Array(Math.min(length, 64)));
+      return { length: data[0].length, numberOfChannels: channels, getChannelData: (i) => data[i] || data[0] };
+    }
+    createBufferSource() { return audioNode({ buffer: null, playbackRate: param(1), loop: false, start() {}, stop() {} }); }
+    createBiquadFilter() { return audioNode({ type: 'lowpass', frequency: param(350), Q: param(1), gain: param(0) }); }
+    createStereoPanner() { return audioNode({ pan: param(0) }); }
+    createDynamicsCompressor() { return audioNode({ threshold: param(-24), knee: param(30), ratio: param(12), attack: param(0.003), release: param(0.25) }); }
+    createWaveShaper() { return audioNode({ curve: null, oversample: 'none' }); }
+    createDelay() { return audioNode({ delayTime: param(0) }); }
+    createConvolver() { return audioNode({ buffer: null }); }
+    createAnalyser() { return audioNode({ fftSize: 2048, frequencyBinCount: 1024, getByteFrequencyData() {} }); }
+    createChannelMerger() { return audioNode(); }
+    resume() { this.state = 'running'; }
+    suspend() { this.state = 'suspended'; }
   };
   globalThis.OffscreenCanvas = class {
     constructor(w, h) { this.width = w; this.height = h; }
@@ -190,5 +279,5 @@ export function installDomStub({ webgl = true } = {}) {
   globalThis.ImageData = class { constructor(data, w, h) { this.data = data; this.width = w; this.height = h; } };
   globalThis.Path2D = class { moveTo() {} lineTo() {} arc() {} closePath() {} };
 
-  return { registry, byId, beacons };
+  return { registry, byId, beacons, pumpFrames, rafQueue, clearTimers, fire, listeners };
 }

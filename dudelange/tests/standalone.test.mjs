@@ -41,7 +41,7 @@ test('the single-file build boots the whole game from plain HTML', async () => {
   assert.ok(scripts.length >= 2, `expected boot guard + bundle, found ${scripts.length} inline scripts`);
   assert.ok(scripts.some((code) => code.length > 100_000), 'the game bundle is not inlined');
 
-  const { byId } = installDomStub();
+  const { byId, pumpFrames, clearTimers } = installDomStub();
   const errors = [];
   const realError = console.error;
   console.error = (...args) => { errors.push(args.map(String).join(' ')); };
@@ -53,8 +53,16 @@ test('the single-file build boots the whole game from plain HTML', async () => {
     while (Date.now() < deadline && String(byId('loadtext').textContent) !== 'Dudelange is ready.') {
       await new Promise((resolve) => setTimeout(resolve, 20));
     }
+    // And it has to be playable, not just bootable: press Enter Dudelange and
+    // run real frames, exactly like the player who reported "ride is not defined".
+    const start = byId('startBtn');
+    assert.equal(typeof start.onclick, 'function', 'the single file has no start handler');
+    await start.onclick({ target: start });
+    const played = pumpFrames(240, 16);
+    assert.ok(played >= 200, `the single-file build stopped after ${played} frames`);
   } finally {
     console.error = realError;
+    clearTimers();
   }
 
   const report = errors.join('\n');

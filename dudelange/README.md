@@ -140,8 +140,9 @@ Nine specialist agents each own a stage, a script and a set of acceptance gates.
 ```bash
 npm run pipeline          # all nine stages via the CLI
 npm run pipeline:qa       # qa + release only
-npm test                  # 30 invariants (world, cars, trains, forests, pubs, hours, module graph, boot,
-                          #   failed-boot diagnostics, single-file boot, shell, importer)
+npm test                  # 32 invariants (world, cars, trains, forests, pubs, hours, module graph, boot,
+                          #   failed-boot diagnostics, 400 frames of play, single-file boot + play,
+                          #   shell, importer)
 npm run import:places -- dataset.json   # ingest a Google Maps dataset export
 ```
 

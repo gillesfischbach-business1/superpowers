@@ -427,6 +427,13 @@ export class UI {
     $('runQA').onclick = () => this.runPipeline('qa');
     await this.refreshAgents();
     if (this._agentStream) this._agentStream.close();
+    // No EventSource (old browser, embedded view, CSP) must not break the panel:
+    // the keys are async, so a throw here would surface as an unhandled rejection
+    // and trip the boot guard's "game failed to start" panel.
+    if (typeof EventSource !== 'function') {
+      this.appendLog('live log unavailable in this browser — press Run to refresh.');
+      return;
+    }
     this._agentStream = new EventSource('/api/agents/stream');
     this._agentStream.onmessage = (ev) => {
       try {

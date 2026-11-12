@@ -242,10 +242,10 @@ function makePerson({ shirt = '#2a6f97', pants = '#2f3336', skin = '#e2b48f', ha
     group: g,
     animate(t, speed = 0, riding = false) {
       const swing = Math.sin(t * 9) * clamp(speed / 6, 0, 1) * 0.6;
-      legL.rotation.x = ride ? -0.9 : swing;
-      legR.rotation.x = ride ? -0.9 : -swing;
-      armL.rotation.x = ride ? -1.1 : -swing * 0.8;
-      armR.rotation.x = ride ? -1.1 : swing * 0.8;
+      legL.rotation.x = riding ? -0.9 : swing;
+      legR.rotation.x = riding ? -0.9 : -swing;
+      armL.rotation.x = riding ? -1.1 : -swing * 0.8;
+      armR.rotation.x = riding ? -1.1 : swing * 0.8;
       g.position.y += Math.sin(t * 9) * clamp(speed / 8, 0, 1) * 0.02;
     }
   };
