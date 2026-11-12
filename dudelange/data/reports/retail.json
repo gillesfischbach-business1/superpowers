@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T12:36:14.317Z",
+  "generatedAt": "2026-11-12T12:39:52.247Z",
   "agent": "retail",
   "supermarkets": 3,
   "restaurants": 9,
@@ -735,7 +735,7 @@
     {
       "label": "opening hours are plausible (20–168 h per week)",
       "ok": true,
-      "detail": "between 30 and 168 h"
+      "detail": "between 26 and 168 h"
     },
     {
       "label": "the source of every schedule is declared",
@@ -745,7 +745,7 @@
     {
       "label": "the town has nightlife",
       "ok": true,
-      "detail": "6 pubs open Friday 23:00"
+      "detail": "7 pubs open Friday 23:00"
     },
     {
       "label": "late licences run past 02:30 at the weekend",
@@ -753,9 +753,24 @@
       "detail": "dukes_bar, red_black"
     },
     {
-      "label": "shops respect Luxembourg Sunday trading",
+      "label": "every real-world schedule names its source",
       "ok": true,
-      "detail": "0 open Sunday 15:00"
+      "detail": "16 sourced schedules"
+    },
+    {
+      "label": "most schedules are published, not invented",
+      "ok": true,
+      "detail": "16/28 from the venue or a directory"
+    },
+    {
+      "label": "shops trade on Sunday morning",
+      "ok": true,
+      "detail": "delhaize, cactus"
+    },
+    {
+      "label": "only the petrol-station shoppi trades on Sunday afternoon",
+      "ok": true,
+      "detail": "cactus open Sunday 15:00"
     }
   ]
 }

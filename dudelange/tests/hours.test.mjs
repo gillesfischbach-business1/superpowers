@@ -79,7 +79,13 @@ test('every visitable venue in Dudelange has sane, parseable hours', () => {
   const shops = Object.entries(INTERIORS).filter(([, s]) => s.kind === 'shop');
   for (const [id, spec] of shops) {
     const parsed = parseHours(spec.hours);
-    assert.equal(isOpenAt(parsed, SUN, at(15)), false, `${id} should be shut on Sunday afternoon`);
+    // Luxembourg rule: no supermarket trading on Sunday afternoon. The petrol-station
+    // shoppi is the one licensed exception, so it must be the only one still lit.
+    if (id !== 'cactus') assert.equal(isOpenAt(parsed, SUN, at(15)), false, `${id} should be shut on Sunday afternoon`);
     assert.equal(isOpenAt(parsed, MON, at(9)), true, `${id} should be open on Monday morning`);
+  }
+
+  for (const [id, spec] of venues) {
+    if (spec.hoursSrc === 'web') assert.ok(spec.hoursRef, `${id} is sourced, so it must name the source`);
   }
 });

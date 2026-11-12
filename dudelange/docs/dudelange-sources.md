@@ -47,19 +47,43 @@ Café Italia has a street in front of it instead of sitting in a field.
 
 ## Opening hours
 
-Every visitable interior (`public/js/core/interiors.js`, `HOURS` table) carries two fields:
+Every visitable interior (`public/js/core/interiors.js`, `HOURS` table) carries three fields:
 
 | field | meaning |
 |---|---|
 | `hours` | an OSM `opening_hours` substring: day ranges, several services, overnight closes, `off`, `24/7` |
-| `hoursSrc` | `web` = published by the venue and looked up · `typical` = a plausible Luxembourg rhythm |
+| `hoursSrc` | `web` = published by the venue / a directory and looked up · `typical` = a plausible Luxembourg rhythm |
+| `hoursRef` | present on every `web` row: where the schedule came from |
 
-Only **Why Not** is `web`: its listing gives Mon–Thu 10:00–01:00, Fri 10:00–01:00, Sat 10:00–03:00,
-Sun 14:00–03:00. Every other schedule is `typical` — legal Sunday closing for shops (08:00–13:00),
-restaurants with one rest day, pubs from late afternoon to 01:00/02:00/03:00 at the weekend, station
-halls open before the first 60a and 24/7 for the hotel. Nothing pretends to be a specific
-landlord's timetable. Feed a Google dataset through `npm run import:places` and its `openingHours`
-field is carried through so that a `web`-grade schedule can replace the typical one per venue.
+16 of the 28 venues are `web`:
+
+| venue | schedule | source |
+|---|---|---|
+| Cactus shoppi (214 Route de Luxembourg) | Mo–Sa 05:00–23:00 · Su 09:00–21:00 | cactus.lu, shop page for Dudelange Esso |
+| Proxy Delhaize (59A Route de Zoufftgen) | Mo–Sa 07:30–20:00 · Su 07:30–13:00 | delhaize.lu listing mirrored by directory data |
+| Mamma Mia (27 Pl. de l’Hôtel de Ville) | Tu–Su 11:30–14:00, 18:30–22:30 · Mo closed | restaurantguru + gastronomie.lu |
+| La Charbonnade (10 Rue du Commerce) | Tu–Sa 11:00–14:00, 18:00–22:00 · Su, Mo closed | restaurantguru (also “closed Sundays & Mondays” in reviews) |
+| Parc Le’h (1 Rue de la Forêt) | Tu–Su 12:00–14:00, 19:00–22:00 · Mo closed | restaurant-parcleh.lu |
+| Amarcord (1a Rue du Centenaire) | daily 10:00–23:00 | tripadvisor + restaurantguru |
+| Chang Man (99 Rue de la Libération) | daily 11:30–14:30, 18:00–22:00 · Tu closed | changman.lu (own site) |
+| Steak House (13 Rue du Commerce) | Th–Su 12:00–14:00, 18:30–22:00 · We dinner only · Mo, Tu closed | steakhousedudelang.wixsite.com |
+| Douro (229 Rue de la Libération) | Tu–Su 11:45–13:45, 18:30–21:15 · Mo closed | restaurantguru + miammiam.lu |
+| Sushi Ebi (near Ville station) | Tu–Fr 11:00–14:00, 17:30–22:00 · Sa dinner only · Su from 11:30 · Mo closed | restaurantguru |
+| Gamja (11 Pl. de l’Hôtel de Ville) | Mo 18:00–22:00 · Tu–Sa 12:00–14:00, 18:00–22:00 · Su 12:00–14:00 | restaurantguru + tripadvisor |
+| Duke’s Bar (15 Rue de la Libération) | Mo–Th 10:00–01:00 · Fr, Sa 10:00–03:00 · Su 10:00–01:00 | restaurantguru |
+| Bar’Rio (6 Av. Grande-Duchesse Charlotte) | Mo–Sa 06:00–01:00 · Su 07:00–01:00 | restaurantguru + polomap |
+| Yuppy Café (32 Av. Grande-Duchesse Charlotte) | Mo–Th 08:00–21:00 · Fr 08:00–23:00 · Sa 09:00–20:00 · Su 09:00–19:00 | yellow.lu + restaurantguru |
+| Café Benfica (179 Rue de la Libération) | Mo, Su 09:00–18:00 · Tu, Fr, Sa 09:00–01:00 · We, Th 09:00–23:00 | infobel + waze business data |
+| Why Not (81 Av. Grande-Duchesse Charlotte) | Mo–Fr 10:00–01:00 · Sa 10:00–03:00 · Su 14:00–03:00 | the venue’s own listing |
+
+The other 12 are `typical`: Match (approximated building, no published schedule), Opa Café,
+Red & Black, Café Medya and Café Italia (no confirmable listing — Café Medya’s aggregator entries
+even disagree on whether it still trades, so no hours are claimed), the town hall, the church, the
+CNA, the rolling-mill shed, the station halls, the hotel and the school.
+
+Two rules the data follows: shops keep Luxembourg Sunday trading (morning only — the
+petrol-station shoppi is the licensed exception and stays open until 21:00), and no schedule
+invents a closed day for a venue whose listing shows seven-day opening.
 
 The engine (`public/js/core/hours.js`) is a dependency-free subset of the OSM spec, shared by the
 game, `npm test` and three pipeline gates (retail, systems, qa).

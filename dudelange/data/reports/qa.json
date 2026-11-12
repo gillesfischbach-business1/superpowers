@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-12T12:36:15.227Z",
+  "generatedAt": "2026-11-12T12:39:53.079Z",
   "agent": "qa",
   "hours": {
-    "openNoon": 22,
-    "openLate": 8,
+    "openNoon": 24,
+    "openLate": 9,
     "venues": 28
   },
   "upstream": [
@@ -131,17 +131,17 @@
     {
       "label": "the town is open at lunchtime",
       "ok": true,
-      "detail": "22 open Tue 12:00"
+      "detail": "24 open Tue 12:00"
     },
     {
       "label": "the town is alive after dark",
       "ok": true,
-      "detail": "8 open Fri 23:00"
+      "detail": "9 open Fri 23:00"
     },
     {
       "label": "every notice is human readable",
       "ok": true,
-      "detail": "delhaize: closed — opens 07:00"
+      "detail": "delhaize: closed — opens 07:30"
     },
     {
       "label": "enough content for a session (buildings > 500, trees > 800)",

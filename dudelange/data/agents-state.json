@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-12T12:36:15.291Z",
+  "updated": "2026-11-12T12:39:53.146Z",
   "running": false,
-  "eventId": 34,
+  "eventId": 35,
   "agents": {
     "cartographer": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:12.913Z",
+      "startedAt": "2026-11-12T12:39:50.796Z",
       "log": [
         "Cartographer — reading OpenStreetMap anchors for Dudelange",
         "  40 anchors · 16 named streets · 25 road polylines overall",
@@ -21,12 +21,12 @@
         "report → data/reports/cartographer.json"
       ],
       "exitCode": 0,
-      "duration": 261,
-      "finishedAt": "2026-11-12T12:36:13.176Z"
+      "duration": 266,
+      "finishedAt": "2026-11-12T12:39:51.065Z"
     },
     "geologist": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:13.178Z",
+      "startedAt": "2026-11-12T12:39:51.066Z",
       "log": [
         "Geologist — sampling the Diddelengerbaach valley and the Minett cuesta",
         "  north–south profile: 285 m … 331 m (EU-DEM mean 317 m)",
@@ -41,12 +41,12 @@
         "report → data/reports/geologist.json"
       ],
       "exitCode": 0,
-      "duration": 252,
-      "finishedAt": "2026-11-12T12:36:13.431Z"
+      "duration": 261,
+      "finishedAt": "2026-11-12T12:39:51.329Z"
     },
     "urbanist": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:13.432Z",
+      "startedAt": "2026-11-12T12:39:51.330Z",
       "log": [
         "Urbanist — cutting lots along the real street network",
         "  857 buildings · 100 streets · 45.39 km",
@@ -78,12 +78,12 @@
         "report → data/reports/urbanist.json"
       ],
       "exitCode": 0,
-      "duration": 310,
-      "finishedAt": "2026-11-12T12:36:13.743Z"
+      "duration": 319,
+      "finishedAt": "2026-11-12T12:39:51.650Z"
     },
     "architect": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:13.744Z",
+      "startedAt": "2026-11-12T12:39:51.651Z",
       "log": [
         "Architect — facades, roofscapes and furnished interiors",
         "  7 architectural styles · 31,224 windows · 239 shopfronts",
@@ -106,12 +106,12 @@
         "report → data/reports/architect.json"
       ],
       "exitCode": 0,
-      "duration": 263,
-      "finishedAt": "2026-11-12T12:36:14.008Z"
+      "duration": 288,
+      "finishedAt": "2026-11-12T12:39:51.940Z"
     },
     "rail-engineer": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:14.009Z",
+      "startedAt": "2026-11-12T12:39:51.941Z",
       "log": [
         "Rail engineer — line 60a, four stops, underpasses and tunnels",
         "  northbound: Burange@60.3s → Ville@132.5s → Centre@182.5s",
@@ -128,18 +128,19 @@
         "report → data/reports/rail.json"
       ],
       "exitCode": 0,
-      "duration": 272,
-      "finishedAt": "2026-11-12T12:36:14.282Z"
+      "duration": 267,
+      "finishedAt": "2026-11-12T12:39:52.210Z"
     },
     "retail-hospitality": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:14.283Z",
+      "startedAt": "2026-11-12T12:39:52.211Z",
       "log": [
         "Retail & hospitality — stocking shops and writing menus",
         "  3 supermarkets · 9 restaurants · 9 pubs · 72 purchasable lines",
         "  43 alcoholic drinks · 27 soft options · strongest 0.38",
-        "  hours: 28/28 venues parse · 6 pubs open Friday 23:00 · 2 after 02:30",
-        "  0 of 3 shops open Sunday afternoon (Luxembourg keeps Sunday trading short)",
+        "  hours: 28/28 venues parse · 7 pubs open Friday 23:00 · 2 after 02:30",
+        "  16/28 schedules come from a published source (delhaize, cactus, mamma_mia, charbonnade, parc_leh, amarcord, chang_man, steak_house, douro, sushi_ebi, gamja, dukes_bar, bar_rio, yuppy_cafe, cafe_benfica, why_not)",
+        "  shops open Sunday: delhaize, cactus in the morning · cactus in the afternoon",
         "  Luxembourgish specialities on shelves: Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Kugelhopf, Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Bofferding 33 cl, Bouneschlupp, Judd mat Gaardebounen, Kugelhopf",
         "  ✔ three visitable supermarkets — delhaize, match, cactus",
         "  ✔ eight or more restaurants — mamma_mia, charbonnade, parc_leh, amarcord, chang_man, steak_house, douro, sushi_ebi, gamja",
@@ -153,21 +154,24 @@
         "  ✔ drink strength is on a sane 0–0.45 scale — all within range",
         "  ✔ pub prices are plausible (€1–€15) — max €6.50",
         "  ✔ every venue publishes parseable opening hours — 28 venues",
-        "  ✔ opening hours are plausible (20–168 h per week) — between 30 and 168 h",
+        "  ✔ opening hours are plausible (20–168 h per week) — between 26 and 168 h",
         "  ✔ the source of every schedule is declared — web / typical",
-        "  ✔ the town has nightlife — 6 pubs open Friday 23:00",
+        "  ✔ the town has nightlife — 7 pubs open Friday 23:00",
         "  ✔ late licences run past 02:30 at the weekend — dukes_bar, red_black",
-        "  ✔ shops respect Luxembourg Sunday trading — 0 open Sunday 15:00",
-        "retail: 17/17 gates green",
+        "  ✔ every real-world schedule names its source — 16 sourced schedules",
+        "  ✔ most schedules are published, not invented — 16/28 from the venue or a directory",
+        "  ✔ shops trade on Sunday morning — delhaize, cactus",
+        "  ✔ only the petrol-station shoppi trades on Sunday afternoon — cactus open Sunday 15:00",
+        "retail: 20/20 gates green",
         "report → data/reports/retail.json"
       ],
       "exitCode": 0,
-      "duration": 36,
-      "finishedAt": "2026-11-12T12:36:14.320Z"
+      "duration": 38,
+      "finishedAt": "2026-11-12T12:39:52.250Z"
     },
     "systems": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:14.321Z",
+      "startedAt": "2026-11-12T12:39:52.251Z",
       "log": [
         "Systems engineer — determinism, collisions, saves and the UI contract",
         "  world hash 957aea222dba6349 (857 buildings, 5213 trees)",
@@ -203,18 +207,18 @@
         "report → data/reports/systems.json"
       ],
       "exitCode": 0,
-      "duration": 619,
-      "finishedAt": "2026-11-12T12:36:14.941Z"
+      "duration": 514,
+      "finishedAt": "2026-11-12T12:39:52.766Z"
     },
     "qa": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:14.943Z",
+      "startedAt": "2026-11-12T12:39:52.767Z",
       "log": [
         "QA — the gatekeeper. Reachability, geometry, budgets, content.",
         "  upstream reports 7/7 · failed 0",
         "  44 POIs · 31 doors · 28 interiors",
         "  34 cars · 4 trails · 8 glades",
-        "  hours: 22/28 open Tue noon · 8 open Fri 23:00 · 0 unparseable",
+        "  hours: 24/28 open Tue noon · 9 open Fri 23:00 · 0 unparseable",
         "  instances: 31224 windows, 5213 trees, 1691 props → budget 40699",
         "  ✔ every upstream report exists",
         "  ✔ every upstream stage passed",
@@ -232,21 +236,21 @@
         "  ✔ forest trails stay inside the world bounds — 4 trails",
         "  ✔ station platforms sit above the rail bed",
         "  ✔ every visitable interior runs on a real schedule — 28 venues",
-        "  ✔ the town is open at lunchtime — 22 open Tue 12:00",
-        "  ✔ the town is alive after dark — 8 open Fri 23:00",
-        "  ✔ every notice is human readable — delhaize: closed — opens 07:00",
+        "  ✔ the town is open at lunchtime — 24 open Tue 12:00",
+        "  ✔ the town is alive after dark — 9 open Fri 23:00",
+        "  ✔ every notice is human readable — delhaize: closed — opens 07:30",
         "  ✔ enough content for a session (buildings > 500, trees > 800)",
         "qa: 20/20 gates green",
         "report → data/reports/qa.json",
         "  QA wrote qa.json"
       ],
       "exitCode": 0,
-      "duration": 303,
-      "finishedAt": "2026-11-12T12:36:15.247Z"
+      "duration": 327,
+      "finishedAt": "2026-11-12T12:39:53.096Z"
     },
     "release": {
       "status": "done",
-      "startedAt": "2026-11-12T12:36:15.248Z",
+      "startedAt": "2026-11-12T12:39:53.097Z",
       "log": [
         "Release manager — collecting reports and stamping the build",
         "  ✔ all eight upstream reports exist",
@@ -258,8 +262,8 @@
         "  → docs/build-report.md"
       ],
       "exitCode": 0,
-      "duration": 40,
-      "finishedAt": "2026-11-12T12:36:15.289Z"
+      "duration": 47,
+      "finishedAt": "2026-11-12T12:39:53.145Z"
     }
   }
 }

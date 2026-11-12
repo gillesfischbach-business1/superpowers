@@ -85,17 +85,21 @@ lighter by €15–40, and the meter resets to tipsy. Sober up by waiting or by 
 
 | where | when |
 |---|---|
-| shops | Mon–Sat 06:00–22:00 (Cactus & Delhaize), Sunday 08:00–13:00 only |
+| shops | Delhaize 07:30–20:00, Cactus shoppi 05:00–23:00, Sunday morning only — the petrol-station shop trades on into the evening |
 | restaurants | lunch + dinner, closed one weekday |
 | pubs | 17:00 → 01:00 midweek, 02:00–03:00 at the weekend |
 | station halls & the hotel | 05:00/24 h — the 60a runs late |
 
 Walk into a closed door and the prompt reads *“closed — opens Tu 17:00”*; `E` gives you a quiet
 blip instead of an interior. Hold `T` to wait: time runs 55× faster, the day chip turns to `Tue ⏩`,
-and the world rolls over to the next day at midnight. Each schedule carries `hoursSrc`: `web` for the
-venues whose published hours were looked up (Why Not), `typical` for the rest — plausible schedules
-in the right Luxembourg rhythm, never invented precision. Overnight specs, `24/7` and weekly totals
-are checked by both `tests/hours.test.mjs` and the retail/systems/qa gates.
+and the world rolls over to the next day at midnight. Each schedule carries `hoursSrc`: **`web` for
+16 of the 28 venues**, whose published hours were looked up and are recorded with their source
+(`hoursRef`) — every pub except Opa Café, Red & Black, Café Medya and Café Italia; all nine
+restaurants; Delhaize and the Cactus shoppi. The remaining **12 are `typical`** — the town hall, the
+church, the school, the station and hotel, plus the four cafés with no confirmable listing —
+plausible Luxembourg rhythms rather than invented precision. Overnight specs, `24/7` and weekly
+totals are checked by `tests/hours.test.mjs` and the retail/systems/qa gates, including that every
+sourced schedule names where it came from.
 
 ## The multi-agent pipeline
 
@@ -140,10 +144,12 @@ Every stage writes `data/reports/<agent>.json`, and the release agent composes
   Mamma Mia, La Charbonnade, Ebi Sushi, Douro, Amarcord, Steak House, Chang Man, Gamja, Parc Le'h,
   Mille 9 Sens, Opa Café, Duke's Bar, Bar'Rio, Café Italia, Yuppy Café, Red & Black, Café Medya,
   Café Benfica, Why Not).
-- **Opening hours** — every interior carries `hours` + `hoursSrc`. Only Why Not uses its published
-  schedule (`web`); the others are `typical` Luxembourg rhythms, so the town shuts at night without
-  pretending to know a specific landlord's timetable. The Google importer carries real `openingHours`
-  through when you feed it a dataset.
+- **Opening hours** — every interior carries `hours` + `hoursSrc` (+ `hoursRef` when sourced). 16 of
+  28 venues run on their published schedule, read from the venue's own site or a directory
+  (cactus.lu, delhaize.lu, changman.lu, restaurant-parcleh.lu, steakhousedudelang.wixsite.com,
+  yellow.lu, restaurantguru, infobel); the other 12 are `typical` Luxembourg rhythms. See
+  `docs/dudelange-sources.md` for the per-venue table. The Google importer carries real
+  `openingHours` through when you feed it a dataset.
 
 ### Importing richer venue data (Google Maps)
 

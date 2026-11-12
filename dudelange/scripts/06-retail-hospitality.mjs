@@ -17,14 +17,17 @@ const pubBadPrices = drinks.filter((d) => !(d.price > 0) || !d.name);
 
 // opening hours: every venue, parsed with the same engine the game runs
 const venues = Object.entries(INTERIORS).map(([id, spec]) => ({
-  id, kind: spec.kind, hours: spec.hours, src: spec.hoursSrc, parsed: parseHours(spec.hours)
+  id, kind: spec.kind, hours: spec.hours, src: spec.hoursSrc, ref: spec.hoursRef, parsed: parseHours(spec.hours)
 }));
 const missingHours = venues.filter((v) => !v.hours || !v.parsed.ok);
 const implausible = venues.filter((v) => v.parsed.ok && (weeklyHours(v.parsed) < 20 || weeklyHours(v.parsed) > 168));
 const unprovenanced = venues.filter((v) => !['web', 'typical'].includes(v.src));
 const latePubs = pubs.filter(([id]) => isOpenAt(parseHours(INTERIORS[id].hours), 5, 23 * 60));
 const afterTwo = pubs.filter(([id]) => isOpenAt(parseHours(INTERIORS[id].hours), 6, 2 * 60 + 30));
-const shopsSunday = shops.filter(([id]) => isOpenAt(parseHours(INTERIORS[id].hours), 0, 15 * 60));
+const sourced = venues.filter((v) => v.src === 'web');
+const unsourcedRef = sourced.filter((v) => !v.ref);
+const shopsSundayPm = shops.filter(([id]) => isOpenAt(parseHours(INTERIORS[id].hours), 0, 15 * 60));
+const shopsSundayAm = shops.filter(([id]) => isOpenAt(parseHours(INTERIORS[id].hours), 0, 10 * 60));
 const allItems = [];
 for (const [id, spec] of [...shops, ...menus]) {
   for (const item of spec.shop?.items || []) allItems.push({ ...item, vendor: id });
@@ -38,7 +41,8 @@ const avg = prices.reduce((s, p) => s + p, 0) / prices.length;
 console.log(`  ${shops.length} supermarkets · ${menus.length} restaurants · ${pubs.length} pubs · ${allItems.length} purchasable lines`);
 console.log(`  ${alcoholic.length} alcoholic drinks · ${soft.length} soft options · strongest ${Math.max(...drinks.map((d) => d.booze)).toFixed(2)}`);
 console.log(`  hours: ${venues.length - missingHours.length}/${venues.length} venues parse · ${latePubs.length} pubs open Friday 23:00 · ${afterTwo.length} after 02:30`);
-console.log(`  ${shopsSunday.length} of ${shops.length} shops open Sunday afternoon (Luxembourg keeps Sunday trading short)`);
+console.log(`  ${sourced.length}/${venues.length} schedules come from a published source (${sourced.map((v) => v.id).join(', ')})`);
+console.log(`  shops open Sunday: ${shopsSundayAm.map(([id]) => id).join(', ')} in the morning · ${shopsSundayPm.map(([id]) => id).join(', ') || 'none'} in the afternoon`);
 console.log(`  Luxembourgish specialities on shelves: ${foundLux.map((i) => i.name).join(', ')}`);
 
 const delhaize = INTERIORS.delhaize;
@@ -59,7 +63,10 @@ gate.check('opening hours are plausible (20–168 h per week)', implausible.leng
 gate.check('the source of every schedule is declared', unprovenanced.length === 0, unprovenanced.map((v) => v.id).join(', ') || 'web / typical');
 gate.check('the town has nightlife', latePubs.length >= 5, `${latePubs.length} pubs open Friday 23:00`);
 gate.check('late licences run past 02:30 at the weekend', afterTwo.length >= 2, afterTwo.map(([id]) => id).join(', '));
-gate.check('shops respect Luxembourg Sunday trading', shopsSunday.length === 0, `${shopsSunday.length} open Sunday 15:00`);
+gate.check('every real-world schedule names its source', unsourcedRef.length === 0, unsourcedRef.map((v) => v.id).join(', ') || `${sourced.length} sourced schedules`);
+gate.check('most schedules are published, not invented', sourced.length >= venues.length / 2, `${sourced.length}/${venues.length} from the venue or a directory`);
+gate.check('shops trade on Sunday morning', shopsSundayAm.length >= 2, shopsSundayAm.map(([id]) => id).join(', '));
+gate.check('only the petrol-station shoppi trades on Sunday afternoon', shopsSundayPm.every(([id]) => id === 'cactus'), `${shopsSundayPm.map(([id]) => id).join(', ') || 'none'} open Sunday 15:00`);
 
 writeReport('retail.json', {
   agent: 'retail-hospitality', supermarkets: shops.length, restaurants: menus.length,

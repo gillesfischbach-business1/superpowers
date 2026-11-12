@@ -448,27 +448,31 @@ export const INTERIORS = {
  * Every entry is shown in-game with that caveat, so the world never pretends to be surveyed.
  */
 const HOURS = {
-  delhaize: ['Mo-Sa 07:00-20:00; Su 08:00-13:00', 'typical'],
+  // shops
+  delhaize: ['Mo-Sa 07:30-20:00; Su 07:30-13:00', 'web', 'delhaize.lu / Proxy Dudelange, 59A Route de Zoufftgen'],
+  cactus: ['Mo-Sa 05:00-23:00; Su 09:00-21:00', 'web', 'cactus.lu / Cactus shoppi Dudelange Esso, 214 Route de Luxembourg'],
   match: ['Mo-Sa 08:00-20:00; Su off', 'typical'],
-  cactus: ['Mo-Sa 06:00-22:00; Su 08:00-13:00', 'typical'],
-  mamma_mia: ['Tu-Su 11:30-14:30,18:00-22:30; Mo off', 'typical'],
-  charbonnade: ['Mo-Sa 18:00-23:00; Su off', 'typical'],
-  parc_leh: ['We-Su 11:00-21:00; Mo-Tu off', 'typical'],
-  amarcord: ['Mo-Sa 11:45-14:00,18:30-22:30; Su off', 'typical'],
-  chang_man: ['Mo-Su 11:30-14:30,17:30-22:30', 'typical'],
-  steak_house: ['Mo-Su 17:00-23:00', 'typical'],
-  douro: ['Mo-Sa 11:00-23:00; Su 11:00-16:00', 'typical'],
-  sushi_ebi: ['Tu-Su 11:30-14:30,18:00-22:00; Mo off', 'typical'],
-  gamja: ['Mo-Sa 11:30-22:00; Su off', 'typical'],
+  // restaurants
+  mamma_mia: ['Tu-Su 11:30-14:00,18:30-22:30; Mo off', 'web', 'restaurantguru + gastronomie.lu, 27 Pl. de l\u2019H\u00f4tel de Ville'],
+  charbonnade: ['Tu-Sa 11:00-14:00,18:00-22:00; Su,Mo off', 'web', 'restaurantguru, 10 Rue du Commerce'],
+  parc_leh: ['Tu-Su 12:00-14:00,19:00-22:00; Mo off', 'web', 'restaurant-parcleh.lu, 1 Rue de la For\u00eat'],
+  amarcord: ['Mo-Su 10:00-23:00', 'web', 'tripadvisor + restaurantguru, 1a Rue du Centenaire'],
+  chang_man: ['Mo 11:30-14:30,18:00-22:00; Tu off; We-Su 11:30-14:30,18:00-22:00', 'web', 'changman.lu, 99 Rue de la Lib\u00e9ration'],
+  steak_house: ['We 18:30-22:00; Th-Su 12:00-14:00,18:30-22:00; Mo,Tu off', 'web', 'steakhousedudelang.wixsite.com, 13 Rue du Commerce'],
+  douro: ['Tu-Su 11:45-13:45,18:30-21:15; Mo off', 'web', 'restaurantguru + miammiam.lu, 229 Rue de la Lib\u00e9ration'],
+  sushi_ebi: ['Tu-Fr 11:00-14:00,17:30-22:00; Sa 17:30-22:00; Su 11:30-14:00,17:30-22:00; Mo off', 'web', 'restaurantguru, near Dudelange-Ville station'],
+  gamja: ['Mo 18:00-22:00; Tu-Sa 12:00-14:00,18:00-22:00; Su 12:00-14:00', 'web', 'restaurantguru + tripadvisor, 11 Pl. de l\u2019H\u00f4tel de Ville'],
+  // pubs
   opa_cafe: ['Mo-Sa 08:00-01:00; Su 09:00-24:00', 'typical'],
-  dukes_bar: ['Mo-Th 17:00-01:00; Fr-Sa 17:00-03:00; Su 15:00-24:00', 'typical'],
-  bar_rio: ['Mo-Sa 07:00-01:00; Su 08:00-24:00', 'typical'],
-  yuppy_cafe: ['Mo-Fr 07:30-20:00; Sa 08:00-20:00; Su off', 'typical'],
+  dukes_bar: ['Mo-Th 10:00-01:00; Fr,Sa 10:00-03:00; Su 10:00-01:00', 'web', 'restaurantguru, 15 Rue de la Lib\u00e9ration'],
+  bar_rio: ['Mo-Sa 06:00-01:00; Su 07:00-01:00', 'web', 'restaurantguru + polomap, 6 Av. Grande-Duchesse Charlotte'],
+  yuppy_cafe: ['Mo-Th 08:00-21:00; Fr 08:00-23:00; Sa 09:00-20:00; Su 09:00-19:00', 'web', 'yellow.lu + restaurantguru, 32 Av. Grande-Duchesse Charlotte'],
   red_black: ['Mo-Th 17:00-01:00; Fr-Sa 17:00-03:00; Su 15:00-24:00', 'typical'],
   medya: ['Mo-Su 08:00-23:00', 'typical'],
-  cafe_benfica: ['Mo-Sa 07:00-23:00; Su 08:00-14:00', 'typical'],
+  cafe_benfica: ['Mo 09:00-18:00; Tu 09:00-01:00; We,Th 09:00-23:00; Fr,Sa 09:00-01:00; Su 09:00-18:00', 'web', 'infobel + waze, 179 Rue de la Lib\u00e9ration'],
   cafe_italia: ['Mo-Sa 09:00-01:00; Su 09:00-23:00', 'typical'],
-  why_not: ['Mo-Th 10:00-01:00; Fr 10:00-01:00; Sa 10:00-03:00; Su 14:00-03:00', 'web'],
+  why_not: ['Mo-Th 10:00-01:00; Fr 10:00-01:00; Sa 10:00-03:00; Su 14:00-03:00', 'web', 'venue listing, 81 Av. Grande-Duchesse Charlotte'],
+  // civic
   townhall: ['Mo-Fr 08:30-11:30,13:30-16:30; Sa-Su off', 'typical'],
   church: ['Mo-Su 08:00-19:00', 'typical'],
   cna: ['Tu-Su 10:00-18:00; Mo off', 'typical'],
@@ -477,6 +481,13 @@ const HOURS = {
   hotel: ['24/7', 'typical'],
   school: ['Mo-Fr 07:00-17:00; Sa-Su off', 'typical']
 };
+
+for (const [id, [spec, src, ref]] of Object.entries(HOURS)) {
+  if (!INTERIORS[id]) continue;
+  INTERIORS[id].hours = spec;
+  INTERIORS[id].hoursSrc = src;
+  if (ref) INTERIORS[id].hoursRef = ref;
+}
 
 for (const [id, [spec, src]] of Object.entries(HOURS)) {
   if (!INTERIORS[id]) continue;
