@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixture = path.join(root, 'tests', 'fixtures', 'google-places-sample.json');
 
-test('imports only Druidelange venues, splits known from new', () => {
+test('imports only Dudelange venues, splits known from new', () => {
   const out = execFileSync(process.execPath, [path.join(root, 'scripts', 'import-places.mjs'), fixture, '--json'], { encoding: 'utf8' });
   const report = JSON.parse(out.slice(out.indexOf('{')));
   assert.equal(report.read, 5, 'reads every row');

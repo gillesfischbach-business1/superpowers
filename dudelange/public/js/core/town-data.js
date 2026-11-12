@@ -382,6 +382,30 @@ export const LANDMARKS = [
     blurb: 'Station bar on Avenue Grande-Duchesse Charlotte, opposite Dudelange-Ville.'
   },
   {
+    id: 'yuppy_cafe', name: 'Yuppy Café', kind: 'pub', lat: 49.48192, lon: 6.08395,
+    rotation: 0.1, size: { w: 14, d: 12, h: 9 }, src: 'osm',
+    interior: 'yuppy_cafe',
+    blurb: 'Glass-fronted café on Avenue Grande-Duchesse Charlotte, a minute from Dudelange-Ville.'
+  },
+  {
+    id: 'red_black', name: 'Red & Black', kind: 'pub', lat: 49.47843, lon: 6.08769,
+    rotation: -0.18, size: { w: 15, d: 12, h: 9 }, src: 'osm',
+    interior: 'red_black',
+    blurb: 'Supporters’ pub on Route de Zoufftgen with a dartboard and a loud back room.'
+  },
+  {
+    id: 'medya', name: 'Café Medya', kind: 'pub', lat: 49.48675, lon: 6.09063,
+    rotation: 0.22, size: { w: 14, d: 11, h: 8.5 }, src: 'osm',
+    interior: 'medya',
+    blurb: 'Turkish café on Rue Louis Pasteur in Burange — tea, backgammon, football.'
+  },
+  {
+    id: 'cafe_benfica', name: 'Café Benfica', kind: 'pub', lat: 49.47039, lon: 6.08386,
+    rotation: -0.05, size: { w: 14, d: 11, h: 8.5 }, src: 'osm',
+    interior: 'cafe_benfica',
+    blurb: 'Portuguese café on Rue de la Libération, two streets from the old works gate.'
+  },
+  {
     id: 'cafe_italia', name: 'Café Italia', kind: 'pub', lat: 49.47053, lon: 6.08409,
     rotation: 0.15, size: { w: 15, d: 12, h: 9 }, src: 'osm',
     interior: 'cafe_italia',

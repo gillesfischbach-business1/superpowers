@@ -98,7 +98,7 @@ const pubTemplate = (opts) => ({
     jukebox: { x: -8.6, z: -6.7 },
     plants: [{ x: -9.2, z: 5.6 }],
     paintings: [{ x: -3, z: -7.6 }],
-    npcAt: { x: -5, z: -5.4, rot: 0 },
+    npcAt: { x: -5, z: -4.8, rot: 0 },
     exitAt: { x: 0, z: 7.4, rot: 0 },
     playerAt: { x: 0, z: 6.0, rot: Math.PI }
   },
@@ -269,6 +269,42 @@ export const INTERIORS = {
     line: 'Last train is at eleven. Until then the counter is yours — the station is right across the road.',
     wall: '#264653', accent: '#e76f51',
     blurb: 'Station bar with a terrace, a coffee machine that never stops, and the 60a timetable taped to the till.'
+  }),
+  yuppy_cafe: pubTemplate({
+    name: 'Yuppy Café — Avenue Grande-Duchesse Charlotte',
+    npc: 'Sofia',
+    role: 'Barmaid',
+    line: 'Espresso, craft beer, and the best people-watching bench in the Minett. The station is two minutes up the road.',
+    wall: '#2f4858', accent: '#e9c46a',
+    drinks: PUB_DRINKS.filter((d) => ['bofferding_draft', 'battin_fruite', 'cremant_glass', 'kaffee', 'waasser', 'gromperekichelcher_pub'].includes(d.id)),
+    blurb: 'Glass-fronted café on the main avenue: coffee by day, beer by night, the whole town walking past.'
+  }),
+  red_black: pubTemplate({
+    name: 'Red & Black — Route de Zoufftgen',
+    npc: 'Marc',
+    role: 'Patron',
+    line: 'Red and black, always. If the match is on, the whole street hears it — darts are behind you.',
+    wall: '#3a2b2b', accent: '#bc4749',
+    drinks: PUB_DRINKS.filter((d) => ['bofferding_draft', 'diekirch_draft', 'quetsch', 'waasser', 'mettwurst_pub'].includes(d.id)),
+    blurb: 'Supporters’ pub in the Italien quarter, scarves on the wall and a dartboard that has seen things.'
+  }),
+  medya: pubTemplate({
+    name: 'Café Medya — Rue Louis Pasteur',
+    npc: 'Aylin',
+    role: 'Patronne',
+    line: 'Tea, backgammon, and the strongest coffee in Burange. Sit — the board is already set.',
+    wall: '#4a3b2f', accent: '#2a9d8f',
+    drinks: PUB_DRINKS.filter((d) => ['kaffee', 'kaffee_schnaps', 'waasser', 'battin_fruite'].includes(d.id)),
+    blurb: 'Turkish café up in Burange: backgammon tables, tea in tulip glasses, football on a small screen.'
+  }),
+  cafe_benfica: pubTemplate({
+    name: 'Café Benfica — Rue de la Libération',
+    npc: 'João',
+    role: 'Patron',
+    line: 'Benfica on the wall, Super Bock on the counter, and half the Italien quarter in the back room on match nights.',
+    wall: '#2b3a33', accent: '#bc4749',
+    drinks: PUB_DRINKS.filter((d) => ['bofferding_draft', 'diekirch_draft', 'viez_glass', 'kaffee', 'mettwurst_pub'].includes(d.id)),
+    blurb: 'Portuguese café two streets from the old works gate — coffee at six, beer at seven.'
   }),
   cafe_italia: pubTemplate({
     name: 'Café Italia — Rue Grand-Duc Adolphe',

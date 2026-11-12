@@ -1,14 +1,14 @@
 {
-  "updated": "2026-11-12T10:46:05.194Z",
+  "updated": "2026-11-12T12:13:00.916Z",
   "running": false,
-  "eventId": 28,
+  "eventId": 31,
   "agents": {
     "cartographer": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:02.638Z",
+      "startedAt": "2026-11-12T12:12:58.370Z",
       "log": [
         "Cartographer — reading OpenStreetMap anchors for Dudelange",
-        "  35 anchors · 16 named streets · 25 road polylines overall",
+        "  39 anchors · 16 named streets · 25 road polylines overall",
         "  rail chainage: burange:1336 → ville:2332 → centre:2860 → usines:3553",
         "  ✔ all anchors inside the playable bbox",
         "  ✔ at least 15 named streets traced from OSM — 16 named",
@@ -21,12 +21,12 @@
         "report → data/reports/cartographer.json"
       ],
       "exitCode": 0,
-      "duration": 283,
-      "finishedAt": "2026-11-12T10:46:02.923Z"
+      "duration": 395,
+      "finishedAt": "2026-11-12T12:12:58.769Z"
     },
     "geologist": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:02.925Z",
+      "startedAt": "2026-11-12T12:12:58.771Z",
       "log": [
         "Geologist — sampling the Diddelengerbaach valley and the Minett cuesta",
         "  north–south profile: 285 m … 331 m (EU-DEM mean 317 m)",
@@ -41,75 +41,77 @@
         "report → data/reports/geologist.json"
       ],
       "exitCode": 0,
-      "duration": 274,
-      "finishedAt": "2026-11-12T10:46:03.200Z"
+      "duration": 267,
+      "finishedAt": "2026-11-12T12:12:59.039Z"
     },
     "urbanist": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:03.201Z",
+      "startedAt": "2026-11-12T12:12:59.040Z",
       "log": [
         "Urbanist — cutting lots along the real street network",
-        "  860 buildings · 100 streets · 45.39 km",
+        "  857 buildings · 100 streets · 45.39 km",
         "  4 forest trails · 8 glades · 1920 undergrowth clumps",
         "  34 parked cars (1 owned)",
-        "  neischmelz     18 buildings",
-        "  centre        167 buildings",
-        "  outskirts      19 buildings",
-        "  italien       295 buildings",
-        "  burange       330 buildings",
-        "  budersberg     26 buildings",
+        "  8 pubs, all traced from OSM: Opa Café, Duke’s Bar, Bar’Rio, Yuppy Café, Red & Black, Café Medya, Café Benfica, Café Italia",
+        "  neischmelz     16 buildings",
+        "  centre        159 buildings",
+        "  outskirts      13 buildings",
+        "  italien       307 buildings",
+        "  burange       332 buildings",
+        "  budersberg     25 buildings",
         "  usines          5 buildings",
-        "  ✔ building count within budget (400–1600) — 860",
+        "  ✔ building count within budget (400–1600) — 857",
         "  ✔ no building on the rail corridor — 0 offenders",
         "  ✔ no building inside parks or forest reserves — 0 offenders",
         "  ✔ no duplicate lot positions — 0 pairs",
-        "  ✔ every main quarter is inhabited — {\"neischmelz\":18,\"centre\":167,\"outskirts\":19,\"italien\":295,\"burange\":330,\"budersberg\":26,\"usines\":5}",
-        "  ✔ commercial ground floors exist — 263 shops",
-        "  ✔ street trees planted — 5278 trees",
+        "  ✔ every main quarter is inhabited — {\"neischmelz\":16,\"centre\":159,\"outskirts\":13,\"italien\":307,\"burange\":332,\"budersberg\":25,\"usines\":5}",
+        "  ✔ commercial ground floors exist — 239 shops",
+        "  ✔ street trees planted — 5213 trees",
         "  ✔ forest trails reach the woods — 4 trails",
-        "  ✔ trails are proper walks, not stubs — 246 m shortest",
+        "  ✔ trails are proper walks, not stubs — 244 m shortest",
         "  ✔ trails are cleared through the trees — 0 blocked trails",
         "  ✔ woodland has undergrowth and glades — 1920 clumps · 8 glades",
         "  ✔ enough parked cars to steal — 34 cars",
         "  ✔ no car parked inside a building — 0 offenders",
-        "urbanist: 13/13 gates green",
+        "  ✔ every pub is a real OSM venue you can walk into — 8 pubs · 0 approximated",
+        "urbanist: 14/14 gates green",
         "report → data/reports/urbanist.json"
       ],
       "exitCode": 0,
-      "duration": 362,
-      "finishedAt": "2026-11-12T10:46:03.565Z"
+      "duration": 335,
+      "finishedAt": "2026-11-12T12:12:59.376Z"
     },
     "architect": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:03.566Z",
+      "startedAt": "2026-11-12T12:12:59.377Z",
       "log": [
         "Architect — facades, roofscapes and furnished interiors",
-        "  7 architectural styles · 31,618 windows · 263 shopfronts",
-        "  interiors: 23 (3 shops, 9 restaurants)",
-        "    neischmelz     18",
-        "    italien       273",
-        "    centre        246",
-        "    outskirts      14",
-        "    burange       278",
-        "    budersberg     26",
+        "  7 architectural styles · 31,224 windows · 239 shopfronts",
+        "  interiors: 27 (3 shops, 9 restaurants)",
+        "    neischmelz     16",
+        "    italien       282",
+        "    centre        223",
+        "    outskirts      11",
+        "    burange       295",
+        "    budersberg     25",
         "    usines          5",
         "  ✔ at least 6 distinct building styles — neischmelz, italien, centre, outskirts, burange, budersberg, usines",
-        "  ✔ window grid under 60k instances — 31618",
-        "  ✔ at least 15 visitable interiors — 23",
+        "  ✔ window grid under 60k instances — 31224",
+        "  ✔ at least 15 visitable interiors — 27",
         "  ✔ every interior is complete",
         "  ✔ at least 3 supermarkets — delhaize, match, cactus",
         "  ✔ at least 8 restaurants — 9",
-        "  ✔ gabled roofs dominate the residential quarters — {\"flat\":17,\"gable\":730,\"hip\":107,\"saw\":6}",
+        "  ✔ gabled roofs dominate the residential quarters — {\"flat\":16,\"gable\":746,\"hip\":90,\"saw\":5}",
         "architect: 7/7 gates green",
         "report → data/reports/architect.json"
       ],
       "exitCode": 0,
-      "duration": 293,
-      "finishedAt": "2026-11-12T10:46:03.861Z"
+      "duration": 287,
+      "finishedAt": "2026-11-12T12:12:59.666Z"
     },
     "rail-engineer": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:03.862Z",
+      "startedAt": "2026-11-12T12:12:59.667Z",
       "log": [
         "Rail engineer — line 60a, four stops, underpasses and tunnels",
         "  northbound: Burange@60.3s → Ville@132.5s → Centre@182.5s",
@@ -126,16 +128,16 @@
         "report → data/reports/rail.json"
       ],
       "exitCode": 0,
-      "duration": 337,
-      "finishedAt": "2026-11-12T10:46:04.200Z"
+      "duration": 307,
+      "finishedAt": "2026-11-12T12:12:59.976Z"
     },
     "retail-hospitality": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:04.201Z",
+      "startedAt": "2026-11-12T12:12:59.977Z",
       "log": [
         "Retail & hospitality — stocking shops and writing menus",
-        "  3 supermarkets · 9 restaurants · 4 pubs · 72 purchasable lines",
-        "  27 alcoholic drinks · 16 soft options · strongest 0.38",
+        "  3 supermarkets · 9 restaurants · 8 pubs · 72 purchasable lines",
+        "  38 alcoholic drinks · 25 soft options · strongest 0.38",
         "  Luxembourgish specialities on shelves: Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Kugelhopf, Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Bofferding 33 cl, Bouneschlupp, Judd mat Gaardebounen, Kugelhopf",
         "  ✔ three visitable supermarkets — delhaize, match, cactus",
         "  ✔ eight or more restaurants — mamma_mia, charbonnade, parc_leh, amarcord, chang_man, steak_house, douro, sushi_ebi, gamja",
@@ -144,29 +146,29 @@
         "  ✔ at least six Luxembourgish products — 28",
         "  ✔ menu prices are plausible (€1–€40) — avg €9.52",
         "  ✔ no duplicate item ids across vendors",
-        "  ✔ three or more visitable pubs — opa_cafe, dukes_bar, bar_rio, cafe_italia",
-        "  ✔ every pub pours something alcoholic and something soft — 27 alcoholic / 16 soft",
+        "  ✔ three or more visitable pubs — opa_cafe, dukes_bar, bar_rio, yuppy_cafe, red_black, medya, cafe_benfica, cafe_italia",
+        "  ✔ every pub pours something alcoholic and something soft — 38 alcoholic / 25 soft",
         "  ✔ drink strength is on a sane 0–0.45 scale — all within range",
         "  ✔ pub prices are plausible (€1–€15) — max €6.50",
         "retail: 11/11 gates green",
         "report → data/reports/retail.json"
       ],
       "exitCode": 0,
-      "duration": 35,
-      "finishedAt": "2026-11-12T10:46:04.238Z"
+      "duration": 37,
+      "finishedAt": "2026-11-12T12:13:00.015Z"
     },
     "systems": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:04.239Z",
+      "startedAt": "2026-11-12T12:13:00.017Z",
       "log": [
         "Systems engineer — determinism, collisions, saves and the UI contract",
-        "  world hash e9eb646ad1395fbd (860 buildings, 5278 trees)",
-        "  collision push-out 5.00 m · open-ground drift 0.000 m · save round-trip ok",
-        "  6/6 API routes present · 23 interiors wired · 11/11 quests hooked",
+        "  world hash 957aea222dba6349 (857 buildings, 5213 trees)",
+        "  collision push-out 5.11 m · open-ground drift 0.000 m · save round-trip ok",
+        "  6/6 API routes present · 27 interiors wired · 11/11 quests hooked",
         "  car push-out 1.92 m · timetable over 15 min: burange → ville → centre → usines → terminus → usines → centre → ville → burange → terminus → burange → ville",
-        "  3 forest trails · 34 drivable cars · 58 drunk-system hooks",
-        "  ✔ identical seed produces an identical world — e9eb646ad1395fbd",
-        "  ✔ collision solver pushes a player out of a building — 5.00 m",
+        "  3 forest trails · 34 drivable cars · 63 drunk-system hooks",
+        "  ✔ identical seed produces an identical world — 957aea222dba6349",
+        "  ✔ collision solver pushes a player out of a building — 5.11 m",
         "  ✔ collision solver leaves open ground alone — 0.000 m",
         "  ✔ save state round-trips through JSON",
         "  ✔ all core API routes are declared — /api/health, /api/save/, /api/leaderboard, /api/agents/status, /api/agents/run, /api/agents/stream",
@@ -178,26 +180,26 @@
         "  ✔ the train actually moves between stops — 12521 m",
         "  ✔ drunk state is part of the save payload — drunk + stolenCars",
         "  ✔ stealing a car is wired to interaction and rewards — hot-wire → quest event",
-        "  ✔ forest trails are surrounded by trees (walkable woods) — 3 forest trails · 26/19/56 trees near each",
-        "  ✔ tree trunks are solid but the woods stay passable — 3950 trunks · 5278 trees",
+        "  ✔ forest trails are surrounded by trees (walkable woods) — 3 forest trails · 33/28/62 trees near each",
+        "  ✔ tree trunks are solid but the woods stay passable — 3897 trunks · 5213 trees",
         "  ✔ body payloads are size limited",
-        "  ✔ performance budget: windows + trees under 40k instances — 36896",
+        "  ✔ performance budget: windows + trees under 40k instances — 36437",
         "systems: 17/17 gates green",
         "report → data/reports/systems.json"
       ],
       "exitCode": 0,
-      "duration": 536,
-      "finishedAt": "2026-11-12T10:46:04.776Z"
+      "duration": 570,
+      "finishedAt": "2026-11-12T12:13:00.588Z"
     },
     "qa": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:04.777Z",
+      "startedAt": "2026-11-12T12:13:00.589Z",
       "log": [
         "QA — the gatekeeper. Reachability, geometry, budgets, content.",
         "  upstream reports 7/7 · failed 0",
-        "  39 POIs · 26 doors · 23 interiors",
+        "  43 POIs · 30 doors · 27 interiors",
         "  34 cars · 4 trails · 8 glades",
-        "  instances: 31618 windows, 5278 trees, 1679 props → budget 41155",
+        "  instances: 31224 windows, 5213 trees, 1691 props → budget 40699",
         "  ✔ every upstream report exists",
         "  ✔ every upstream stage passed",
         "  ✔ no POI is buried inside a building",
@@ -205,10 +207,10 @@
         "  ✔ spawn point is clear",
         "  ✔ no NaN geometry — 0 bad values",
         "  ✔ landmark heights are sane (240–460 m) — 285–426 m",
-        "  ✔ instance budget under 90k — 41155",
+        "  ✔ instance budget under 90k — 40699",
         "  ✔ all landmark interiors exist",
         "  ✔ quest content is complete — 11 quests",
-        "  ✔ every pub has a door on the street — 4/4 pubs",
+        "  ✔ every pub has a door on the street — 8/8 pubs",
         "  ✔ no car is parked on the rail line — 0 on the tracks",
         "  ✔ every car has a colour, a quarter and finite coordinates — 34 cars",
         "  ✔ forest trails stay inside the world bounds — 4 trails",
@@ -219,12 +221,12 @@
         "  QA wrote qa.json"
       ],
       "exitCode": 0,
-      "duration": 377,
-      "finishedAt": "2026-11-12T10:46:05.155Z"
+      "duration": 284,
+      "finishedAt": "2026-11-12T12:13:00.874Z"
     },
     "release": {
       "status": "done",
-      "startedAt": "2026-11-12T10:46:05.156Z",
+      "startedAt": "2026-11-12T12:13:00.875Z",
       "log": [
         "Release manager — collecting reports and stamping the build",
         "  ✔ all eight upstream reports exist",
@@ -236,8 +238,8 @@
         "  → docs/build-report.md"
       ],
       "exitCode": 0,
-      "duration": 36,
-      "finishedAt": "2026-11-12T10:46:05.193Z"
+      "duration": 39,
+      "finishedAt": "2026-11-12T12:13:00.915Z"
     }
   }
 }

@@ -30,6 +30,9 @@ const trailMouths = trails.map((t) => closestOnPolyline(
 ).dist);
 const shortTrails = trails.filter((t) => t.length < 140);
 const trailsInTrees = trails.filter((t) => t.samples.some((p) => world.trees.some((tr) => Math.hypot(tr.x - p.x, tr.z - p.z) < 1.2)));
+const pubs = world.landmarks.filter((l) => l.kind === 'pub');
+const pubsNotOsm = pubs.filter((l) => l.src !== 'osm');
+const pubsWithInterior = pubs.filter((l) => l.interior);
 const cars = world.cars || [];
 const carsInBuildings = cars.filter((c) => world.buildings.some((b) =>
   Math.hypot(b.x - c.x, b.z - c.z) < Math.min(b.w, b.d) / 2));
@@ -37,6 +40,7 @@ const carsInBuildings = cars.filter((c) => world.buildings.some((b) =>
 console.log(`  ${world.buildings.length} buildings · ${world.stats.roads} streets · ${world.stats.roadKm} km`);
 console.log(`  ${trails.length} forest trails · ${world.clearings.length} glades · ${(world.undergrowth || []).length} undergrowth clumps`);
 console.log(`  ${cars.length} parked cars (${cars.filter((c) => c.owned).length} owned)`);
+console.log(`  ${pubs.length} pubs, all traced from OSM: ${pubs.map((l) => l.name).join(', ')}`);
 for (const [k, v] of Object.entries(perDistrict)) console.log(`  ${k.padEnd(12)} ${String(v).padStart(4)} buildings`);
 
 gate.check('building count within budget (400–1600)', world.buildings.length >= 400 && world.buildings.length <= 1600, String(world.buildings.length));
@@ -52,13 +56,14 @@ gate.check('trails are cleared through the trees', trailsInTrees.length === 0, `
 gate.check('woodland has undergrowth and glades', (world.undergrowth || []).length > 400 && world.clearings.length >= 3, `${(world.undergrowth || []).length} clumps · ${world.clearings.length} glades`);
 gate.check('enough parked cars to steal', cars.length >= 20, `${cars.length} cars`);
 gate.check('no car parked inside a building', carsInBuildings.length === 0, `${carsInBuildings.length} offenders`);
+gate.check('every pub is a real OSM venue you can walk into', pubs.length >= 8 && pubsNotOsm.length === 0 && pubsWithInterior.length === pubs.length, `${pubs.length} pubs · ${pubsNotOsm.length} approximated`);
 
 writeReport('urbanist.json', {
   agent: 'urbanist', buildings: world.buildings.length, perDistrict, commercial,
   roadKm: world.stats.roadKm, trees: world.trees.length,
   trails: trails.map((t) => ({ id: t.id, name: t.name, length: t.length })),
   clearings: world.clearings.length, undergrowth: (world.undergrowth || []).length,
-  cars: cars.length,
+  cars: cars.length, pubs: pubs.map((l) => ({ id: l.id, name: l.name, src: l.src })),
   railClearance: +Math.min(...world.buildings.map((b) => closestOnPolyline(world.rail.points, b.x, b.z).dist)).toFixed(2),
   ...gate.finish()
 });

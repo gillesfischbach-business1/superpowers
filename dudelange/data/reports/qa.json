@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T10:46:05.141Z",
+  "generatedAt": "2026-11-12T12:13:00.859Z",
   "agent": "qa",
   "upstream": [
     {
@@ -34,13 +34,13 @@
   "blockedPois": [],
   "unreachableDoors": 0,
   "nan": 0,
-  "instanceBudget": 41155,
+  "instanceBudget": 40699,
   "spawnBlocked": false,
   "quests": 11,
   "cars": 34,
-  "pubs": 4,
+  "pubs": 8,
   "trails": 4,
-  "interiors": 23,
+  "interiors": 27,
   "passed": true,
   "results": [
     {
@@ -81,7 +81,7 @@
     {
       "label": "instance budget under 90k",
       "ok": true,
-      "detail": "41155"
+      "detail": "40699"
     },
     {
       "label": "all landmark interiors exist",
@@ -96,7 +96,7 @@
     {
       "label": "every pub has a door on the street",
       "ok": true,
-      "detail": "4/4 pubs"
+      "detail": "8/8 pubs"
     },
     {
       "label": "no car is parked on the rail line",

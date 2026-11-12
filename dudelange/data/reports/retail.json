@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T10:46:04.234Z",
+  "generatedAt": "2026-11-12T12:13:00.012Z",
   "agent": "retail",
   "supermarkets": 3,
   "restaurants": 9,
@@ -53,6 +53,30 @@
       "name": "Bar’Rio — Avenue Grande-Duchesse Charlotte",
       "alcoholic": 7,
       "soft": 4
+    },
+    {
+      "id": "yuppy_cafe",
+      "name": "Yuppy Café — Avenue Grande-Duchesse Charlotte",
+      "alcoholic": 3,
+      "soft": 3
+    },
+    {
+      "id": "red_black",
+      "name": "Red & Black — Route de Zoufftgen",
+      "alcoholic": 3,
+      "soft": 2
+    },
+    {
+      "id": "medya",
+      "name": "Café Medya — Rue Louis Pasteur",
+      "alcoholic": 2,
+      "soft": 2
+    },
+    {
+      "id": "cafe_benfica",
+      "name": "Café Benfica — Rue de la Libération",
+      "alcoholic": 3,
+      "soft": 2
     },
     {
       "id": "cafe_italia",
@@ -680,12 +704,12 @@
     {
       "label": "three or more visitable pubs",
       "ok": true,
-      "detail": "opa_cafe, dukes_bar, bar_rio, cafe_italia"
+      "detail": "opa_cafe, dukes_bar, bar_rio, yuppy_cafe, red_black, medya, cafe_benfica, cafe_italia"
     },
     {
       "label": "every pub pours something alcoholic and something soft",
       "ok": true,
-      "detail": "27 alcoholic / 16 soft"
+      "detail": "38 alcoholic / 25 soft"
     },
     {
       "label": "drink strength is on a sane 0–0.45 scale",

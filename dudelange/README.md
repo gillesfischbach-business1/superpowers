@@ -29,6 +29,22 @@ Start in the centre, walk north to Dudelange-Ville or south to Dudelange-Usines,
 Cactus (28, Avenue Grande-Duchesse Charlotte) or Proxy Delhaize, eat at any of the nine restaurants,
 climb to the Mont Saint-Jean ruins, and cross the Neischmelz site.
 
+**Cars** — 34 parked cars, one of them yours. Everything else can be hot-wired with `E`, and moving
+traffic can be carjacked at the lights. Cars have their own colliders, crash sounds and a stolen
+counter; two thefts complete the *Wheels of your own* quest.
+
+**Trains** — line 60a runs Burange → Ville → Centre → Usines, brakes into every platform, dwells
+18 s with the doors open, and reverses at the terminus. Board with `E` at any open door.
+
+**Forests** — four walking trails (Mont Saint-Jean, Parc Le’h, the valley woods, the étang path),
+carved through 5 278 trees with 3 950 solid trunks, 1 920 clumps of fern and bramble, and eight
+glades with a fire ring and a lantern.
+
+**Pubs** — eight real cafés from OSM (Opa Café, Duke’s Bar, Bar’Rio, Café Italia, Yuppy Café,
+Red & Black, Café Medya, Café Benfica). Order at the bar, play darts, and watch the meter climb:
+the walk weaves, the camera rolls, speech slurs, the car gets harder to steer — and at 1.25 you
+wake up on a bench by the town hall a little poorer.
+
 ## Getting around
 
 **Cars.** Thirty-four cars are parked along the streets; one of them, a red hatchback by the
@@ -68,7 +84,7 @@ Nine specialist agents each own a stage, a script and a set of acceptance gates.
 | 03 | urbanist | `scripts/03-urbanist.mjs` | street network, lots, buildings, trees, POIs |
 | 04 | architect | `scripts/04-architect.mjs` | styles, windows, shopfronts, interiors |
 | 05 | rail-engineer | `scripts/05-rail-engineer.mjs` | rail geometry, platforms, timetable |
-| 06 | retail-hospitality | `scripts/06-retail-hospitality.mjs` | shops, menus, prices |
+| 06 | retail-hospitality | `scripts/06-retail-hospitality.mjs` | shops, menus, pubs, drinks |
 | 07 | systems | `scripts/07-systems.mjs` | collision, saves, quests, instance budgets |
 | 08 | qa | `scripts/08-qa.mjs` | reachability, geometry, budget, content gates |
 | 09 | release | `scripts/09-release.mjs` | build report + release gate |
@@ -120,10 +136,10 @@ never edits the world by itself, and it flags places that fall outside the curre
 
 ```
 public/            index.html, agents.html, css, vendored three
-public/js/core/    town-data (real data), geo, world (generation), interiors, quests
+public/js/core/    town-data (real data), geo, world (generation), interiors, quests, train
 public/js/game/    textures, world-render, ui, audio, main
 server/            zero-dependency http server + pipeline orchestrator
-scripts/           the nine agent stage scripts + shared _lib
+scripts/           the nine agent stage scripts, shared _lib, import-places
 agents/            manifest.json + role briefs
 data/reports/      per-agent gate reports · data/saves/ save slots
 tests/             node:test invariants

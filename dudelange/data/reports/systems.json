@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-12T10:46:04.770Z",
+  "generatedAt": "2026-11-12T12:13:00.582Z",
   "agent": "systems",
-  "worldHash": "e9eb646ad1395fbd",
-  "collisionPushOut": 5,
+  "worldHash": "957aea222dba6349",
+  "collisionPushOut": 5.11,
   "drift": 0,
   "saveRoundTrip": true,
   "routes": [
@@ -14,7 +14,7 @@
     "/api/agents/stream"
   ],
   "questHooks": 11,
-  "interiorsWired": 23,
+  "interiorsWired": 27,
   "cars": {
     "count": 34,
     "pushOut": 1.92,
@@ -45,21 +45,21 @@
     "trail_north"
   ],
   "instances": {
-    "windows": 31618,
-    "trees": 5278,
-    "buildings": 860
+    "windows": 31224,
+    "trees": 5213,
+    "buildings": 857
   },
   "passed": true,
   "results": [
     {
       "label": "identical seed produces an identical world",
       "ok": true,
-      "detail": "e9eb646ad1395fbd"
+      "detail": "957aea222dba6349"
     },
     {
       "label": "collision solver pushes a player out of a building",
       "ok": true,
-      "detail": "5.00 m"
+      "detail": "5.11 m"
     },
     {
       "label": "collision solver leaves open ground alone",
@@ -119,12 +119,12 @@
     {
       "label": "forest trails are surrounded by trees (walkable woods)",
       "ok": true,
-      "detail": "3 forest trails · 26/19/56 trees near each"
+      "detail": "3 forest trails · 33/28/62 trees near each"
     },
     {
       "label": "tree trunks are solid but the woods stay passable",
       "ok": true,
-      "detail": "3950 trunks · 5278 trees"
+      "detail": "3897 trunks · 5213 trees"
     },
     {
       "label": "body payloads are size limited",
@@ -134,7 +134,7 @@
     {
       "label": "performance budget: windows + trees under 40k instances",
       "ok": true,
-      "detail": "36896"
+      "detail": "36437"
     }
   ]
 }

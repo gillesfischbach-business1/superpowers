@@ -75,6 +75,7 @@ export class UI {
 
   /* --------------------------------------------------------------- drunk */
   setDrunk(v, label) {
+    if (Math.abs(v - (this.drunk || 0)) < 0.008) { this.drunk = v; return; }
     this.drunk = v;
     const meter = $('drunkMeter');
     if (!meter) return;

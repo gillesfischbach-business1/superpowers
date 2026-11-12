@@ -1234,7 +1234,6 @@ function drinkItem(item) {
   }
   app.audio.drink();
   p.drunk = Math.min(1.4, p.drunk + booze);
-  p.drinks = (p.drinks || 0) + 1;
   questEvent('drink', item.id);
   app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
   if (p.drunk > 0.4) app.ui.toast(DRUNK_LINES[Math.min(DRUNK_LINES.length - 1, Math.floor(p.drunk * 4))], p.drunk > 0.9 ? 'bad' : '');

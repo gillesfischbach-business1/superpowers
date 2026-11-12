@@ -1,51 +1,93 @@
 {
-  "generatedAt": "2026-11-12T10:46:03.552Z",
+  "generatedAt": "2026-11-12T12:12:59.361Z",
   "agent": "urbanist",
-  "buildings": 860,
+  "buildings": 857,
   "perDistrict": {
-    "neischmelz": 18,
-    "centre": 167,
-    "outskirts": 19,
-    "italien": 295,
-    "burange": 330,
-    "budersberg": 26,
+    "neischmelz": 16,
+    "centre": 159,
+    "outskirts": 13,
+    "italien": 307,
+    "burange": 332,
+    "budersberg": 25,
     "usines": 5
   },
-  "commercial": 263,
+  "commercial": 239,
   "roadKm": 45.39,
-  "trees": 5278,
+  "trees": 5213,
   "trails": [
     {
       "id": "trail_st_jean",
       "name": "Sentier du Mont Saint-Jean",
-      "length": 431.9
+      "length": 431.7
     },
     {
       "id": "trail_parc",
       "name": "Sentier du Parc Le’h",
-      "length": 288.4
+      "length": 289.9
     },
     {
       "id": "trail_etang",
       "name": "Sentier de l’Étang",
-      "length": 246.1
+      "length": 244
     },
     {
       "id": "trail_north",
       "name": "Sentier de la vallée",
-      "length": 991.7
+      "length": 993
     }
   ],
   "clearings": 8,
   "undergrowth": 1920,
   "cars": 34,
-  "railClearance": 15.55,
+  "pubs": [
+    {
+      "id": "opa_cafe",
+      "name": "Opa Café",
+      "src": "osm"
+    },
+    {
+      "id": "dukes_bar",
+      "name": "Duke’s Bar",
+      "src": "osm"
+    },
+    {
+      "id": "bar_rio",
+      "name": "Bar’Rio",
+      "src": "osm"
+    },
+    {
+      "id": "yuppy_cafe",
+      "name": "Yuppy Café",
+      "src": "osm"
+    },
+    {
+      "id": "red_black",
+      "name": "Red & Black",
+      "src": "osm"
+    },
+    {
+      "id": "medya",
+      "name": "Café Medya",
+      "src": "osm"
+    },
+    {
+      "id": "cafe_benfica",
+      "name": "Café Benfica",
+      "src": "osm"
+    },
+    {
+      "id": "cafe_italia",
+      "name": "Café Italia",
+      "src": "osm"
+    }
+  ],
+  "railClearance": 13.1,
   "passed": true,
   "results": [
     {
       "label": "building count within budget (400–1600)",
       "ok": true,
-      "detail": "860"
+      "detail": "857"
     },
     {
       "label": "no building on the rail corridor",
@@ -65,17 +107,17 @@
     {
       "label": "every main quarter is inhabited",
       "ok": true,
-      "detail": "{\"neischmelz\":18,\"centre\":167,\"outskirts\":19,\"italien\":295,\"burange\":330,\"budersberg\":26,\"usines\":5}"
+      "detail": "{\"neischmelz\":16,\"centre\":159,\"outskirts\":13,\"italien\":307,\"burange\":332,\"budersberg\":25,\"usines\":5}"
     },
     {
       "label": "commercial ground floors exist",
       "ok": true,
-      "detail": "263 shops"
+      "detail": "239 shops"
     },
     {
       "label": "street trees planted",
       "ok": true,
-      "detail": "5278 trees"
+      "detail": "5213 trees"
     },
     {
       "label": "forest trails reach the woods",
@@ -85,7 +127,7 @@
     {
       "label": "trails are proper walks, not stubs",
       "ok": true,
-      "detail": "246 m shortest"
+      "detail": "244 m shortest"
     },
     {
       "label": "trails are cleared through the trees",
@@ -106,6 +148,11 @@
       "label": "no car parked inside a building",
       "ok": true,
       "detail": "0 offenders"
+    },
+    {
+      "label": "every pub is a real OSM venue you can walk into",
+      "ok": true,
+      "detail": "8 pubs · 0 approximated"
     }
   ]
 }

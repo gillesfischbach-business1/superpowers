@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-11-12T10:46:03.852Z",
+  "generatedAt": "2026-11-12T12:12:59.656Z",
   "agent": "architect",
   "styles": {
-    "neischmelz": 18,
-    "italien": 273,
-    "centre": 246,
-    "outskirts": 14,
-    "burange": 278,
-    "budersberg": 26,
+    "neischmelz": 16,
+    "italien": 282,
+    "centre": 223,
+    "outskirts": 11,
+    "burange": 295,
+    "budersberg": 25,
     "usines": 5
   },
   "roofs": {
-    "flat": 17,
-    "gable": 730,
-    "hip": 107,
-    "saw": 6
+    "flat": 16,
+    "gable": 746,
+    "hip": 90,
+    "saw": 5
   },
-  "windows": 31618,
-  "shopfronts": 263,
+  "windows": 31224,
+  "shopfronts": 239,
   "interiors": [
     {
       "id": "delhaize",
@@ -185,6 +185,50 @@
       "items": 11
     },
     {
+      "id": "yuppy_cafe",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Sofia",
+      "items": 6
+    },
+    {
+      "id": "red_black",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Marc",
+      "items": 5
+    },
+    {
+      "id": "medya",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Aylin",
+      "items": 4
+    },
+    {
+      "id": "cafe_benfica",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "João",
+      "items": 5
+    },
+    {
       "id": "cafe_italia",
       "kind": "pub",
       "size": {
@@ -284,12 +328,12 @@
     {
       "label": "window grid under 60k instances",
       "ok": true,
-      "detail": "31618"
+      "detail": "31224"
     },
     {
       "label": "at least 15 visitable interiors",
       "ok": true,
-      "detail": "23"
+      "detail": "27"
     },
     {
       "label": "every interior is complete",
@@ -309,7 +353,7 @@
     {
       "label": "gabled roofs dominate the residential quarters",
       "ok": true,
-      "detail": "{\"flat\":17,\"gable\":730,\"hip\":107,\"saw\":6}"
+      "detail": "{\"flat\":16,\"gable\":746,\"hip\":90,\"saw\":5}"
     }
   ]
 }
