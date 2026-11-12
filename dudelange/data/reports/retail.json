@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T07:02:34.712Z",
+  "generatedAt": "2026-11-12T10:46:04.234Z",
   "agent": "retail",
   "supermarkets": 3,
   "restaurants": 9,
@@ -35,6 +35,33 @@
     "Judd mat Gaardebounen",
     "Kugelhopf"
   ],
+  "pubs": [
+    {
+      "id": "opa_cafe",
+      "name": "Opa Café — 31 Place de l’Hôtel de Ville",
+      "alcoholic": 7,
+      "soft": 4
+    },
+    {
+      "id": "dukes_bar",
+      "name": "Duke’s Bar — Rue de la Libération",
+      "alcoholic": 6,
+      "soft": 4
+    },
+    {
+      "id": "bar_rio",
+      "name": "Bar’Rio — Avenue Grande-Duchesse Charlotte",
+      "alcoholic": 7,
+      "soft": 4
+    },
+    {
+      "id": "cafe_italia",
+      "name": "Café Italia — Rue Grand-Duc Adolphe",
+      "alcoholic": 7,
+      "soft": 4
+    }
+  ],
+  "strongestDrink": 0.38,
   "catalogue": [
     {
       "id": "milk",
@@ -649,6 +676,26 @@
       "label": "no duplicate item ids across vendors",
       "ok": true,
       "detail": ""
+    },
+    {
+      "label": "three or more visitable pubs",
+      "ok": true,
+      "detail": "opa_cafe, dukes_bar, bar_rio, cafe_italia"
+    },
+    {
+      "label": "every pub pours something alcoholic and something soft",
+      "ok": true,
+      "detail": "27 alcoholic / 16 soft"
+    },
+    {
+      "label": "drink strength is on a sane 0–0.45 scale",
+      "ok": true,
+      "detail": "all within range"
+    },
+    {
+      "label": "pub prices are plausible (€1–€15)",
+      "ok": true,
+      "detail": "max €6.50"
     }
   ]
 }

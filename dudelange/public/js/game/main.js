@@ -9,6 +9,7 @@ import {
   polylineAt, resamplePolyline, polylineLength, closestOnPolyline
 } from '../core/geo.js';
 import { INTERIORS } from '../core/interiors.js';
+import { nextStopIndex as nextStopIndexCore, brakingSpeed } from '../core/train.js';
 import { QUESTS } from '../core/quests.js';
 import { createTown } from './world-render.js';
 import { UI } from './ui.js';
@@ -35,9 +36,11 @@ const app = {
   player: {
     x: 0, z: 0, y: 0, vy: 0, rot: Math.PI, yaw: Math.PI, pitch: 0.16,
     grounded: true, speed: 0, stamina: 100, distance: 0, level: 1, xp: 0, money: 120,
-    inventory: [], visitedStations: new Set(), lastStep: 0, bob: 0
+    inventory: [], visitedStations: new Set(), lastStep: 0, bob: 0,
+    drunk: 0, drinks: 0, blackouts: 0, stolenCars: 0, distanceDriven: 0, distanceWalked: 0
   },
-  car: { x: 0, z: 0, rot: 0, speed: 0, occupied: false, group: null, wheels: [] },
+  cars: [],
+  activeCar: null,
   train: null,
   interior: null,
   quests: [],
@@ -86,7 +89,7 @@ async function init() {
   step('Rail engineer — platforms, catenary, underpasses');
   await tick();
   setupTrain();
-  setupCar();
+  setupCars();
   setupTraffic();
   setupNPCs();
   step('Systems — save API, HUD, minimap, audio');
@@ -249,17 +252,34 @@ function makeCar(color = '#b23a48') {
   return { group: g, wheels };
 }
 
-function setupCar() {
-  const car = makeCar('#b23a48');
-  const spot = { x: app.world.spawn.x + 14, z: app.world.spawn.z + 6 };
-  app.car.x = spot.x;
-  app.car.z = spot.z;
-  app.car.y = terrainHeight(spot.x, spot.z);
-  app.car.rot = Math.PI * 0.5;
-  car.group.position.set(app.car.x, app.car.y, app.car.z);
-  app.scene.add(car.group);
-  app.car.group = car.group;
-  app.car.wheels = car.wheels;
+function setupCars() {
+  app.cars = [];
+  const list = app.world.cars && app.world.cars.length
+    ? app.world.cars
+    : [{ id: 'car_0', x: app.world.spawn.x + 14, z: app.world.spawn.z + 6, rot: Math.PI * 0.5, color: '#b23a48', owned: true }];
+  for (const spec of list) {
+    const model = makeCar(spec.color || '#b23a48');
+    const car = {
+      id: spec.id, color: spec.color, owned: !!spec.owned,
+      x: spec.x, z: spec.z, rot: spec.rot,
+      y: terrainHeight(spec.x, spec.z),
+      speed: 0, occupied: false, stolen: false,
+      group: model.group, wheels: model.wheels,
+      collider: spec.collider || null
+    };
+    car.group.position.set(car.x, car.y, car.z);
+    car.group.rotation.y = car.rot;
+    car.group.userData.carId = car.id;
+    app.scene.add(car.group);
+    app.cars.push(car);
+  }
+  app.activeCar = null;
+}
+
+function carPrompt(car) {
+  if (car.owned) return 'Drive your car';
+  if (car.stolen) return 'Drive the stolen car';
+  return 'Hot-wire this car';
 }
 
 function setupTraffic() {
@@ -275,7 +295,7 @@ function setupTraffic() {
       app.traffic.push({
         group: car.group, samples, length: polylineLength(samples),
         dist: (i * 97) % 300, speed: 7 + (i % 4) * 1.6, dir: i % 2 ? -1 : 1,
-        wheels: car.wheels
+        wheels: car.wheels, color: palette[i % palette.length], taken: false
       });
     });
 }
@@ -360,64 +380,97 @@ function placeTrain() {
   t.group.updateMatrixWorld();
 }
 
+function nextStopIndex(t) {
+  return nextStopIndexCore(t.stations, t.dist, t.dir);
+}
+
+function trainCarNearby(maxDistance = 16) {
+  const t = app.train;
+  if (!t) return null;
+  const p = app.player;
+  let best = null;
+  for (const car of t.cars) {
+    const d = Math.hypot(car.position.x - p.x, car.position.z - p.z);
+    if (d <= maxDistance && (!best || d < best.d)) best = { d, car };
+  }
+  return best;
+}
+
 function updateTrain(dt) {
   const t = app.train;
   if (!t) return;
-  const stop = t.stations[t.nextStop];
-  const targetDist = stop ? stop.chainage : (t.dir > 0 ? t.total - 40 : 40);
   if (t.state === 'dwell') {
     t.dwell -= dt;
-    t.doorsOpen = t.dwell > 0 && t.dwell < t.stopTime - 3;
+    t.doorsOpen = t.dwell > 0 && t.dwell < t.stopTime - 2;
     if (t.dwell <= 0) {
       t.state = 'run';
       t.doorsOpen = false;
-      app.audio.horn();
+      if (t.atTerminus) { t.dir *= -1; t.atTerminus = false; }
+      app.audio.chime();
+      if (t.boarded) {
+        const nextIdx = nextStopIndex(t);
+        const next = nextIdx >= 0 ? t.stations[nextIdx] : null;
+        app.ui.toast(next ? `Line 60a — next stop ${next.name}` : 'Line 60a — reversing at the terminus', '');
+      }
+      t.nextStop = nextStopIndex(t);
     }
-  } else {
-    const gap = Math.abs(targetDist - t.dist);
-    const targetSpeed = clamp(gap * 0.35, 0, 21);
-    t.speed = lerp(t.speed, targetSpeed, clamp(dt * 0.9, 0, 1));
-    t.dist += t.speed * dt * t.dir;
-    t.travelled += Math.abs(t.speed * dt);
-    if (gap < 1.2 && t.speed < 1.2) {
-      t.state = 'dwell';
-      t.dwell = t.stopTime;
-      t.speed = 0;
-      t.dist = targetDist;
-      arrival(t.stations[t.nextStop]);
-    }
-    if (t.dist >= t.total - 30) { t.dir = -1; t.nextStop = t.stations.length - 1; }
-    if (t.dist <= 20) { t.dir = 1; t.nextStop = 0; }
+    placeTrain();
+    return;
+  }
+  const stopIdx = nextStopIndex(t);
+  const targetDist = stopIdx >= 0 ? t.stations[stopIdx].chainage : (t.dir > 0 ? t.total - 30 : 10);
+  const gap = Math.abs(targetDist - t.dist);
+  const targetSpeed = brakingSpeed(gap);
+  t.speed = lerp(t.speed, targetSpeed, clamp(dt * 1.6, 0, 1));
+  const advance = Math.min(gap, t.speed * dt);
+  t.dist += advance * t.dir;
+  t.travelled += advance;
+  if (gap < 2.2) {
+    t.state = 'dwell';
+    t.dwell = t.stopTime;
+    t.speed = 0;
+    t.dist = targetDist;
+    t.nextStop = stopIdx;
+    t.atTerminus = stopIdx < 0;
+    arrival(stopIdx >= 0 ? t.stations[stopIdx] : null);
   }
   placeTrain();
 }
 
 function arrival(station) {
   const p = app.player;
-  const near = Math.hypot(p.x - station.x, p.z - station.z) < 70;
-  if (near) app.ui.toast(`Train arriving at ${station.name}`, 'good');
-  if (app.mode === 'train' && app.train.boarded) {
-    app.ui.toast(`Stop: ${station.name}. Doors open — press E to step out.`, 'good');
-    p.visitedStations.add(station.id);
-    questEvent('station', station.id);
+  const t = app.train;
+  if (!station) {
+    if (t.boarded) app.ui.toast('Terminus. The train will run back the other way.', 'good');
+    return;
   }
+  const near = Math.hypot(p.x - station.x, p.z - station.z) < 90;
+  if (near && !t.boarded) app.ui.toast(`Train arriving at ${station.name}`, 'good');
+  app.audio.chime();
+  if (app.mode === 'train' && t.boarded) {
+    app.ui.toast(`Stop: ${station.name}. Doors open — press E to step out.`, 'good');
+    questEvent('station', station.id);
+  } else if (near) questEvent('station', station.id);
 }
 
 function boardTrain() {
   const t = app.train;
   if (t.state !== 'dwell' || !t.doorsOpen) { app.ui.toast('The train is moving — wait for the doors.', 'bad'); return; }
+  if (!trainCarNearby(18)) { app.ui.toast('Walk along the platform to the open doors.', 'bad'); return; }
   t.boarded = true;
   t.startDist = t.dist;
   t.boardedTravelled = t.travelled;
   app.mode = 'train';
-  app.ui.toast('On board line 60a. Sit back, or press E at a stop to get off.', 'good');
   app.audio.door();
+  const nextIdx = nextStopIndex(t);
+  const next = nextIdx >= 0 ? t.stations[nextIdx] : null;
+  app.ui.toast(next ? `On board line 60a — next stop ${next.name}. Press E at a stop to get off.` : 'On board line 60a.', 'good');
   questEvent('train_board');
 }
 
 function leaveTrain() {
   const t = app.train;
-  const st = t.stations.reduce((best, s) => (Math.abs(s.chainage - t.dist) < Math.abs(best.chainage - t.dist) ? s : best), t.stations[0]);
+  const st = t.stations.reduce((best, s2) => (Math.abs(s2.chainage - t.dist) < Math.abs(best.chainage - t.dist) ? s2 : best), t.stations[0]);
   const p = app.player;
   p.x = st.x + 9;
   p.z = st.z + 5;
@@ -458,9 +511,24 @@ function setupQuests() {
 function questEvent(kind, value) {
   const p = app.player;
   if (kind === 'station') {
+    if (p.visitedStations.has(value)) return;
     p.visitedStations.add(value);
     if (p.visitedStations.size >= 4) completeQuest('stations');
     else app.ui.toast(`Station visited — ${p.visitedStations.size}/4`, 'good');
+  }
+  if (kind === 'steal') {
+    p.carsStolen = (p.carsStolen || 0) + 1;
+    if (p.carsStolen >= 2) completeQuest('wheels');
+  }
+  if (kind === 'drink') {
+    p.drinks = (p.drinks || 0) + 1;
+    if (p.drinks >= 2) completeQuest('pint');
+    if (p.drinks === 1) app.ui.toast('First drink of the evening. Sante!', 'good');
+  }
+  if (kind === 'pub') {
+    p.pubs = p.pubs || new Set();
+    p.pubs.add(value);
+    if (p.pubs.size >= 3) completeQuest('crawl');
   }
   if (kind === 'interior') {
     if (value === 'townhall') completeQuest('welcome');
@@ -577,12 +645,19 @@ function findInteractable() {
     if (it.kind === 'station') consider(it, 34, `${it.name} — station` );
   }
   for (const n of app.npcs) consider({ kind: 'npc', npc: n, x: n.x, z: n.z, name: n.name }, 3.6, `Talk to ${n.name}`);
-  const car = app.car;
-  if (!car.occupied) consider({ kind: 'car', x: car.x, z: car.z, name: 'car' }, 4.0, 'Drive the car');
+  for (const car of app.cars) {
+    if (car.occupied) continue;
+    consider({ kind: 'car', car, x: car.x, z: car.z, name: car.color }, 4.2, carPrompt(car));
+  }
+  for (const tr of app.traffic || []) {
+    if (tr.taken) continue;
+    consider({ kind: 'carjack', traffic: tr, x: tr.group.position.x, z: tr.group.position.z, name: 'traffic' }, 4.6, 'Carjack this car');
+  }
   const t = app.train;
   if (t && t.state === 'dwell' && t.doorsOpen) {
-    const carPos = t.cars[0].position;
-    consider({ kind: 'train', x: carPos.x, z: carPos.z, name: 'train' }, 14, 'Board the train');
+    for (const car of t.cars) {
+      consider({ kind: 'train', x: car.position.x, z: car.position.z, name: 'train' }, 15, 'Board the 60a');
+    }
   }
   return best;
 }
@@ -596,7 +671,8 @@ function interact() {
   if (!target) return;
   if (target.kind === 'door') enterInterior(target.interior, target.name);
   else if (target.kind === 'npc') talkToNPC(target.npc);
-  else if (target.kind === 'car') enterCar();
+  else if (target.kind === 'car') enterCar(target.car);
+  else if (target.kind === 'carjack') carjackTraffic(target.traffic);
   else if (target.kind === 'train') boardTrain();
   else if (target.kind === 'station') stationInfo(target.station);
 }
@@ -635,59 +711,108 @@ function stationInfo(station) {
 }
 
 /* ---------------------------------------------------------------- vehicles */
-function enterCar() {
+function enterCar(car) {
   const p = app.player;
-  app.car.occupied = true;
+  if (!car) return;
+  if (!car.owned && !car.stolen) {
+    car.stolen = true;
+    p.stolenCars++;
+    app.ui.toast('Hot-wired. Try not to park it in front of the town hall.', 'bad');
+    app.audio.door();
+    addXP(5);
+    questEvent('steal');
+  } else {
+    app.audio.door();
+  }
+  app.activeCar = car;
+  car.occupied = true;
   app.mode = 'car';
   app.ui.showSpeed(0);
   app.audio.engine(true);
-  p.x = app.car.x;
-  p.z = app.car.z;
+  p.x = car.x;
+  p.z = car.z;
   playerObj.visible = false;
-  app.ui.toast('Car — W/S throttle and brake, A/D steer, F to get out.');
+  app.ui.toast(`${car.owned ? 'Your car' : 'Stolen car'} — W/S throttle and brake, A/D steer, F to get out.`);
+}
+
+function carjackTraffic(tr) {
+  if (!tr || tr.taken) return;
+  tr.taken = true;
+  app.traffic = (app.traffic || []).filter((t) => t !== tr);
+  const pos = tr.group.position;
+  const car = {
+    id: `carjack_${Date.now()}`, color: tr.color || '#264653', owned: false,
+    x: pos.x, z: pos.z, rot: tr.group.rotation.y,
+    y: terrainHeight(pos.x, pos.z),
+    speed: tr.speed || 0, occupied: false, stolen: true,
+    group: tr.group, wheels: tr.wheels, collider: null
+  };
+  app.cars.push(car);
+  app.player.stolenCars++;
+  addXP(5);
+  questEvent('steal');
+  enterCar(car);
+  app.ui.toast('Carjacked. The driver is not happy about it.', 'bad');
 }
 
 function exitCar() {
-  const c = app.car;
-  const side = { x: Math.sin(c.rot) * 2.2, z: Math.cos(c.rot) * 2.2 };
-  app.player.x = c.x + side.x;
-  app.player.z = c.z + side.z;
-  app.player.y = terrainHeight(app.player.x, app.player.z);
+  const c = app.activeCar;
+  if (!c) { app.mode = 'foot'; return; }
+  const side = { x: Math.sin(c.rot) * 2.4, z: Math.cos(c.rot) * 2.4 };
+  let px = c.x + side.x, pz = c.z + side.z;
+  const solved = resolveCollisions(app.world, px, pz, 0.42);
+  px = solved.x; pz = solved.z;
+  app.player.x = px;
+  app.player.z = pz;
+  app.player.y = terrainHeight(px, pz);
   c.occupied = false;
   c.speed = 0;
   app.mode = 'foot';
+  app.activeCar = null;
   app.ui.showSpeed(null);
   app.audio.engine(false);
   playerObj.visible = true;
 }
 
 function updateCar(dt) {
-  const c = app.car;
+  const c = app.activeCar;
   const p = app.player;
-  if (app.mode !== 'car') {
-    c.group.position.set(c.x, c.y, c.z);
-    c.group.rotation.y = c.rot;
-    return;
+  // parked cars still need their collider kept in place (carjacked ones have none)
+  for (const car of app.cars) {
+    if (car !== c && car.collider) { car.collider.x = car.x; car.collider.z = car.z; car.collider.rot = car.rot; }
   }
+  if (!c) return;
+  const drunk = app.player.drunk;
   const throttle = app.keys.KeyW ? 1 : 0;
   const brake = app.keys.KeyS ? 1 : 0;
   const steer = (app.keys.KeyA ? 1 : 0) - (app.keys.KeyD ? 1 : 0);
-  const maxSpeed = brake ? -7 : throttle ? 24 : 0;
+  const maxSpeed = brake ? -7 : throttle ? 24 + drunk * 8 : 0;
   const accel = throttle ? 10 : brake ? 14 : 6;
   if (c.speed < maxSpeed) c.speed = Math.min(maxSpeed, c.speed + accel * dt);
   else if (c.speed > maxSpeed) c.speed = Math.max(maxSpeed, c.speed - accel * dt);
   if (!throttle && !brake) c.speed = lerp(c.speed, 0, dt * 1.4);
 
   if (Math.abs(c.speed) > 0.2) {
-    c.rot += steer * dt * clamp(Math.abs(c.speed) / 12, 0.3, 1.6) * Math.sign(c.speed);
+    // a drunk driver cannot hold a straight line
+    const wobble = drunk > 0.15 ? Math.sin(app.clock.elapsedTime * 1.9) * drunk * 0.55 : 0;
+    c.rot += (steer + wobble) * dt * clamp(Math.abs(c.speed) / 12, 0.3, 1.6) * Math.sign(c.speed);
   }
   const nx = c.x + Math.cos(c.rot) * c.speed * dt;
   const nz = c.z - Math.sin(c.rot) * c.speed * dt;
   const solved = resolveCollisions(app.world, nx, nz, 1.0);
-  if (Math.hypot(solved.x - nx, solved.z - nz) > 0.01) c.speed *= 0.35;
+  if (Math.hypot(solved.x - nx, solved.z - nz) > 0.01) {
+    if (Math.abs(c.speed) > 8 && app.clock.elapsedTime - (c.lastCrash || 0) > 1.2) {
+      c.lastCrash = app.clock.elapsedTime;
+      app.audio.crash();
+      app.ui.flash();
+    }
+    c.speed *= 0.35;
+  }
+  p.distanceDriven += Math.abs(c.speed * dt);
   c.x = solved.x;
   c.z = solved.z;
   c.y = terrainHeight(c.x, c.z);
+  if (c.collider) { c.collider.x = c.x; c.collider.z = c.z; c.collider.rot = c.rot; }
   const ahead = terrainHeight(c.x + Math.cos(c.rot) * 3, c.z - Math.sin(c.rot) * 3);
   const behind = terrainHeight(c.x - Math.cos(c.rot) * 3, c.z + Math.sin(c.rot) * 3);
   const pitch = -Math.atan2(ahead - behind, 6);
@@ -738,9 +863,8 @@ function enterInterior(id, name) {
   }
 }
 
-function exitInterior() {
-  app.audio.door();
-  app.ui.flash();
+function exitInterior(silent = false) {
+  if (!silent) { app.audio.door(); app.ui.flash(); }
   app.mode = 'foot';
   app.interior = null;
   app.scene = interiorState.scene;
@@ -866,6 +990,31 @@ function buildInterior(spec, name) {
     }
     colliders.push({ x: L.bar.x, z: L.bar.z, hw: L.bar.w / 2, hd: L.bar.d / 2 });
   }
+  for (const st of L.stools || []) {
+    const seat = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.1, 10), accentMat);
+    seat.position.set(st.x, 0.78, st.z);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.78, 6), new THREE.MeshStandardMaterial({ color: 0x2b2f33, metalness: 0.6, roughness: 0.4 }));
+    stem.position.set(st.x, 0.39, st.z);
+    const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.04, 10), new THREE.MeshStandardMaterial({ color: 0x2b2f33, metalness: 0.6 }));
+    foot.position.set(st.x, 0.03, st.z);
+    g.add(seat, stem, foot);
+  }
+  if (L.dartboard) {
+    const board = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.1, 20), new THREE.MeshStandardMaterial({ color: 0x1d1a16, roughness: 0.9 }));
+    board.rotation.x = Math.PI / 2;
+    board.position.set(L.dartboard.x, 2.1, L.dartboard.z + 0.06);
+    const face = new THREE.Mesh(new THREE.CircleGeometry(0.55, 20), new THREE.MeshStandardMaterial({ color: 0xd9c9a3, roughness: 0.8 }));
+    face.position.set(L.dartboard.x, 2.1, L.dartboard.z + 0.13);
+    g.add(board, face);
+    const light = new THREE.PointLight(0xffe6b8, 6, 7);
+    light.position.set(L.dartboard.x, 3.2, L.dartboard.z + 1);
+    g.add(light);
+  }
+  if (L.jukebox) {
+    addBox(0.9, 1.7, 0.6, L.jukebox.x, 0.85, L.jukebox.z, new THREE.MeshStandardMaterial({ color: 0x5a2d2d, metalness: 0.3, roughness: 0.6 }));
+    const glow = addBox(0.6, 0.5, 0.05, L.jukebox.x, 1.32, L.jukebox.z + 0.32, new THREE.MeshStandardMaterial({ color: 0xffd8a0, emissive: 0xffb347, emissiveIntensity: 1.4 }));
+    colliders.push({ x: L.jukebox.x, z: L.jukebox.z, hw: 0.45, hd: 0.3 });
+  }
   if (L.kitchen) addBox(L.kitchen.w, 1.0, L.kitchen.d, L.kitchen.x, 0.5, L.kitchen.z, new THREE.MeshStandardMaterial({ color: 0x9aa0a1, metalness: 0.5, roughness: 0.4 }));
   if (L.desk) {
     addBox(L.desk.w, 1.05, L.desk.d, L.desk.x, 0.52, L.desk.z, woodMat);
@@ -969,10 +1118,21 @@ function interactInterior() {
   if (npcD < 3.2) {
     if (spec.kind === 'shop') openShopUI();
     else if (spec.kind === 'restaurant') openMenuUI();
+    else if (spec.kind === 'pub') openPubUI();
     else if (spec.kind === 'station') { app.ui.showDialog({ speaker: spec.npc.name, text: spec.npc.line, choices: [{ label: 'Timetable', action: () => stationInfo(app.train.stations[0]) }, { label: 'Thanks' }] }); }
     else if (spec.id === 'cna') { app.ui.showDialog({ speaker: spec.npc.name, text: spec.npc.line, choices: [{ label: 'Look at the photographs', action: () => app.ui.toast('Steel, hands, smoke, and a mill that is now a museum.') }, { label: 'Leave' }] }); }
     else app.ui.showDialog({ speaker: spec.npc.name, text: spec.npc.line, choices: [{ label: 'Thanks' }] });
     return;
+  }
+  // pub furniture you can use
+  if (spec.kind === 'pub') {
+    if (L.dartboard && Math.hypot(L.dartboard.x - p.x, L.dartboard.z - p.z) < 3.4) { playDarts(); return; }
+    if (L.jukebox && Math.hypot(L.jukebox.x - p.x, L.jukebox.z - p.z) < 3.2) {
+      app.audio.blip(520, 0.1, 'triangle', 0.05);
+      setTimeout(() => app.audio.blip(760, 0.1, 'triangle', 0.05), 120);
+      app.ui.toast('The jukebox clicks, whirs, and plays the same song again.');
+      return;
+    }
   }
   // paintings
   for (const art of L.paintings || []) {
@@ -1027,6 +1187,108 @@ function checkGroceries() {
   const need = ['bread', 'milk', 'kachkeis'];
   const have = need.every((id) => app.player.inventory.some((i) => i.id === id && i.qty > 0));
   if (have) completeQuest('groceries');
+}
+
+/* ------------------------------------------------------------------- pubs */
+const DRUNK_LINES = [
+  'The cobbles have started to move under your feet.',
+  'You are speaking Luxembourgish. Badly.',
+  'The town hall has two towers now. It definitely has one.',
+  'You could swear the train is watching you.',
+  'Someone is playing an accordion. Nobody is playing an accordion.'
+];
+const SOBER_LINES = ['The room stops spinning. Mostly.', 'Your head clears — the beer was stronger than the walk.'];
+
+function drunkLabel(v) {
+  if (v < 0.05) return 'Sober';
+  if (v < 0.35) return 'Tipsy';
+  if (v < 0.7) return 'Merry';
+  if (v < 1.0) return 'Drunk';
+  return 'Wasted';
+}
+
+function openPubUI() {
+  const spec = interiorState.spec;
+  if (!spec.shop || !spec.shop.items) return;
+  app.ui.openShop({ ...spec.shop, kind: 'drinks' }, () => app.player.money, (cart, total) => {
+    app.player.money -= total;
+    app.ui.setMoney(app.player.money);
+    app.ui.setTradeMoney(app.player.money);
+    questEvent('pub', app.interior ? app.interior.id : spec.shop.title);
+    for (const line of cart) {
+      for (let n = 0; n < line.qty; n++) drinkItem(line);
+    }
+    if (cart.some((c) => !c.booze)) app.ui.toast('Something without alcohol — sensible.', 'good');
+    updateObjective();
+    saveGame();
+  });
+}
+
+function drinkItem(item) {
+  const p = app.player;
+  const booze = item.booze || 0;
+  if (booze <= 0) {
+    p.drunk = Math.max(0, p.drunk - 0.1);
+    app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
+    return;
+  }
+  app.audio.drink();
+  p.drunk = Math.min(1.4, p.drunk + booze);
+  p.drinks = (p.drinks || 0) + 1;
+  questEvent('drink', item.id);
+  app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
+  if (p.drunk > 0.4) app.ui.toast(DRUNK_LINES[Math.min(DRUNK_LINES.length - 1, Math.floor(p.drunk * 4))], p.drunk > 0.9 ? 'bad' : '');
+  if (p.drunk >= 1.25 && app.clock.elapsedTime - (p.lastBlackout || 0) > 20) blackout();
+}
+
+function blackout() {
+  const p = app.player;
+  p.lastBlackout = app.clock.elapsedTime;
+  p.blackouts = (p.blackouts || 0) + 1;
+  const lost = Math.min(p.money, 15 + Math.floor(Math.random() * 26));
+  p.money -= lost;
+  const spot = app.world.spawn;
+  app.ui.blackout(() => {
+    if (app.mode === 'car') exitCar();
+    if (app.mode === 'interior') exitInterior(true);
+    p.x = spot.x + 6;
+    p.z = spot.z + 9;
+    p.y = terrainHeight(p.x, p.z);
+    p.yaw = Math.PI * 0.85;
+    p.drunk = 0.25;
+    app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
+    app.ui.setMoney(p.money);
+    app.ui.toast(`You wake up on a bench by the town hall. €${lost} lighter, and your head is a bell.`, 'bad');
+    app.audio.burp();
+  });
+  saveGame();
+}
+
+function playDarts() {
+  const p = app.player;
+  const drunk = Math.min(1, p.drunk);
+  const score = Math.max(1, Math.round((0.55 + (1 - drunk) * 0.4) * (20 + Math.random() * 21) * (1 - drunk * 0.35)));
+  const line = score >= 60 ? 'Triple twenty. The pub goes quiet.' : score >= 40 ? 'A solid dart, high on the board.' :
+    score >= 20 ? 'In the outer ring. Points are points.' : 'The dart hits the wall. Somebody laughs.';
+  app.audio.blip(320, 0.05, 'square', 0.04);
+  app.ui.toast(`${line} (${score})`, score >= 40 ? 'good' : '');
+  p.dartBest = Math.max(p.dartBest || 0, score);
+}
+
+let drunkUiTimer = 0;
+function soberTick(dt) {
+  const p = app.player;
+  if (p.drunk <= 0) return;
+  const before = p.drunk;
+  p.drunk = Math.max(0, p.drunk - dt * 0.0075);
+  if (p.drunk === 0 && before > 0.1) {
+    app.ui.toast(SOBER_LINES[Math.floor(Math.random() * SOBER_LINES.length)], 'good');
+  }
+  drunkUiTimer += dt;
+  if (drunkUiTimer > 0.25 || p.drunk === 0) {
+    drunkUiTimer = 0;
+    app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
+  }
 }
 
 /* ---------------------------------------------------------------- weather */
@@ -1092,6 +1354,7 @@ function frame() {
   updateTraffic(dt);
   updateNPCs(t);
   updateRain(dt);
+  soberTick(dt);
 
   app.town.update(t, dt, app.player);
   const sky = app.town.sky;
@@ -1119,10 +1382,12 @@ function frame() {
       if (dExit < 2.6) app.ui.prompt('Leave the building');
       else if (dNpc < 3.4) {
         const kind = interiorState.spec.kind;
-        app.ui.prompt(kind === 'shop' ? 'Open the till' : kind === 'restaurant' ? 'Order at the bar' : 'Talk');
+        app.ui.prompt(kind === 'shop' ? 'Open the till' : kind === 'restaurant' ? 'Order at the bar'
+          : kind === 'pub' ? 'Order a drink' : 'Talk');
       } else app.ui.prompt(null);
     }
     if (app.mode === 'train' && app.train.state === 'dwell' && app.train.doorsOpen) app.ui.prompt('Step off the train');
+    else if (app.mode === 'train' && app.train.state !== 'dwell') app.ui.prompt('Next stop coming up — wait for the doors');
     if (app.mode === 'car') app.ui.prompt('F — get out of the car');
     checkProximity();
     pollAgents(false);
@@ -1196,7 +1461,13 @@ function updatePlayer(dt, t) {
   // first/third person on the map
   const sprint = app.keys.ShiftLeft || app.keys.ShiftRight;
   const canSprint = p.stamina > 2;
-  const speed = sprint && canSprint ? 8.4 : 4.3;
+  const drunk = Math.min(1, p.drunk || 0);
+  let speed = (sprint && canSprint ? 8.4 : 4.3) * (1 - 0.28 * drunk);
+  if (p.stumbleT > 0) { p.stumbleT -= dt; speed *= 0.3; }
+  else if (drunk > 0.55 && movingCheck(app.keys) && Math.random() < dt * 0.35) {
+    p.stumbleT = 0.45;
+    app.ui.toast('You stumble. The pavement is suddenly closer.', '');
+  }
   if (sprint && canSprint) p.stamina = Math.max(0, p.stamina - dt * 13);
   else p.stamina = Math.min(100, p.stamina + dt * 9);
 
@@ -1210,8 +1481,15 @@ function updatePlayer(dt, t) {
   const yaw = p.yaw;
   const fx = Math.sin(yaw), fz = Math.cos(yaw);
   const rx = Math.cos(yaw), rz = -Math.sin(yaw);
-  const vx = (fx * mz / len + rx * mx / len);
-  const vz = (fz * mz / len + rz * mx / len);
+  let vx = (fx * mz / len + rx * mx / len);
+  let vz = (fz * mz / len + rz * mx / len);
+  if (moving && drunk > 0.05) {
+    // the weave: a drunk walk is never a straight line
+    const weave = Math.sin(t * 1.9 + p.x * 0.01) * drunk * 0.5;
+    vx += rx * weave; vz += rz * weave;
+    const vl = Math.hypot(vx, vz) || 1;
+    vx /= vl; vz /= vl;
+  }
   let nx = p.x + vx * speed * dt;
   let nz = p.z + vz * speed * dt;
 
@@ -1257,6 +1535,7 @@ function updateCamera(dt) {
     );
     cam.position.lerp(desired, clamp(dt * 7, 0, 1));
     cam.lookAt(target);
+    applyDrunkCamera(dt);
     return;
   }
   if (app.mode === 'train' && app.train) {
@@ -1265,10 +1544,12 @@ function updateCamera(dt) {
     const behind = polylineAt(app.train.railPts, clamp(app.train.dist - 18, 0, app.train.total));
     cam.position.lerp(new THREE.Vector3(behind.x, terrainHeight(behind.x, behind.z) + 11, behind.z), clamp(dt * 2.2, 0, 1));
     cam.lookAt(new THREE.Vector3(at.x, terrainHeight(at.x, at.z) + 4, at.z));
+    applyDrunkCamera(dt);
     return;
   }
   if (app.mode === 'car') {
-    const c = app.car;
+    const c = app.activeCar;
+    if (!c) return;
     const back = 8.5;
     const desired = new THREE.Vector3(
       c.x - Math.cos(c.rot) * back,
@@ -1279,6 +1560,7 @@ function updateCamera(dt) {
     if (desired.y < ground) desired.y = ground;
     cam.position.lerp(desired, clamp(dt * 5.5, 0, 1));
     cam.lookAt(new THREE.Vector3(c.x + Math.cos(c.rot) * 8, c.y + 1.8, c.z - Math.sin(c.rot) * 8));
+    applyDrunkCamera(dt);
     return;
   }
   const yaw = p.yaw, pitch = p.pitch;
@@ -1293,7 +1575,20 @@ function updateCamera(dt) {
   if (desired.y < ground) desired.y = ground;
   cam.position.lerp(desired, clamp(dt * 9, 0, 1));
   cam.lookAt(target);
+  applyDrunkCamera(dt);
 }
+
+function applyDrunkCamera(dt) {
+  const drunk = Math.min(1.2, app.player.drunk || 0);
+  if (drunk < 0.03) return;
+  const t = app.clock.elapsedTime;
+  const k = app.mode === 'car' ? 0.55 : 1;
+  app.camera.rotateZ(Math.sin(t * 1.35) * 0.05 * drunk * k);
+  app.camera.position.y += Math.sin(t * 2.3) * 0.07 * drunk;
+  app.camera.rotateX(Math.sin(t * 0.9) * 0.012 * drunk);
+}
+
+function movingCheck(keys) { return !!(keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD); }
 
 function updateTraffic(dt) {
   for (const c of app.traffic || []) {
@@ -1378,6 +1673,11 @@ function saveGame(silent = true) {
     inventory: p.inventory,
     questsDone: app.quests.filter((q) => q.done).map((q) => q.id),
     stations: [...p.visitedStations],
+    pubs: [...(p.pubs || [])],
+    drunk: p.drunk || 0,
+    drinks: p.drinks || 0,
+    stolenCars: p.stolenCars || 0,
+    distanceDriven: p.distanceDriven || 0,
     distance: p.distance,
     at: new Date().toISOString()
   };
@@ -1391,8 +1691,10 @@ async function loadSave() {
   try {
     const res = await fetch(`/api/save/${playerId()}`);
     if (!res.ok) return;
-    const s = await res.json();
-    if (!s || !s.state) return;
+    const raw = await res.json();
+    const save = raw && raw.state ? raw.state : (raw && raw.money !== undefined ? raw : null);
+    if (!save) return;
+    const s = { state: save };
     const p = app.player;
     if (Number.isFinite(s.state.x)) { p.x = s.state.x; p.z = s.state.z; p.rot = s.state.rot || p.rot; p.y = terrainHeight?.(p.x, p.z) ?? p.y; }
     p.money = s.state.money ?? p.money;
@@ -1401,6 +1703,12 @@ async function loadSave() {
     p.inventory = s.state.inventory || [];
     p.distance = s.state.distance || 0;
     p.visitedStations = new Set(s.state.stations || []);
+    p.pubs = new Set(s.state.pubs || []);
+    p.drunk = s.state.drunk || 0;
+    p.drinks = s.state.drinks || 0;
+    p.stolenCars = s.state.stolenCars || 0;
+    p.distanceDriven = s.state.distanceDriven || 0;
+    app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
     app.time = s.state.time ?? app.time;
     for (const id of s.state.questsDone || []) {
       const q = app.quests.find((x) => x.id === id);
@@ -1417,6 +1725,8 @@ function openPause() {
         <h3 style="font:600 11px system-ui;letter-spacing:.22em;text-transform:uppercase;color:#e9c46a;margin:0 0 10px">Diddeleng</h3>
         <p style="margin:0">A single-player open world built from real OpenStreetMap street geometry and EU-DEM elevations of Dudelange.</p>
         <p>${app.world.stats.buildings} buildings · ${app.world.stats.roads} streets · ${app.world.stats.roadKm} km of road · ${app.world.stats.stations} CFL stops · ${app.world.stats.trees} trees</p>
+        <p style="margin-top:14px">${app.world.stats.cars} drivable cars · ${world.forestPaths.length} forest trails · ${Object.values(INTERIORS).filter((i) => i.kind === 'pub').length} pubs · ${app.quests.length} objectives</p>
+        <p style="color:rgba(244,239,227,.6)">${Math.round(app.player.distance / 1000)} km walked · ${Math.round(app.player.distanceDriven / 1000)} km driven · ${app.player.stolenCars || 0} cars taken · ${app.player.drinks || 0} drinks · ${app.player.blackouts || 0} blackouts</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
           <button class="primary" id="resumeBtn" style="margin:0;padding:11px 18px">Resume</button>
           <button class="primary" id="saveBtn" style="margin:0;padding:11px 18px;background:rgba(233,196,106,.15);color:#f4efe3">Save</button>
@@ -1426,7 +1736,7 @@ function openPause() {
       </div>
       <div>
         <h3 style="font:600 11px system-ui;letter-spacing:.22em;text-transform:uppercase;color:#e9c46a;margin:0 0 10px">Controls</h3>
-        <p style="margin:0">WASD — walk · Shift — sprint · Space — jump<br>E — interact / enter / shop · F — leave car<br>M — map · J — journal · P — build agents<br>Esc — pause · mouse — look · wheel — zoom</p>
+        <p style="margin:0">WASD — walk · Shift — sprint · Space — jump<br>E — interact / enter / shop / hot-wire a car · F — leave car<br>E at a platform — ride the 60a · M — map · J — journal<br>P — build agents · Esc — pause · mouse — look · wheel — zoom</p>
         <h3 style="font:600 11px system-ui;letter-spacing:.22em;text-transform:uppercase;color:#e9c46a;margin:18px 0 10px">Audio</h3>
         <input id="volume" type="range" min="0" max="1" step="0.05" value="0.5" style="width:100%" />
       </div>

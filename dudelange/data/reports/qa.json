@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T07:02:36.541Z",
+  "generatedAt": "2026-11-12T10:46:05.141Z",
   "agent": "qa",
   "upstream": [
     {
@@ -34,10 +34,13 @@
   "blockedPois": [],
   "unreachableDoors": 0,
   "nan": 0,
-  "instanceBudget": 38927,
+  "instanceBudget": 41155,
   "spawnBlocked": false,
-  "quests": 8,
-  "interiors": 19,
+  "quests": 11,
+  "cars": 34,
+  "pubs": 4,
+  "trails": 4,
+  "interiors": 23,
   "passed": true,
   "results": [
     {
@@ -78,7 +81,7 @@
     {
       "label": "instance budget under 90k",
       "ok": true,
-      "detail": "38927"
+      "detail": "41155"
     },
     {
       "label": "all landmark interiors exist",
@@ -88,7 +91,27 @@
     {
       "label": "quest content is complete",
       "ok": true,
-      "detail": "8 quests"
+      "detail": "11 quests"
+    },
+    {
+      "label": "every pub has a door on the street",
+      "ok": true,
+      "detail": "4/4 pubs"
+    },
+    {
+      "label": "no car is parked on the rail line",
+      "ok": true,
+      "detail": "0 on the tracks"
+    },
+    {
+      "label": "every car has a colour, a quarter and finite coordinates",
+      "ok": true,
+      "detail": "34 cars"
+    },
+    {
+      "label": "forest trails stay inside the world bounds",
+      "ok": true,
+      "detail": "4 trails"
     },
     {
       "label": "station platforms sit above the rail bed",

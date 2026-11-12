@@ -1,0 +1,40 @@
+[
+  {
+    "title": "Opa Café",
+    "categoryName": "Pub",
+    "address": "31 Place de l'Hôtel de Ville, 3590 Dudelange",
+    "location": { "lat": 49.4790778, "lng": 6.0854697 },
+    "totalScore": 4.6,
+    "reviewsCount": 214,
+    "price": "€€",
+    "phone": "+352 51 12 34",
+    "openingHours": [{ "day": "Monday", "hours": "10 AM to 1 AM" }]
+  },
+  {
+    "title": "Café des Panthères",
+    "categoryName": "Pub",
+    "address": "Route de Volmerange, 3460 Dudelange",
+    "location": { "lat": 49.4595425, "lng": 6.0811362 },
+    "totalScore": 4.1,
+    "reviewsCount": 88
+  },
+  {
+    "title": "Ebi Sushi",
+    "categoryName": "Sushi restaurant",
+    "address": "1 Route de Boudersberg, 3528 Dudelange",
+    "location": { "lat": 49.4863141, "lng": 6.0726095 },
+    "totalScore": 4.4,
+    "reviewsCount": 132
+  },
+  {
+    "title": "Somewhere in Esch",
+    "categoryName": "Bar",
+    "location": { "lat": 49.5000, "lng": 5.9800 }
+  },
+  {
+    "title": "Kiosk",
+    "categoryName": "Convenience store",
+    "location": { "lat": 49.4780, "lng": 6.0850 },
+    "totalScore": 3.2
+  }
+]

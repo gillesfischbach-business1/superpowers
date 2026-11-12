@@ -16,6 +16,7 @@ export class UI {
     this.panelOpen = false;
     this.dialogOpen = false;
     this.shopOpen = false;
+    this.drunk = 0;
     this.buildMapBase();
   }
 
@@ -71,6 +72,52 @@ export class UI {
     $('temp').textContent = `${temp} °C`;
   }
   setObjective(text) { $('objectiveText').textContent = text; }
+
+  /* --------------------------------------------------------------- drunk */
+  setDrunk(v, label) {
+    this.drunk = v;
+    const meter = $('drunkMeter');
+    if (!meter) return;
+    if (v < 0.04) { meter.classList.add('hidden'); }
+    else {
+      meter.classList.remove('hidden');
+      const fill = $('drunkFill');
+      if (fill) fill.style.width = `${Math.min(100, v * 100)}%`;
+      const text = $('drunkLabel');
+      if (text) text.textContent = `${label || ''} ${'·'.repeat(Math.min(4, Math.floor(v * 4)))}`.trim();
+    }
+    const fx = $('drunkfx');
+    if (fx) {
+      const k = Math.min(1, v);
+      fx.style.opacity = String(Math.min(0.92, k * 0.95));
+      fx.style.setProperty('--db', `${(k * 2.6).toFixed(2)}px`);
+      fx.style.setProperty('--ds', String((1 - k * 0.35).toFixed(2)));
+    }
+    document.body.classList.toggle('drunk', v > 0.35);
+  }
+
+  blackout(cb) {
+    const b = $('blackout');
+    if (!b) { cb && cb(); return; }
+    b.classList.add('on');
+    setTimeout(() => { cb && cb(); }, 950);
+    setTimeout(() => b.classList.remove('on'), 2100);
+  }
+
+  /** Speech gets sloppy once the meter climbs. */
+  slur(text) {
+    if (!text || this.drunk < 0.35) return text;
+    const k = Math.min(1, (this.drunk - 0.35) / 0.8);
+    let out = String(text);
+    const swaps = [['sch', 'sh'], ['sp', 'shp'], ['st', 'sht'], ['s', 'sh'], ['r', 'w']];
+    for (const [from, to] of swaps) {
+      if (Math.random() > k * 0.8) continue;
+      const re = new RegExp(`(?<=[a-zäëéöü])${from}`, 'g');
+      out = out.replace(re, to);
+    }
+    if (this.drunk > 0.75) out += ' *hic*';
+    return out;
+  }
   prompt(text) {
     const el = $('prompt');
     if (!text) { el.classList.add('hidden'); return; }
@@ -80,7 +127,7 @@ export class UI {
   toast(text, kind = '') {
     const el = document.createElement('div');
     el.className = `toast ${kind}`;
-    el.textContent = text;
+    el.textContent = kind === 'bad' ? text : this.slur(text);
     $('toasts').appendChild(el);
     const t = setTimeout(() => {
       el.classList.add('out');
@@ -434,7 +481,7 @@ export class UI {
   /* ------------------------------------------------------------- dialogue */
   showDialog({ speaker, text, choices }) {
     $('dlgSpeaker').textContent = speaker;
-    $('dlgText').textContent = text;
+    $('dlgText').textContent = this.slur(text);
     const box = $('dlgChoices');
     box.innerHTML = '';
     (choices || [{ label: 'Close' }]).forEach((c, i) => {

@@ -27,7 +27,7 @@ test('geometry is finite and spawn is clear', () => {
 });
 
 test('quests reference real content', () => {
-  assert.equal(QUESTS.length, 8);
+  assert.ok(QUESTS.length >= 8, 'at least the original eight quests');
   for (const q of QUESTS) {
     assert.ok(q.id && q.title, 'quest needs an id and a title');
     assert.ok(q.desc || q.steps?.length, `${q.id} needs an objective`);

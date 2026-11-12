@@ -249,6 +249,17 @@ export const ROADS = [
     ]
   },
   {
+    id: 'grand_duc_adolphe', name: 'Rue Grand-Duc Adolphe', cls: 'residential', src: 'osm',
+    points: [
+      [49.4691713, 6.0867352], [49.4691466, 6.0868314], [49.4688445, 6.0880089], [49.4689451, 6.088004],
+      [49.4690865, 6.0879933], [49.4691429, 6.0879675], [49.4692103, 6.0879294], [49.4695804, 6.0877065],
+      [49.4696100, 6.0876489], [49.4698602, 6.0867089], [49.4700119, 6.0861482], [49.4700589, 6.0860088],
+      [49.4703583, 6.0849309], [49.4703836, 6.0848017], [49.4704733, 6.0844906], [49.4705857, 6.0842599],
+      [49.4706891, 6.0840629], [49.4707087, 6.0840255]
+    ],
+    note: 'Traced from OSM way 137523303 / 273971692.'
+  },
+  {
     id: 'route_boudersberg', name: 'Route de Boudersberg', cls: 'secondary', src: 'approx',
     points: [
       [49.48606, 6.08170], [49.48615, 6.07850], [49.48628, 6.07550], [49.48631, 6.07261],
@@ -351,6 +362,30 @@ export const LANDMARKS = [
     rotation: 0.12, size: { w: 18, d: 14, h: 9 }, src: 'osm',
     interior: 'mamma_mia', cuisine: 'Italian',
     blurb: 'Pizzeria at 27 Place de l’Hôtel de Ville, opposite the town hall.'
+  },
+  {
+    id: 'opa_cafe', name: 'Opa Café', kind: 'pub', lat: 49.47906, lon: 6.08546,
+    rotation: -0.12, size: { w: 16, d: 13, h: 9.5 }, src: 'osm',
+    interior: 'opa_cafe',
+    blurb: 'Café on Place de l’Hôtel de Ville, zinc counter and all.'
+  },
+  {
+    id: 'dukes_bar', name: 'Duke’s Bar', kind: 'pub', lat: 49.47756, lon: 6.08486,
+    rotation: 0.08, size: { w: 13, d: 12, h: 9 }, src: 'osm',
+    interior: 'dukes_bar',
+    blurb: 'Darts and dark wood on Rue de la Libération.'
+  },
+  {
+    id: 'bar_rio', name: 'Bar’Rio', kind: 'pub', lat: 49.48260, lon: 6.08310,
+    rotation: -0.2, size: { w: 15, d: 12, h: 9 }, src: 'osm',
+    interior: 'bar_rio',
+    blurb: 'Station bar on Avenue Grande-Duchesse Charlotte, opposite Dudelange-Ville.'
+  },
+  {
+    id: 'cafe_italia', name: 'Café Italia', kind: 'pub', lat: 49.47053, lon: 6.08409,
+    rotation: 0.15, size: { w: 15, d: 12, h: 9 }, src: 'osm',
+    interior: 'cafe_italia',
+    blurb: 'Italian quarter café on Rue Grand-Duc Adolphe, espresso and a cold Battin.'
   },
   {
     id: 'charbonnade', name: 'Restaurant La Charbonnade', kind: 'restaurant', lat: 49.47903, lon: 6.08576,

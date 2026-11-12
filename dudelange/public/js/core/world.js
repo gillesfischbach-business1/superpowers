@@ -247,6 +247,8 @@ export function buildWorld({ seed = 20261112 } = {}) {
     if (b.w < 4 || b.d < 4) return false;
     const obb = { x: b.x, z: b.z, hw: b.d / 2, hd: b.w / 2, rot: b.rot };
     for (const other of buildingGrid.query(b.x, b.z, Math.max(b.w, b.d) + 8)) {
+      // near-identical centres slip past a corner-inside test, so guard the gap too
+      if (Math.hypot(other.obb.x - b.x, other.obb.z - b.z) < 3) return false;
       if (obbOverlap(obb, other.obb, 1.6)) return false;
     }
     buildings.push(b);
@@ -354,37 +356,130 @@ export function buildWorld({ seed = 20261112 } = {}) {
     }
   }
 
+  const FORESTS = [
+    { id: 'mont_st_jean', centre: project(49.4898, 6.0615), rx: 620, rz: 520, count: 1350 },
+    { id: 'kalebierg', centre: project(49.4670, 6.0570), rx: 560, rz: 460, count: 900 },
+    { id: 'parc_leh', centre: project(49.4862, 6.0995), rx: 250, rz: 200, count: 620 },
+    { id: 'north_woods', centre: project(49.4960, 6.0700), rx: 560, rz: 340, count: 760 },
+    { id: 'east_ridge', centre: project(49.4700, 6.1000), rx: 380, rz: 460, count: 620 },
+    { id: 'valley_belt', centre: project(49.4680, 6.0700), rx: 320, rz: 280, count: 420 }
+  ];
+
+  // ---------------------------------------------------------- forest trails
+  // Footpaths that make the woods properly walkable: each one leaves the nearest
+  // street, passes a viewpoint or landmark, and carries on into the trees.
+  const trailAnchors = [
+    { id: 'trail_st_jean', name: 'Sentier du Mont Saint-Jean', landmark: 'mont_st_jean', forest: 'mont_st_jean', dist: 430 },
+    { id: 'trail_kalebierg', name: 'Sentier du Kalebierg', landmark: 'kalebierg', forest: 'kalebierg', dist: 390 },
+    { id: 'trail_parc', name: 'Sentier du Parc Le’h', landmark: 'parc_leh_rest', forest: 'parc_leh', dist: 280 },
+    { id: 'trail_etang', name: 'Sentier de l’Étang', landmark: 'etang', forest: 'valley_belt', dist: 250, kind: 'park' },
+    { id: 'trail_north', name: 'Sentier de la vallée', landmark: null, forest: 'north_woods', start: [49.4948, 6.0742], dist: 560 }
+  ];
+  const nearestStreet = (x, z) => {
+    let best = { d: Infinity, x, z };
+    for (const r of roads) {
+      for (const sp of r.samples) {
+        const d = Math.hypot(sp.x - x, sp.z - z);
+        if (d < best.d) best = { d, x: sp.x, z: sp.z };
+      }
+    }
+    return best;
+  };
+  const forestPaths = [];
+  const clearings = [];
+  for (const spec of trailAnchors) {
+    const lm = spec.landmark ? landmarks.find((l) => l.id === spec.landmark) : null;
+    const anchor = lm ? { x: lm.x, z: lm.z } : project(spec.start[0], spec.start[1]);
+    const street = nearestStreet(anchor.x, anchor.z);
+    if (street.d > 900) continue;
+    const centre = (FORESTS.find((f) => f.id === spec.forest) || FORESTS[0]).centre;
+    // where the path bends into the trees: towards the middle of the forest belt
+    let dx = centre.x - anchor.x, dz = centre.z - anchor.z;
+    const dl = Math.hypot(dx, dz) || 1;
+    dx /= dl; dz /= dl;
+    const mouth = { x: anchor.x + dx * spec.dist, z: anchor.z + dz * spec.dist };
+    const raw = [{ x: street.x, z: street.z }];
+    const segs = [[street, anchor], [anchor, mouth]];
+    for (const [a, b] of segs) {
+      const sx = b.x - a.x, sz = b.z - a.z;
+      const sl = Math.hypot(sx, sz);
+      if (sl < 20) continue;
+      const nx = -sz / sl, nz = sx / sl;
+      for (const t of [0.35, 0.7]) {
+        const amp = randRange(rng, 6, 16) * Math.sin(t * Math.PI);
+        const bend = (rng() < 0.5 ? -1 : 1) * amp;
+        raw.push({ x: a.x + sx * t + nx * bend, z: a.z + sz * t + nz * bend });
+      }
+      raw.push(b);
+    }
+    const pts = resamplePolyline(raw, 5);
+    if (pts.length < 4) continue;
+    forestPaths.push({
+      id: spec.id, name: spec.name, kind: spec.kind || 'forest', points: raw, samples: pts,
+      length: +polylineLength(pts).toFixed(1), from: spec.landmark || 'road', to: 'forest'
+    });
+    clearings.push({ id: `${spec.id}_view`, name: spec.name, x: mouth.x, z: mouth.z, r: 15, trail: spec.id });
+    clearings.push({ id: `${spec.id}_glade`, name: spec.name, x: raw[Math.floor(raw.length / 2)].x, z: raw[Math.floor(raw.length / 2)].z, r: 11, trail: spec.id });
+  }
+  const nearTrail = (x, z, pad = 0) => forestPaths.some((t) => t.samples.some((p) => Math.hypot(p.x - x, p.z - z) < 3.4 + pad));
+
   // ---------------------------------------------------------------- trees
-  const treeGrid = new SpatialGrid(30);
+  const treeGrid = new SpatialGrid(6);
   const trees = [];
   const plantTree = (x, z, scale = 1, kind = 'deciduous') => {
-    if (treeGrid.query(x, z, 4).length > 0) return false;
-    trees.push({ x, z, y: terrainHeight(x, z), scale, kind, rot: rng() * Math.PI * 2, variant: Math.floor(rng() * 3) });
-    treeGrid.insert(x, z, true);
+    // a proper distance test: the grid only narrows the candidate set
+    if (treeGrid.query(x, z, 4).some((t) => Math.hypot(t.x - x, t.z - z) < 4)) return false;
+    if (kind === 'deciduous' && nearTrail(x, z)) return false;
+    if (kind === 'deciduous' && clearings.some((c) => Math.hypot(c.x - x, c.z - z) < c.r)) return false;
+    const tree = { x, z, y: terrainHeight(x, z), scale, kind, rot: rng() * Math.PI * 2, variant: Math.floor(rng() * 3) };
+    trees.push(tree);
+    treeGrid.insert(x, z, tree);
+    // trunks are solid, but you can always walk between them
+    if (kind === 'deciduous' && scale >= 0.95) {
+      const r = 0.34 * scale;
+      const trunk = { x, z, hw: r, hd: r, rot: 0, type: 'tree', h: 6 * scale };
+      colliders.push(trunk);
+      if (colliderGrid) colliderGrid.insert(x, z, trunk);
+    }
     return true;
   };
 
   // forest belts
-  const FORESTS = [
-    { id: 'mont_st_jean', centre: project(49.4898, 6.0615), rx: 900, rz: 760, count: 620 },
-    { id: 'kalebierg', centre: project(49.4670, 6.0570), rx: 820, rz: 620, count: 460 },
-    { id: 'parc_leh', centre: project(49.4862, 6.0995), rx: 330, rz: 260, count: 300 },
-    { id: 'north_woods', centre: project(49.4960, 6.0700), rx: 780, rz: 420, count: 420 },
-    { id: 'east_ridge', centre: project(49.4700, 6.1000), rx: 520, rz: 640, count: 380 },
-    { id: 'valley_belt', centre: project(49.4680, 6.0700), rx: 420, rz: 380, count: 220 }
-  ];
+  // Trees grow in thickets: pick a cluster centre, then a handful of trunks around it.
   for (const f of FORESTS) {
     let placed = 0, guard = 0;
-    while (placed < f.count && guard++ < f.count * 12) {
+    while (placed < f.count && guard++ < f.count * 14) {
       const a = rng() * Math.PI * 2, r = Math.sqrt(rng());
-      const x = f.centre.x + Math.cos(a) * f.rx * r;
-      const z = f.centre.z + Math.sin(a) * f.rz * r;
-      if (nearRoad(x, z, 12) < 4) continue;
-      if (landmarkAt(x, z, 4)) continue;
-      if (buildings.some((b) => obbContains({ x: b.x, z: b.z, hw: b.d / 2 + 3, hd: b.w / 2 + 3, rot: b.rot }, x, z))) continue;
-      if (plantTree(x, z, randRange(rng, 0.8, 1.7), 'deciduous')) placed++;
+      const cx = f.centre.x + Math.cos(a) * f.rx * r;
+      const cz = f.centre.z + Math.sin(a) * f.rz * r;
+      if (nearRoad(cx, cz, 12) < 4) continue;
+      if (landmarkAt(cx, cz, 4)) continue;
+      if (nearRoad(cx, cz, 30) < 6 && nearTrail(cx, cz, 30)) continue;
+      if (buildings.some((b) => obbContains({ x: b.x, z: b.z, hw: b.d / 2 + 3, hd: b.w / 2 + 3, rot: b.rot }, cx, cz))) continue;
+      const thicket = 2 + Math.floor(rng() * 4);
+      for (let k = 0; k < thicket && placed < f.count; k++) {
+        const ox = cx + randRange(rng, -9, 9), oz = cz + randRange(rng, -9, 9);
+        if (nearRoad(ox, oz, 10) < 4) continue;
+        if (landmarkAt(ox, oz, 3)) continue;
+        if (plantTree(ox, oz, randRange(rng, 0.8, 1.7), 'deciduous')) placed++;
+      }
     }
   }
+  // undergrowth: ferns and bramble at the forest edge, kept off the paths
+  const undergrowth = [];
+  for (const f of FORESTS) {
+    let placed = 0, guard = 0;
+    while (placed < 320 && guard++ < 6000) {
+      const a2 = rng() * Math.PI * 2, r2 = Math.sqrt(rng());
+      const x = f.centre.x + Math.cos(a2) * f.rx * r2;
+      const z = f.centre.z + Math.sin(a2) * f.rz * r2;
+      if (nearTrail(x, z, -1.6)) continue;
+      if (nearRoad(x, z, 40) < 3) continue;
+      undergrowth.push({ x, z, y: terrainHeight(x, z), scale: randRange(rng, 0.7, 1.5), rot: rng() * Math.PI * 2, kind: rng() < 0.7 ? 'fern' : 'bush' });
+      placed++;
+    }
+  }
+
   // street + garden trees
   for (const road of roads) {
     if (road.cls === 'foot' || road.cls === 'motorway') continue;
@@ -422,17 +517,44 @@ export function buildWorld({ seed = 20261112 } = {}) {
       }
     }
   }
-  // parked cars in the Italien quarter and near stations
-  for (let i = 0; i < 70; i++) {
-    const road = roads[Math.floor(rng() * roads.length)];
-    if (road.cls === 'foot' || road.cls === 'motorway') continue;
-    const at = polylineAt(road.samples, rng() * road.length);
-    const side = rng() < 0.5 ? -1 : 1;
-    const off = road.width / 2 + 0.8;
-    const x = at.x + Math.cos(at.angle) * side * off;
-    const z = at.z - Math.sin(at.angle) * side * off;
-    if (landmarkAt(x, z, 2)) continue;
-    props.push({ type: 'parked_car', x, z, rot: at.angle + (rng() < 0.5 ? 0 : Math.PI), y: terrainHeight(x, z), color: pick(rng, ['#b23a48', '#2a6f97', '#e9c46a', '#264653', '#e6e6e6', '#1d1d1d', '#7f8c8d']) });
+  // parked cars — every one of them can be hot-wired
+  const cars = [];
+  const carColors = ['#b23a48', '#2a6f97', '#e9c46a', '#264653', '#e6e6e6', '#1d1d1d', '#7f8c8d', '#bc6c25', '#457b9d', '#6a994e'];
+  const carGrid = new SpatialGrid(24);
+  const addCar = (x, z, rot, color, owned = false) => {
+    if (carGrid.query(x, z, 11).length) return false;
+    for (const b of buildings) {
+      if (obbContains({ x: b.x, z: b.z, hw: b.d / 2 + 2.6, hd: b.w / 2 + 2.2, rot: b.rot }, x, z)) return false;
+    }
+    const car = {
+      id: `car_${cars.length}`, x, z, rot, color, owned,
+      y: terrainHeight(x, z), district: districtAt(x, z, districtsMetric), parked: true
+    };
+    cars.push(car);
+    carGrid.insert(x, z, car);
+    const collider = { x, z, hw: 2.05, hd: 0.92, rot, type: 'car', id: car.id };
+    car.collider = collider;
+    colliders.push(collider);
+    return true;
+  };
+  // the player's own car, parked by the town-hall square
+  const ownSpot = project(49.47790, 6.08560);
+  addCar(ownSpot.x, ownSpot.z, Math.PI * 0.5, '#b23a48', true);
+  for (const road of roads) {
+    if (cars.length >= 34) break;
+    if (road.cls === 'foot' || road.cls === 'motorway' || road.length < 90) continue;
+    const spacing = road.cls === 'residential' ? 70 : 110;
+    for (let d = 24; d < road.length - 16; d += spacing + randRange(rng, 0, 40)) {
+      if (cars.length >= 34) break;
+      if (rng() > (road.cls === 'residential' ? 0.55 : 0.75)) continue;
+      const at = polylineAt(road.samples, d);
+      const side = rng() < 0.5 ? -1 : 1;
+      const off = road.width / 2 + 1.4;
+      const x = at.x + Math.cos(at.angle) * side * off;
+      const z = at.z - Math.sin(at.angle) * side * off;
+      if (landmarkAt(x, z, 3)) continue;
+      addCar(x, z, at.angle + (side > 0 ? 0 : Math.PI), pick(rng, carColors));
+    }
   }
   // bus stops at the stations + town hall
   for (const s of stations) {
@@ -525,6 +647,9 @@ export function buildWorld({ seed = 20261112 } = {}) {
   const spawnPoint = project(49.47835, 6.08410);
   const spawn = { x: spawnPoint.x, z: spawnPoint.z, y: terrainHeight(spawnPoint.x, spawnPoint.z), rot: Math.PI * 0.85 };
 
+  // cars placed after the collider grid exists would not be grabbable for push-out
+  for (const c of cars) if (colliderGrid) colliderGrid.insert(c.x, c.z, c.collider);
+
   const stats = {
     seed,
     roads: roads.length,
@@ -539,6 +664,9 @@ export function buildWorld({ seed = 20261112 } = {}) {
     tunnels: tunnels.length,
     pois: pois.length,
     doors: doors.length,
+    cars: cars.length,
+    trails: forestPaths.length,
+    undergrowth: undergrowth.length,
     railKm: +(railLength / 1000).toFixed(2)
   };
 
@@ -546,7 +674,8 @@ export function buildWorld({ seed = 20261112 } = {}) {
     meta: META, seed, stats,
     districts: districtsMetric,
     roads, rail: { ...RAIL, points: railPts, samples: railSamples, length: railLength, stations },
-    landmarks, buildings, trees, props, water, pois, tunnels, doors, spawn,
+    landmarks, buildings, trees, props, water, pois, tunnels, doors, cars, spawn,
+    forestPaths, clearings, undergrowth,
     colliders, colliderGrid, forests: FORESTS.map((f) => ({ id: f.id, ...f })),
     protectedZones: PROTECTED.map((p) => ({ id: p.id, poly: p.metric })),
     functions: { nearRoad, landmarkAt, districtAt: (x, z) => districtAt(x, z, districtsMetric) }

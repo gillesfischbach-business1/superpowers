@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-12T07:02:35.900Z",
+  "generatedAt": "2026-11-12T10:46:04.770Z",
   "agent": "systems",
-  "worldHash": "13df244e2fae4a9f",
-  "collisionPushOut": 6.38,
+  "worldHash": "e9eb646ad1395fbd",
+  "collisionPushOut": 5,
   "drift": 0,
   "saveRoundTrip": true,
   "routes": [
@@ -13,24 +13,53 @@
     "/api/agents/run",
     "/api/agents/stream"
   ],
-  "questHooks": 8,
-  "interiorsWired": 19,
+  "questHooks": 11,
+  "interiorsWired": 23,
+  "cars": {
+    "count": 34,
+    "pushOut": 1.92,
+    "stuck": 0
+  },
+  "timetable": {
+    "dwells": [
+      "burange",
+      "ville",
+      "centre",
+      "usines",
+      "terminus",
+      "usines",
+      "centre",
+      "ville",
+      "burange",
+      "terminus",
+      "burange",
+      "ville"
+    ],
+    "reversals": 2,
+    "travelled": 12521
+  },
+  "forestTrails": [
+    "trail_st_jean",
+    "trail_parc",
+    "trail_etang",
+    "trail_north"
+  ],
   "instances": {
-    "windows": 32964,
-    "trees": 1549,
-    "buildings": 895
+    "windows": 31618,
+    "trees": 5278,
+    "buildings": 860
   },
   "passed": true,
   "results": [
     {
       "label": "identical seed produces an identical world",
       "ok": true,
-      "detail": "13df244e2fae4a9f"
+      "detail": "e9eb646ad1395fbd"
     },
     {
       "label": "collision solver pushes a player out of a building",
       "ok": true,
-      "detail": "6.38 m"
+      "detail": "5.00 m"
     },
     {
       "label": "collision solver leaves open ground alone",
@@ -55,7 +84,47 @@
     {
       "label": "every quest is wired into the runtime",
       "ok": true,
-      "detail": "8/8"
+      "detail": "11/11"
+    },
+    {
+      "label": "every parked car is drivable and solid",
+      "ok": true,
+      "detail": "34 cars · 1.92 m push-out"
+    },
+    {
+      "label": "no car spawns inside geometry",
+      "ok": true,
+      "detail": "0 stuck"
+    },
+    {
+      "label": "the train serves all four stops and reverses at the terminus",
+      "ok": true,
+      "detail": "burange → ville → centre → usines → terminus → usines → centre → ville → burange"
+    },
+    {
+      "label": "the train actually moves between stops",
+      "ok": true,
+      "detail": "12521 m"
+    },
+    {
+      "label": "drunk state is part of the save payload",
+      "ok": true,
+      "detail": "drunk + stolenCars"
+    },
+    {
+      "label": "stealing a car is wired to interaction and rewards",
+      "ok": true,
+      "detail": "hot-wire → quest event"
+    },
+    {
+      "label": "forest trails are surrounded by trees (walkable woods)",
+      "ok": true,
+      "detail": "3 forest trails · 26/19/56 trees near each"
+    },
+    {
+      "label": "tree trunks are solid but the woods stay passable",
+      "ok": true,
+      "detail": "3950 trunks · 5278 trees"
     },
     {
       "label": "body payloads are size limited",
@@ -65,7 +134,7 @@
     {
       "label": "performance budget: windows + trees under 40k instances",
       "ok": true,
-      "detail": "34513"
+      "detail": "36896"
     }
   ]
 }

@@ -40,6 +40,7 @@ const badStations = world.rail.stations.filter((s) => !(s.platformY > s.elevatio
 
 console.log(`  upstream reports ${reports.length - missing.length}/${reports.length} · failed ${failed.length}`);
 console.log(`  ${world.pois.length} POIs · ${world.doors.length} doors · ${Object.keys(INTERIORS).length} interiors`);
+console.log(`  ${world.cars.length} cars · ${(world.forestPaths || []).length} trails · ${world.clearings.length} glades`);
 console.log(`  instances: ${windows} windows, ${world.trees.length} trees, ${world.props.length} props → budget ${instanceBudget}`);
 
 gate.check('every upstream report exists', missing.length === 0, missing.map((m) => m.name).join(', '));
@@ -51,7 +52,17 @@ gate.check('no NaN geometry', nan === 0, `${nan} bad values`);
 gate.check('landmark heights are sane (240–460 m)', heights.every((h) => h > 240 && h < 460), `${Math.min(...heights).toFixed(0)}–${Math.max(...heights).toFixed(0)} m`);
 gate.check('instance budget under 90k', instanceBudget < 90000, String(instanceBudget));
 gate.check('all landmark interiors exist', badInteriorRefs.length === 0, badInteriorRefs.map((l) => l.id).join(', '));
+const pubsInWorld = world.landmarks.filter((l) => l.kind === 'pub');
+const pubDoors = world.doors.filter((d) => pubsInWorld.some((l) => l.id === d.id));
+const railDanger = world.cars.filter((c) => closestOnPolyline(world.rail.points, c.x, c.z).dist < 12);
+const badCars = world.cars.filter((c) => !c.color || !c.district || !Number.isFinite(c.x) || !Number.isFinite(c.z));
+const trailsOffMap = (world.forestPaths || []).filter((t) => t.samples.some((p) => Math.abs(p.x) > 3200 || Math.abs(p.z) > 3200));
+
 gate.check('quest content is complete', questProblems.length === 0, `${QUESTS.length} quests`);
+gate.check('every pub has a door on the street', pubsInWorld.length >= 3 && pubDoors.length === pubsInWorld.length, `${pubDoors.length}/${pubsInWorld.length} pubs`);
+gate.check('no car is parked on the rail line', railDanger.length === 0, `${railDanger.length} on the tracks`);
+gate.check('every car has a colour, a quarter and finite coordinates', badCars.length === 0, `${world.cars.length} cars`);
+gate.check('forest trails stay inside the world bounds', trailsOffMap.length === 0, `${(world.forestPaths || []).length} trails`);
 gate.check('station platforms sit above the rail bed', badStations.length === 0);
 gate.check('enough content for a session (buildings > 500, trees > 800)', world.buildings.length > 500 && world.trees.length > 800);
 
@@ -59,6 +70,7 @@ const result = writeReport('qa.json', {
   agent: 'qa', upstream: reports.map((r) => ({ name: r.name, passed: r.report?.passed ?? false })),
   blockedPois: blockedPois.map((p) => p.name), unreachableDoors: unreachableDoors.length,
   nan, instanceBudget, spawnBlocked, quests: QUESTS.length,
+  cars: world.cars.length, pubs: pubsInWorld.length, trails: (world.forestPaths || []).length,
   interiors: Object.keys(INTERIORS).length, ...gate.finish()
 });
 console.log(`  QA wrote ${path.basename(result)}`);

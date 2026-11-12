@@ -20,13 +20,40 @@ npm start            # http://localhost:5173        the game
 |---|---|
 | `W A S D` | walk |
 | `Shift` | sprint |
-| `E` | interact — doors, tills, train doors, NPCs |
+| `E` | interact — doors, tills, taps, train doors, NPCs, and hot-wiring a parked car |
 | `M` | town map · `J` journal/quests · `P` build agents · `Esc` pause |
-| `F` | enter/leave the car · `R` board the train at a platform |
+| `F` | get out of the car you are driving |
+| `E` at a platform | board the 60a when the doors open |
 
 Start in the centre, walk north to Dudelange-Ville or south to Dudelange-Usines, buy groceries at
 Cactus (28, Avenue Grande-Duchesse Charlotte) or Proxy Delhaize, eat at any of the nine restaurants,
 climb to the Mont Saint-Jean ruins, and cross the Neischmelz site.
+
+## Getting around
+
+**Cars.** Thirty-four cars are parked along the streets; one of them, a red hatchback by the
+town-hall square, is yours. Every other car can be hot-wired with `E` — they count towards the
+*Wheels of your own* objective. Moving traffic can be carjacked too (you get a small XP reward and a
+very annoyed driver). Cars are solid objects: they push the player out, bounce off buildings, and
+sit on the terrain with a slope-following pitch.
+
+**Trains.** Line 60a shuttles between Burange, Ville, Centre and Usines, brakes properly for each
+platform (the braking curve lives in `public/js/core/train.js`, shared with the rail agent), waits
+18 s with the doors open, announces the next stop, and reverses at either terminus. Stand anywhere
+along a platform and press `E` when the doors open.
+
+**Forests.** The hills are real woods now: thickets of deciduous trees with solid trunks you can
+walk between, five undergrowth clumps per 10 m² of forest edge, and four waymarked trails —
+Mont Saint-Jean, Parc Le’h, the valley and the ridge — cut through the trees with glades, log seats
+and lanterns where you can stop.
+
+**Pubs.** Four real Dudelange pubs are walkable: **Opa Café** (31 Place de l’Hôtel de Ville),
+**Duke’s Bar** (Rue de la Libération), **Bar’Rio** (Avenue Grande-Duchesse Charlotte, opposite the
+station) and **Café Italia** (Rue Grand-Duc Adolphe). Order at the bar: Bofferding, Diekirch, Battin
+fruité, Viez, Crémant, Quetsch, Kaffi mat Schnaps, or something soft. Every alcoholic drink fills the
+drunkenness meter: the camera rolls, your walk weaves, speech slurs, darts get worse, driving gets
+sloppier and the HUD blurs. Drink too much and you black out — you wake on a bench by the town hall,
+lighter by €15–40, and the meter resets to tipsy. Sober up by waiting or by drinking water.
 
 ## The multi-agent pipeline
 
@@ -49,7 +76,8 @@ Nine specialist agents each own a stage, a script and a set of acceptance gates.
 ```bash
 npm run pipeline          # all nine stages via the CLI
 npm run pipeline:qa       # qa + release only
-npm test                  # 11 invariants (transforms, doors, quests, shell contract)
+npm test                  # 17 invariants (world, cars, trains, forests, pubs, shell, importer)
+npm run import:places -- dataset.json   # ingest a Google Maps dataset export
 ```
 
 Role briefs live in `agents/roles/`; the machine-readable contract is `agents/manifest.json`.
@@ -66,9 +94,27 @@ Every stage writes `data/reports/<agent>.json`, and the release agent composes
 - **Steelworks** — Neischmelz: ARBED/ArcelorMittal 1882–2005, furnaces demolished and rolling mill
   closed 1984; the 600 m rolling mill hall is recreated as the CNA film-studio shed with a skate
   park in front.
-- **Shops and restaurants** — real names and addresses (Cactus, Proxy Delhaize, Match, Mamma Mia,
-  La Charbonnade, Ebi Sushi, Douro, Amarcord, Steak House, Chang Man, Gamja, Parc Le'h, Mille 9
-  Sens).
+- **Shops, restaurants and pubs** — real names and coordinates (Cactus, Proxy Delhaize, Match,
+  Mamma Mia, La Charbonnade, Ebi Sushi, Douro, Amarcord, Steak House, Chang Man, Gamja, Parc Le'h,
+  Mille 9 Sens, Opa Café, Duke's Bar, Bar'Rio, Café Italia).
+
+### Importing richer venue data (Google Maps)
+
+The game is built from OpenStreetMap + hand-checked facts, so nothing here needs an API key. If you
+want Google-level venue detail (ratings, price brackets, opening hours, phones), run the
+[Google Maps Scraper](https://apify.com/compass/crawler-google-places) actor — for example with
+`searchStringsArray: ["restaurant", "pub", "bar", "cafe", "supermarket"]` and
+`locationQuery: "Dudelange, Luxembourg"` — export the dataset as JSON and feed it in:
+
+```bash
+npm run import:places -- ~/Downloads/dataset_google-maps.json
+```
+
+The importer filters to the commune bbox, maps Google categories onto the game's kinds
+(`pub` / `restaurant` / `shop` / `school` / `hotel` / `park`), de-duplicates against landmarks that
+already exist, and writes `data/imported/places.json` plus
+`data/imported/pending-landmarks.json` — ready-to-paste entries using the `town-data.js` schema. It
+never edits the world by itself, and it flags places that fall outside the current gameplay bbox.
 
 ## Layout
 

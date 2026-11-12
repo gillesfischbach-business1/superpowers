@@ -5,6 +5,7 @@ import { loadWorld, writeReport, Gate, hashWorld, estimateWindows } from './_lib
 import { buildWorld, resolveCollisions } from '../public/js/core/world.js';
 import { INTERIORS } from '../public/js/core/interiors.js';
 import { QUESTS } from '../public/js/core/quests.js';
+import { simulate } from '../public/js/core/train.js';
 
 console.log('Systems engineer — determinism, collisions, saves and the UI contract');
 const gate = new Gate('systems');
@@ -37,8 +38,32 @@ const mainSrc = fs.readFileSync(path.join(process.cwd(), 'public', 'js', 'game',
 const interiorsUsed = Object.keys(INTERIORS).filter((id) => mainSrc.includes(id) || a.landmarks.some((l) => l.interior === id));
 const questHooks = QUESTS.filter((q) => mainSrc.includes(`'${q.id}'`)).length;
 
+// a parked car is solid: stand in one and the solver must push you out
+const car = a.cars[Math.floor(a.cars.length / 2)];
+const carSolved = resolveCollisions(a, car.x, car.z, 1.0);
+const carPush = Math.hypot(carSolved.x - car.x, carSolved.z - car.z);
+// collision must never leave a car sitting inside a wall
+const carsInside = a.cars.filter((c) => a.buildings.some((b) => {
+  // OBB test against the building footprint, ignoring the car's own collider
+  const cos = Math.cos(b.rot), sin = Math.sin(b.rot);
+  const dx = c.x - b.x, dz = c.z - b.z;
+  const lx = dx * cos - dz * sin, lz = dx * sin + dz * cos;
+  return Math.abs(lx) < b.d / 2 + 1.4 && Math.abs(lz) < b.w / 2 + 1.4;
+}));
+
+// the timetable: ten simulated minutes must serve all four stops and reverse at the end
+const stations = a.rail.stations.map((s) => ({ id: s.id, chainage: s.railDist })).sort((x, y) => x.chainage - y.chainage);
+const run = simulate(stations, { total: a.rail.length, seconds: 900, dt: 0.25 });
+const forestTrails = (a.forestPaths || []).filter((t) => t.kind !== 'park');
+const trailFootfall = forestTrails.length;
+const treesPerTrail = forestTrails.map((trail) => a.trees.filter(
+  (tr) => tr.kind === 'deciduous' && trail.samples.some((p) => Math.hypot(tr.x - p.x, tr.z - p.z) < 30)
+).length);
+
 console.log(`  collision push-out ${pushed.toFixed(2)} m · open-ground drift ${drift.toFixed(3)} m · save round-trip ${roundTrip ? 'ok' : 'broken'}`);
 console.log(`  ${routes.length}/6 API routes present · ${interiorsUsed.length} interiors wired · ${questHooks}/${QUESTS.length} quests hooked`);
+console.log(`  car push-out ${carPush.toFixed(2)} m · timetable over 15 min: ${run.dwells.join(' → ')}`);
+console.log(`  ${trailFootfall} forest trails · ${a.cars.length} drivable cars · ${(mainSrc.match(/drunk/g) || []).length} drunk-system hooks`);
 
 gate.check('identical seed produces an identical world', hashA === hashB, hashA);
 gate.check('collision solver pushes a player out of a building', pushed > 0.5, `${pushed.toFixed(2)} m`);
@@ -47,12 +72,23 @@ gate.check('save state round-trips through JSON', roundTrip);
 gate.check('all core API routes are declared', routes.length === 6, routes.join(', '));
 gate.check('save slots are validated against path traversal', serverSrc.includes('safeId'));
 gate.check('every quest is wired into the runtime', questHooks === QUESTS.length, `${questHooks}/${QUESTS.length}`);
+gate.check('every parked car is drivable and solid', a.cars.length >= 20 && carPush > 0.5, `${a.cars.length} cars · ${carPush.toFixed(2)} m push-out`);
+gate.check('no car spawns inside geometry', carsInside.length === 0, `${carsInside.length} stuck`);
+gate.check('the train serves all four stops and reverses at the terminus', run.stationsVisited === 4 && run.reversals >= 1 && !run.repeatedDwell, run.dwells.slice(0, 9).join(' → '));
+gate.check('the train actually moves between stops', run.travelled > 2000 && run.stalled === 0, `${run.travelled} m`);
+gate.check('drunk state is part of the save payload', mainSrc.includes('drunk: p.drunk') && mainSrc.includes('stolenCars'), 'drunk + stolenCars');
+gate.check('stealing a car is wired to interaction and rewards', mainSrc.includes('Hot-wire this car') && mainSrc.includes("questEvent('steal')"), 'hot-wire → quest event');
+gate.check('forest trails are surrounded by trees (walkable woods)', trailFootfall >= 3 && treesPerTrail.every((n) => n > 12), `${trailFootfall} forest trails · ${treesPerTrail.join('/')} trees near each`);
+gate.check('tree trunks are solid but the woods stay passable', a.colliders.filter((c) => c.type === 'tree').length > 1000 && a.trees.length < 6000, `${a.colliders.filter((c) => c.type === 'tree').length} trunks · ${a.trees.length} trees`);
 gate.check('body payloads are size limited', serverSrc.includes('payload too large'));
 gate.check('performance budget: windows + trees under 40k instances', estimateWindows(a.buildings) + a.trees.length < 40000, String(estimateWindows(a.buildings) + a.trees.length));
 
 writeReport('systems.json', {
   agent: 'systems', worldHash: hashA, collisionPushOut: +pushed.toFixed(2), drift: +drift.toFixed(3),
   saveRoundTrip: roundTrip, routes, questHooks, interiorsWired: interiorsUsed.length,
+  cars: { count: a.cars.length, pushOut: +carPush.toFixed(2), stuck: carsInside.length },
+  timetable: { dwells: run.dwells, reversals: run.reversals, travelled: run.travelled },
+  forestTrails: (a.forestPaths || []).map((t) => t.id),
   instances: { windows: estimateWindows(a.buildings), trees: a.trees.length, buildings: a.buildings.length },
   ...gate.finish()
 });

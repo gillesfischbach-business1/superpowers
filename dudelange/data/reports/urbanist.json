@@ -1,26 +1,51 @@
 {
-  "generatedAt": "2026-11-12T07:02:33.374Z",
+  "generatedAt": "2026-11-12T10:46:03.552Z",
   "agent": "urbanist",
-  "buildings": 895,
+  "buildings": 860,
   "perDistrict": {
-    "neischmelz": 16,
-    "centre": 177,
-    "outskirts": 16,
-    "italien": 314,
-    "burange": 333,
-    "budersberg": 34,
+    "neischmelz": 18,
+    "centre": 167,
+    "outskirts": 19,
+    "italien": 295,
+    "burange": 330,
+    "budersberg": 26,
     "usines": 5
   },
-  "commercial": 272,
-  "roadKm": 44.91,
-  "trees": 1549,
-  "railClearance": 16.26,
+  "commercial": 263,
+  "roadKm": 45.39,
+  "trees": 5278,
+  "trails": [
+    {
+      "id": "trail_st_jean",
+      "name": "Sentier du Mont Saint-Jean",
+      "length": 431.9
+    },
+    {
+      "id": "trail_parc",
+      "name": "Sentier du Parc Le’h",
+      "length": 288.4
+    },
+    {
+      "id": "trail_etang",
+      "name": "Sentier de l’Étang",
+      "length": 246.1
+    },
+    {
+      "id": "trail_north",
+      "name": "Sentier de la vallée",
+      "length": 991.7
+    }
+  ],
+  "clearings": 8,
+  "undergrowth": 1920,
+  "cars": 34,
+  "railClearance": 15.55,
   "passed": true,
   "results": [
     {
       "label": "building count within budget (400–1600)",
       "ok": true,
-      "detail": "895"
+      "detail": "860"
     },
     {
       "label": "no building on the rail corridor",
@@ -40,17 +65,47 @@
     {
       "label": "every main quarter is inhabited",
       "ok": true,
-      "detail": "{\"neischmelz\":16,\"centre\":177,\"outskirts\":16,\"italien\":314,\"burange\":333,\"budersberg\":34,\"usines\":5}"
+      "detail": "{\"neischmelz\":18,\"centre\":167,\"outskirts\":19,\"italien\":295,\"burange\":330,\"budersberg\":26,\"usines\":5}"
     },
     {
       "label": "commercial ground floors exist",
       "ok": true,
-      "detail": "272 shops"
+      "detail": "263 shops"
     },
     {
       "label": "street trees planted",
       "ok": true,
-      "detail": "1549 trees"
+      "detail": "5278 trees"
+    },
+    {
+      "label": "forest trails reach the woods",
+      "ok": true,
+      "detail": "4 trails"
+    },
+    {
+      "label": "trails are proper walks, not stubs",
+      "ok": true,
+      "detail": "246 m shortest"
+    },
+    {
+      "label": "trails are cleared through the trees",
+      "ok": true,
+      "detail": "0 blocked trails"
+    },
+    {
+      "label": "woodland has undergrowth and glades",
+      "ok": true,
+      "detail": "1920 clumps · 8 glades"
+    },
+    {
+      "label": "enough parked cars to steal",
+      "ok": true,
+      "detail": "34 cars"
+    },
+    {
+      "label": "no car parked inside a building",
+      "ok": true,
+      "detail": "0 offenders"
     }
   ]
 }

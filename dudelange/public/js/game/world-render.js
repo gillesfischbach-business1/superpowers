@@ -531,7 +531,6 @@ function buildProps(world, M, lampPools) {
   const benches = world.props.filter((p) => p.type === 'bench');
   const bins = world.props.filter((p) => p.type === 'bin');
   const buses = world.props.filter((p) => p.type === 'bus_stop');
-  const cars = world.props.filter((p) => p.type === 'parked_car');
   const terraces = world.props.filter((p) => p.type === 'terrace');
 
   const poleGeo = new THREE.CylinderGeometry(0.09, 0.12, 5.4, 6);
@@ -604,38 +603,81 @@ function buildProps(world, M, lampPools) {
     group.add(shelter);
   });
 
-  // parked cars
-  if (cars.length) {
-    const bodyGeo = new THREE.BoxGeometry(4.1, 0.85, 1.8);
-    const cabinGeo = new THREE.BoxGeometry(2.2, 0.7, 1.65);
-    const wheelGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.22, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45, metalness: 0.4 });
-    const bodies = new THREE.InstancedMesh(bodyGeo, bodyMat, cars.length);
-    const cabins = new THREE.InstancedMesh(cabinGeo, M.dark, cars.length);
-    const wheels = new THREE.InstancedMesh(wheelGeo, M.dark, cars.length * 4);
-    bodies.frustumCulled = cabins.frustumCulled = wheels.frustumCulled = false;
-    bodies.castShadow = true;
-    cars.forEach((c, i) => {
-      const y = c.y;
-      dummy.position.set(c.x, y + 0.55, c.z);
-      dummy.rotation.set(0, c.rot, 0);
-      dummy.scale.set(1, 1, 1);
+  // forest trails — dirt ribbons you can actually follow on foot
+  const trailMat = new THREE.MeshStandardMaterial({ color: 0x8a7150, roughness: 1, map: TEX.gravel() });
+  for (const trail of world.forestPaths || []) {
+    const geo = buildRibbon(trail.samples, 2.8, 0.19, 0.06);
+    if (!geo) continue;
+    const mesh = new THREE.Mesh(geo, trailMat);
+    mesh.receiveShadow = true;
+    mesh.name = `trail:${trail.name}`;
+    group.add(mesh);
+    // trail head marker
+    const head = trail.samples[0];
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.1, 0.14), M.wood);
+    post.position.set(head.x, terrainHeight(head.x, head.z) + 1.05, head.z);
+    const sign = makeSign(trail.name, { bg: '#3c2f22', fg: '#f3e7cb', size: 40 });
+    sign.position.set(head.x, terrainHeight(head.x, head.z) + 2.2, head.z);
+    sign.rotation.y = 0.4;
+    group.add(post, sign);
+  }
+
+  // glades: a ring of stones, a log seat and a lantern
+  for (const c of world.clearings || []) {
+    const y = terrainHeight(c.x, c.z);
+    const ring = new THREE.Group();
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * Math.PI * 2;
+      const stone = new THREE.Mesh(new THREE.IcosahedronGeometry(0.32, 0), M.gravel);
+      stone.position.set(Math.cos(a) * 1.1, 0.16, Math.sin(a) * 1.1);
+      stone.scale.set(1, 0.7, 1);
+      ring.add(stone);
+    }
+    const log = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 2.6, 8), M.wood);
+    log.rotation.z = Math.PI / 2;
+    log.position.set(0, 0.3, 2.2);
+    ring.add(log);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), M.lamp);
+    lamp.position.set(0, 1.6, 0);
+    const lampPost = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.6, 6), M.dark);
+    lampPost.position.set(0, 0.8, 0);
+    ring.add(lamp, lampPost);
+    ring.position.set(c.x, y, c.z);
+    ring.rotation.y = (c.x % 7) * 0.4;
+    group.add(ring);
+    lampPools.push({ x: c.x, z: c.z });
+  }
+
+  // undergrowth: ferns and bramble, instanced
+  const ferns = (world.undergrowth || []).filter((u) => u.kind === 'fern');
+  const bushes = (world.undergrowth || []).filter((u) => u.kind === 'bush');
+  if (ferns.length) {
+    const fernGeo = new THREE.ConeGeometry(0.5, 1.05, 5, 1, true);
+    const fernMat = new THREE.MeshStandardMaterial({ color: 0x466b34, roughness: 1, side: THREE.DoubleSide });
+    const mesh = new THREE.InstancedMesh(fernGeo, fernMat, ferns.length);
+    mesh.frustumCulled = false;
+    ferns.forEach((f, i) => {
+      dummy.position.set(f.x, f.y + 0.45 * f.scale, f.z);
+      dummy.rotation.set(0, f.rot, 0);
+      dummy.scale.set(f.scale, f.scale, f.scale);
       dummy.updateMatrix();
-      bodies.setMatrixAt(i, dummy.matrix);
-      bodies.setColorAt(i, color.set(c.color));
-      dummy.position.set(c.x - Math.sin(c.rot) * 0.3, y + 1.2, c.z - Math.cos(c.rot) * 0.3);
-      dummy.updateMatrix();
-      cabins.setMatrixAt(i, dummy.matrix);
-      const cos = Math.cos(c.rot), sin = Math.sin(c.rot);
-      [[-1.3, 0.95], [1.3, 0.95], [-1.3, -0.95], [1.3, -0.95]].forEach(([lx, lz], w) => {
-        dummy.position.set(c.x + lx * cos + lz * sin, y + 0.32, c.z - lx * sin + lz * cos);
-        dummy.rotation.set(0, c.rot, Math.PI / 2);
-        dummy.updateMatrix();
-        wheels.setMatrixAt(i * 4 + w, dummy.matrix);
-      });
+      mesh.setMatrixAt(i, dummy.matrix);
     });
-    bodies.instanceColor.needsUpdate = true;
-    group.add(bodies, cabins, wheels);
+    group.add(mesh);
+  }
+  if (bushes.length) {
+    const bushGeo = new THREE.IcosahedronGeometry(0.75, 0);
+    const bushMat = new THREE.MeshStandardMaterial({ color: 0x37542b, roughness: 1, flatShading: true });
+    const mesh = new THREE.InstancedMesh(bushGeo, bushMat, bushes.length);
+    mesh.frustumCulled = false;
+    bushes.forEach((b, i) => {
+      dummy.position.set(b.x, b.y + 0.4 * b.scale, b.z);
+      dummy.rotation.set(0, b.rot, 0);
+      dummy.scale.set(b.scale, b.scale * 0.8, b.scale);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    });
+    group.add(mesh);
   }
 
   // terraces (café tables under umbrellas)

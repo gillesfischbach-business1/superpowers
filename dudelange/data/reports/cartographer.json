@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-12T07:02:32.023Z",
+  "generatedAt": "2026-11-12T10:46:02.913Z",
   "agent": "cartographer",
-  "anchors": 31,
-  "namedStreets": 15,
-  "roadPolylines": 24,
+  "anchors": 35,
+  "namedStreets": 16,
+  "roadPolylines": 25,
   "railStationOrder": [
     {
       "id": "burange",
@@ -37,7 +37,7 @@
     "east": 6.112
   },
   "sources": {
-    "osm": 18,
+    "osm": 22,
     "approx": 13
   },
   "passed": true,
@@ -50,7 +50,7 @@
     {
       "label": "at least 15 named streets traced from OSM",
       "ok": true,
-      "detail": "15 named"
+      "detail": "16 named"
     },
     {
       "label": "four CFL stations",
@@ -70,7 +70,7 @@
     {
       "label": "urban road network over 20 km",
       "ok": true,
-      "detail": "44.91 km"
+      "detail": "45.39 km"
     },
     {
       "label": "place names kept in Luxembourg spelling",

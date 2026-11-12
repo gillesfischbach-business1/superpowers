@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-11-12T07:02:34.047Z",
+  "generatedAt": "2026-11-12T10:46:03.852Z",
   "agent": "architect",
   "styles": {
-    "neischmelz": 16,
-    "italien": 277,
-    "centre": 264,
-    "outskirts": 13,
-    "burange": 286,
-    "budersberg": 34,
+    "neischmelz": 18,
+    "italien": 273,
+    "centre": 246,
+    "outskirts": 14,
+    "burange": 278,
+    "budersberg": 26,
     "usines": 5
   },
   "roofs": {
-    "flat": 16,
-    "gable": 783,
-    "hip": 91,
-    "saw": 5
+    "flat": 17,
+    "gable": 730,
+    "hip": 107,
+    "saw": 6
   },
-  "windows": 32964,
-  "shopfronts": 272,
+  "windows": 31618,
+  "shopfronts": 263,
   "interiors": [
     {
       "id": "delhaize",
@@ -152,6 +152,50 @@
       "items": 4
     },
     {
+      "id": "opa_cafe",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Marianne",
+      "items": 11
+    },
+    {
+      "id": "dukes_bar",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Tom",
+      "items": 10
+    },
+    {
+      "id": "bar_rio",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Sérgio",
+      "items": 11
+    },
+    {
+      "id": "cafe_italia",
+      "kind": "pub",
+      "size": {
+        "w": 20,
+        "d": 16,
+        "h": 4.2
+      },
+      "npc": "Fernand",
+      "items": 11
+    },
+    {
       "id": "townhall",
       "kind": "civic",
       "size": {
@@ -240,12 +284,12 @@
     {
       "label": "window grid under 60k instances",
       "ok": true,
-      "detail": "32964"
+      "detail": "31618"
     },
     {
       "label": "at least 15 visitable interiors",
       "ok": true,
-      "detail": "19"
+      "detail": "23"
     },
     {
       "label": "every interior is complete",
@@ -265,7 +309,7 @@
     {
       "label": "gabled roofs dominate the residential quarters",
       "ok": true,
-      "detail": "{\"flat\":16,\"gable\":783,\"hip\":91,\"saw\":5}"
+      "detail": "{\"flat\":17,\"gable\":730,\"hip\":107,\"saw\":6}"
     }
   ]
 }

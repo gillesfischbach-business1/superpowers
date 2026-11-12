@@ -7,7 +7,10 @@ export const QUESTS = [
   { id: 'summit', title: 'Gehaansbierg', desc: 'Climb Mont Saint-Jean and find the castle ruins at 417 m.', money: 30, xp: 50, hint: 'West of town, up Chemin du Mont Saint-Jean, or through Budersberg.' },
   { id: 'dinner', title: 'Dinner in town', desc: 'Order a proper dish in any Dudelange restaurant.', money: 20, xp: 35, hint: 'Mamma Mia on the town-hall square is a good start.' },
   { id: 'parc', title: 'The forest table', desc: 'Find the restaurant inside Parc Le’h, above Burange.', money: 25, xp: 40, hint: 'Rue de la Forêt leads east into the woods.' },
-  { id: 'ride', title: 'Ride the 60a', desc: 'Board the train at any stop and travel at least 500 m with it.', money: 50, xp: 80, hint: 'Wait for the doors to open at a platform, then press E.' }
+  { id: 'ride', title: 'Ride the 60a', desc: 'Board the train at any stop and travel at least 500 m with it.', money: 50, xp: 80, hint: 'Wait for the doors to open at a platform, then press E.' },
+  { id: 'wheels', title: 'Wheels of your own', desc: 'Hot-wire two parked cars anywhere in town.', money: 45, xp: 70, hint: 'Any parked car on the street can be taken — walk up and press E.' },
+  { id: 'pint', title: 'Prost!', desc: 'Have two drinks in a Dudelange pub.', money: 20, xp: 35, hint: 'Opa Café on the town-hall square, Duke’s Bar on Rue de la Libération, Bar’Rio by the station, Café Italia in the Italian quarter.' },
+  { id: 'crawl', title: 'A crawl through Diddeleng', desc: 'Have a drink in three different pubs.', money: 60, xp: 90, hint: 'Four pubs, four quarters — pace yourself, the beer is stronger than the walk.' }
 ];
 
 export const QUEST_ITEM_MAP = {

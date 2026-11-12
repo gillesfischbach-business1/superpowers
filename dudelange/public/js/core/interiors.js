@@ -71,6 +71,42 @@ const restaurantTemplate = (opts) => ({
   blurb: opts.blurb
 });
 
+/** Drinks served at the bar. `booze` drives the in-game drunkenness meter. */
+const PUB_DRINKS = [
+  { id: 'bofferding_draft', name: 'Bofferding (pint)', price: 4.20, booze: 0.2, cat: 'Béier', desc: 'The national pilsner, poured with a two-finger head.' },
+  { id: 'diekirch_draft', name: 'Diekirch (pint)', price: 4.20, booze: 0.2, cat: 'Béier', desc: 'Amber lager — the terrace beer of the Minett.' },
+  { id: 'battin_fruite', name: 'Battin fruité', price: 3.60, booze: 0.14, cat: 'Béier', desc: 'Peach radler. Dangerous in summer.' },
+  { id: 'viez_glass', name: 'Viez (glass)', price: 3.80, booze: 0.18, cat: 'Cidre', desc: 'Cloudy apple cider from the Gutland orchards.' },
+  { id: 'cremant_glass', name: 'Crémant de Luxembourg', price: 6.50, booze: 0.22, cat: 'Bulles', desc: 'Brut from the Moselle, served too cold.' },
+  { id: 'quetsch', name: 'Quetsch (2 cl)', price: 4.50, booze: 0.38, cat: 'Schnaps', desc: 'Plum schnapps. One is a tradition, three is a story.' },
+  { id: 'kaffee_schnaps', name: 'Kaffi mat Schnaps', price: 5.20, booze: 0.16, cat: 'Kaffi', desc: 'Coffee with a shot in it — the Luxembourgish pick-me-up.' },
+  { id: 'waasser', name: 'Waasser (50 cl)', price: 2.00, booze: 0, cat: 'Soft', desc: 'Fizzy water. Sober, but sensible.' },
+  { id: 'kaffee', name: 'Kaffi', price: 2.80, booze: 0, cat: 'Kaffi', desc: 'Strong, small, taken standing at the bar.' },
+  { id: 'gromperekichelcher_pub', name: 'Gromperekichelcher (3)', price: 3.20, booze: 0, cat: 'Snack', desc: 'Fried to order behind the counter, with apple compote.' },
+  { id: 'mettwurst_pub', name: 'Mettwurst mat Brot', price: 4.40, booze: 0, cat: 'Snack', desc: 'Smoked sausage, dark bread, a little mustard.' }
+];
+
+const pubTemplate = (opts) => ({
+  kind: 'pub',
+  size: { w: 20, d: 16, h: 4.2 },
+  palette: { floor: '#5a4632', wall: opts.wall || '#6b5140', accent: opts.accent || '#c9a227', shelf: '#3f2f22' },
+  layout: {
+    bar: { x: -5, z: -3.6, w: 10, d: 1.9 },
+    stools: [{ x: -8.6, z: -1.9 }, { x: -5.9, z: -1.9 }, { x: -3.2, z: -1.9 }, { x: -0.6, z: -1.9 }],
+    tables: [{ x: 6.4, z: -1.6 }, { x: 6.4, z: 2.4 }, { x: 2.2, z: 3.4 }],
+    dartboard: { x: 8.8, z: -6.9 },
+    jukebox: { x: -8.6, z: -6.7 },
+    plants: [{ x: -9.2, z: 5.6 }],
+    paintings: [{ x: -3, z: -7.6 }],
+    npcAt: { x: -5, z: -5.4, rot: 0 },
+    exitAt: { x: 0, z: 7.4, rot: 0 },
+    playerAt: { x: 0, z: 6.0, rot: Math.PI }
+  },
+  shop: { title: opts.name, items: opts.drinks || PUB_DRINKS, kind: 'drinks' },
+  npc: { name: opts.npc, role: opts.role || 'Patron', line: opts.line, look: { shirt: opts.accent || '#c9a227', hair: '#2b2118', skin: '#dfb892' } },
+  blurb: opts.blurb
+});
+
 export const INTERIORS = {
   delhaize: shopTemplate({
     name: 'Proxy Delhaize — 59A Route de Zoufftgen',
@@ -211,6 +247,36 @@ export const INTERIORS = {
       { id: 'soju_id', name: 'Soju (glass)', price: 5.50, cat: 'Boissons', desc: 'Cold, with cucumber.' }
     ],
     blurb: 'Korean kitchen a minute from Dudelange-Ville station.'
+  }),
+  opa_cafe: pubTemplate({
+    name: 'Opa Café — 31 Place de l’Hôtel de Ville',
+    npc: 'Marianne',
+    line: 'Moien. The square outside is the whole town in one room — mayor, steelworker, schoolkid. What are you having?',
+    wall: '#6e5744', accent: '#c9a227',
+    blurb: 'The old café on the town-hall square: zinc counter, tiled floor, smoke in the woodwork.'
+  }),
+  dukes_bar: pubTemplate({
+    name: 'Duke’s Bar — Rue de la Libération',
+    npc: 'Tom',
+    line: 'Darts are on the wall, the beer is cold, and the jukebox only has one good song. Sit down.',
+    wall: '#3b3b3b', accent: '#8f5b34',
+    drinks: PUB_DRINKS.filter((d) => d.id !== 'cremant_glass'),
+    blurb: 'A narrow pub in the Italien quarter, all dark wood and football scarves.'
+  }),
+  bar_rio: pubTemplate({
+    name: 'Bar’Rio — Avenue Grande-Duchesse Charlotte',
+    npc: 'Sérgio',
+    line: 'Last train is at eleven. Until then the counter is yours — the station is right across the road.',
+    wall: '#264653', accent: '#e76f51',
+    blurb: 'Station bar with a terrace, a coffee machine that never stops, and the 60a timetable taped to the till.'
+  }),
+  cafe_italia: pubTemplate({
+    name: 'Café Italia — Rue Grand-Duc Adolphe',
+    npc: 'Fernand',
+    line: 'The works used to empty into this room at four o’clock. Now it is quieter, but the beer is still cold.',
+    wall: '#4a4038', accent: '#bc4749',
+    drinks: PUB_DRINKS.map((d) => (d.id === 'cremant_glass' ? { ...d, name: 'Crémant (demi)' } : d)),
+    blurb: 'Italian-quarter café where the shift handover used to happen over a pint, two streets from the Usines line.'
   }),
   townhall: {
     kind: 'civic',

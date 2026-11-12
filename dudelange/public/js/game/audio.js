@@ -98,6 +98,10 @@ export class AudioEngine {
   buy() { this.blip(880, 0.07, 'sine', 0.05); setTimeout(() => this.blip(1180, 0.08, 'sine', 0.04), 70); }
   quest() { [660, 880, 1320].forEach((f, i) => setTimeout(() => this.blip(f, 0.14, 'sine', 0.05), i * 110)); }
   door() { this.blip(220, 0.16, 'sine', 0.05); }
+  drink() { this.blip(1240, 0.05, 'triangle', 0.035); setTimeout(() => this.blip(820, 0.09, 'sine', 0.03), 60); }
+  crash() { this.blip(90, 0.18, 'sawtooth', 0.06); setTimeout(() => this.blip(60, 0.22, 'square', 0.04), 40); }
+  chime() { this.blip(988, 0.16, 'sine', 0.045); setTimeout(() => this.blip(740, 0.22, 'sine', 0.04), 170); }
+  burp() { this.blip(140, 0.16, 'sawtooth', 0.03); }
   horn() {
     if (!this.ctx) return;
     [311, 392].forEach((f) => {
