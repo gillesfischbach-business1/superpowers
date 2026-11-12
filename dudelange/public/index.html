@@ -100,10 +100,12 @@
       fail((r && r.message) || text, r && r.stack);
     });
     setTimeout(function () {
+      var hatch = document.getElementById('escapeHatch');
+      if (hatch) hatch.style.display = 'block';
       if (window.__diddelengBooted) return;
       var text = document.getElementById('loadtext');
-      if (text) text.textContent = 'Still loading… if this persists, open the browser console.';
-    }, 12000);
+      if (text) text.textContent = 'Still loading… if this persists, use the links below, or open the browser console.';
+    }, 8000);
   })();
 </script>
 </head>
@@ -118,6 +120,10 @@
     <ul class="loadsteps" id="loadsteps"></ul>
     <button id="startBtn" class="primary hidden">Enter Dudelange</button>
     <p class="small">Single-player · real OSM street layout · EU-DEM terrain · 4 CFL stops</p>
+    <p class="small" id="escapeHatch" style="display:none">
+      Taking too long? <a href="/standalone" target="_blank" rel="noopener">open it in its own tab</a>
+      · <a href="/download/standalone.html">download the single file</a>
+    </p>
   </div>
 </div>
 

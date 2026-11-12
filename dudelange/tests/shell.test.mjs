@@ -29,6 +29,14 @@ test('every dom id the modules ask for is either in the shell or injected by a p
   assert.deepEqual(missing, [], `missing ids: ${missing.join(', ')}`);
 });
 
+test('the loading screen always offers a way out of a hostile frame', () => {
+  // A preview iframe can refuse WebGL and still show a perfect loading bar. The
+  // screen must therefore name the alternatives without waiting for a failure.
+  assert.match(html, /id="escapeHatch"/, 'no escape hatch on the loading screen');
+  assert.match(html, /href="\/standalone"[^>]*target="_blank"/, 'no link to the single-file build');
+  assert.match(html, /href="\/download\/standalone\.html"/, 'no download link');
+});
+
 test('every relative import resolves to a file', () => {
   for (const f of files.concat(['public/js/core/world.js', 'public/js/core/quests.js'])) {
     const src = read(f);
