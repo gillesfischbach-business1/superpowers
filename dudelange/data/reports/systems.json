@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-11-12T07:02:35.900Z",
+  "agent": "systems",
+  "worldHash": "13df244e2fae4a9f",
+  "collisionPushOut": 6.38,
+  "drift": 0,
+  "saveRoundTrip": true,
+  "routes": [
+    "/api/health",
+    "/api/save/",
+    "/api/leaderboard",
+    "/api/agents/status",
+    "/api/agents/run",
+    "/api/agents/stream"
+  ],
+  "questHooks": 8,
+  "interiorsWired": 19,
+  "instances": {
+    "windows": 32964,
+    "trees": 1549,
+    "buildings": 895
+  },
+  "passed": true,
+  "results": [
+    {
+      "label": "identical seed produces an identical world",
+      "ok": true,
+      "detail": "13df244e2fae4a9f"
+    },
+    {
+      "label": "collision solver pushes a player out of a building",
+      "ok": true,
+      "detail": "6.38 m"
+    },
+    {
+      "label": "collision solver leaves open ground alone",
+      "ok": true,
+      "detail": "0.000 m"
+    },
+    {
+      "label": "save state round-trips through JSON",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "all core API routes are declared",
+      "ok": true,
+      "detail": "/api/health, /api/save/, /api/leaderboard, /api/agents/status, /api/agents/run, /api/agents/stream"
+    },
+    {
+      "label": "save slots are validated against path traversal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "every quest is wired into the runtime",
+      "ok": true,
+      "detail": "8/8"
+    },
+    {
+      "label": "body payloads are size limited",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "performance budget: windows + trees under 40k instances",
+      "ok": true,
+      "detail": "34513"
+    }
+  ]
+}

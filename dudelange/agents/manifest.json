@@ -1,0 +1,101 @@
+{
+  "project": "Diddeleng — Dudelange open world",
+  "seed": 20261112,
+  "contracts": {
+    "handoff": "Each agent writes data/reports/<id>.json and only then marks its stage complete.",
+    "gates": "A stage fails if any listed gate fails; the release agent will not ship.",
+    "inputs": "public/js/core/town-data.js (real geography) is the single source of truth."
+  },
+  "agents": [
+    {
+      "id": "cartographer",
+      "name": "Cartographer",
+      "role": "Geodata",
+      "summary": "Treats OpenStreetMap anchors as canon: streets, quarters, stations, borders.",
+      "script": "scripts/01-cartographer.mjs",
+      "outputs": ["data/reports/cartographer.json", "street & station anchors validated"],
+      "gates": ["4 stations in line order", "all anchors inside bbox", "≥ 15 named streets"],
+      "handoff": "metric road network + rail chainage → Urbanist, Rail engineer"
+    },
+    {
+      "id": "geologist",
+      "name": "Geologist",
+      "role": "Terrain & hydro",
+      "summary": "Builds the valley from EU-DEM 25 m samples, the Diddelengerbaach and the two summits.",
+      "script": "scripts/02-geologist.mjs",
+      "outputs": ["data/reports/geologist.json", "terrain profile north–south"],
+      "gates": ["Mont Saint-Jean 417 m ±18", "Thilleweier low 256 m ±14", "no NaN heights"],
+      "handoff": "heightfield + slopes → Urbanist, Architect"
+    },
+    {
+      "id": "urbanist",
+      "name": "Urbanist",
+      "role": "Zoning & lots",
+      "summary": "Cuts building lots along real streets, keeps the rail corridor and parks clear, balances density per quarter.",
+      "script": "scripts/03-urbanist.mjs",
+      "outputs": ["data/reports/urbanist.json", "district density table"],
+      "gates": ["400–1600 buildings", "no lot on the rail corridor", "no lot inside parks or works core"],
+      "handoff": "lot schedule → Architect"
+    },
+    {
+      "id": "architect",
+      "name": "Architect",
+      "role": "Buildings & interiors",
+      "summary": "Gives every lot a style, roof, shopfront and window grid; furnishes the 17 visitable interiors.",
+      "script": "scripts/04-architect.mjs",
+      "outputs": ["data/reports/architect.json", "facade + interior inventory"],
+      "gates": ["≥ 15 interiors", "every shop stocked", "every restaurant has a menu"],
+      "handoff": "mesh specs + room specs → Systems"
+    },
+    {
+      "id": "rail-engineer",
+      "name": "Rail engineer",
+      "role": "Line 60a",
+      "summary": "Platforms, catenary, underpasses and the shuttle timetable between Bettembourg and Volmerange.",
+      "script": "scripts/05-rail-engineer.mjs",
+      "outputs": ["data/reports/rail.json", "simulated journey log"],
+      "gates": ["stops Burange → Ville → Centre → Usines", "full run < 15 min", "4 tunnels / underpasses"],
+      "handoff": "station chainage + dwell timings → Systems, QA"
+    },
+    {
+      "id": "retail-hospitality",
+      "name": "Retail & hospitality",
+      "role": "Shops & kitchens",
+      "summary": "Stocks the supermarkets with Luxembourgish products and writes the restaurant menus.",
+      "script": "scripts/06-retail-hospitality.mjs",
+      "outputs": ["data/reports/retail.json", "price list + menu audit"],
+      "gates": ["3 supermarkets", "≥ 8 restaurants", "quest items purchasable"],
+      "handoff": "shop & menu catalogues → Systems"
+    },
+    {
+      "id": "systems",
+      "name": "Systems engineer",
+      "role": "Engine & API",
+      "summary": "Deterministic world build, collision solver, save slots, HUD and the day/night clock.",
+      "script": "scripts/07-systems.mjs",
+      "outputs": ["data/reports/systems.json", "determinism + save round-trip"],
+      "gates": ["same seed → same world", "save/read round-trip", "collision solver pushes out"],
+      "handoff": "playable build → QA"
+    },
+    {
+      "id": "qa",
+      "name": "QA · gatekeeper",
+      "role": "Validation",
+      "summary": "Fails the build on unreachable POIs, bad geometry, missing interiors or a blown performance budget.",
+      "script": "scripts/08-qa.mjs",
+      "outputs": ["data/reports/qa.json", "pass/fail matrix"],
+      "gates": ["no unreachable POI", "≤ 1,600 buildings", "all interiors enterable", "no NaN geometry"],
+      "handoff": "green build → Release"
+    },
+    {
+      "id": "release",
+      "name": "Release manager",
+      "role": "Ship",
+      "summary": "Collects every report into docs/build-report.md and stamps the build.",
+      "script": "scripts/09-release.mjs",
+      "outputs": ["data/reports/build-report.md", "docs/build-report.md"],
+      "gates": ["all upstream reports present", "no failed upstream stage"],
+      "handoff": "release candidate → the player"
+    }
+  ]
+}

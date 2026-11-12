@@ -1,0 +1,64 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { loadWorld, writeReport, readReport, Gate, estimateWindows } from './_lib.mjs';
+import { circleHitsBox, closestOnPolyline, terrainHeight } from '../public/js/core/geo.js';
+import { INTERIORS } from '../public/js/core/interiors.js';
+import { QUESTS } from '../public/js/core/quests.js';
+
+console.log('QA — the gatekeeper. Reachability, geometry, budgets, content.');
+const gate = new Gate('qa');
+const world = loadWorld();
+
+const upstream = ['cartographer', 'geologist', 'urbanist', 'architect', 'rail', 'retail', 'systems'];
+const reports = upstream.map((name) => ({ name, report: readReport(`${name}.json`) }));
+const missing = reports.filter((r) => !r.report);
+const failed = reports.filter((r) => r.report && r.report.passed === false);
+
+// POIs must not sit inside an ordinary building
+const blockedPois = world.pois.filter((poi) =>
+  world.colliders.some((c) => circleHitsBox(poi.x, poi.z, 0.5, c))
+);
+// doors must be within 45 m of a street
+const unreachableDoors = world.doors.filter((it) => world.functions.nearRoad(it.x, it.z, 80) > 45);
+// spawn on solid ground, not in a wall
+const spawnBlocked = world.colliders.some((c) => circleHitsBox(world.spawn.x, world.spawn.z, 0.8, c));
+// geometry sanity
+let nan = 0;
+for (const b of world.buildings) if (![b.x, b.z, b.h, b.baseY].every(Number.isFinite)) nan++;
+for (const t of world.trees) if (![t.x, t.z, t.y].every(Number.isFinite)) nan++;
+const heights = world.landmarks.map((l) => terrainHeight(l.x, l.z));
+const windows = estimateWindows(world.buildings);
+const instanceBudget = windows + world.trees.length + world.props.length + world.buildings.length * 3;
+
+// content
+const interiorIds = new Set(Object.keys(INTERIORS));
+const badInteriorRefs = world.landmarks.filter((l) => l.interior && !interiorIds.has(l.interior));
+const questProblems = QUESTS.filter((q) => !q.title || !q.desc || !(q.money >= 0) || !(q.xp > 0));
+
+// station sanity
+const badStations = world.rail.stations.filter((s) => !(s.platformY > s.elevation));
+
+console.log(`  upstream reports ${reports.length - missing.length}/${reports.length} · failed ${failed.length}`);
+console.log(`  ${world.pois.length} POIs · ${world.doors.length} doors · ${Object.keys(INTERIORS).length} interiors`);
+console.log(`  instances: ${windows} windows, ${world.trees.length} trees, ${world.props.length} props → budget ${instanceBudget}`);
+
+gate.check('every upstream report exists', missing.length === 0, missing.map((m) => m.name).join(', '));
+gate.check('every upstream stage passed', failed.length === 0, failed.map((f) => f.name).join(', '));
+gate.check('no POI is buried inside a building', blockedPois.length === 0, blockedPois.map((p) => p.name).join(', '));
+gate.check('every entrance is reachable from a street', unreachableDoors.length === 0, `${unreachableDoors.length} isolated`);
+gate.check('spawn point is clear', !spawnBlocked);
+gate.check('no NaN geometry', nan === 0, `${nan} bad values`);
+gate.check('landmark heights are sane (240–460 m)', heights.every((h) => h > 240 && h < 460), `${Math.min(...heights).toFixed(0)}–${Math.max(...heights).toFixed(0)} m`);
+gate.check('instance budget under 90k', instanceBudget < 90000, String(instanceBudget));
+gate.check('all landmark interiors exist', badInteriorRefs.length === 0, badInteriorRefs.map((l) => l.id).join(', '));
+gate.check('quest content is complete', questProblems.length === 0, `${QUESTS.length} quests`);
+gate.check('station platforms sit above the rail bed', badStations.length === 0);
+gate.check('enough content for a session (buildings > 500, trees > 800)', world.buildings.length > 500 && world.trees.length > 800);
+
+const result = writeReport('qa.json', {
+  agent: 'qa', upstream: reports.map((r) => ({ name: r.name, passed: r.report?.passed ?? false })),
+  blockedPois: blockedPois.map((p) => p.name), unreachableDoors: unreachableDoors.length,
+  nan, instanceBudget, spawnBlocked, quests: QUESTS.length,
+  interiors: Object.keys(INTERIORS).length, ...gate.finish()
+});
+console.log(`  QA wrote ${path.basename(result)}`);

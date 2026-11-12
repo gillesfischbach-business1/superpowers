@@ -1,0 +1,654 @@
+{
+  "generatedAt": "2026-11-12T07:02:34.712Z",
+  "agent": "retail",
+  "supermarkets": 3,
+  "restaurants": 9,
+  "items": 72,
+  "averagePrice": 9.52,
+  "luxembourgish": [
+    "Bofferding (6 × 33 cl)",
+    "Diekirch (6 × 33 cl)",
+    "Gromperekichelcher",
+    "Kachkéis",
+    "Bouneschlupp (soup)",
+    "Judd mat Gaardebounen",
+    "Rieslingspaschtéit",
+    "Mettwurst",
+    "Viez (1 l)",
+    "Kugelhopf",
+    "Bofferding (6 × 33 cl)",
+    "Diekirch (6 × 33 cl)",
+    "Gromperekichelcher",
+    "Kachkéis",
+    "Bouneschlupp (soup)",
+    "Judd mat Gaardebounen",
+    "Diekirch (6 × 33 cl)",
+    "Gromperekichelcher",
+    "Kachkéis",
+    "Bouneschlupp (soup)",
+    "Judd mat Gaardebounen",
+    "Rieslingspaschtéit",
+    "Mettwurst",
+    "Viez (1 l)",
+    "Bofferding 33 cl",
+    "Bouneschlupp",
+    "Judd mat Gaardebounen",
+    "Kugelhopf"
+  ],
+  "catalogue": [
+    {
+      "id": "milk",
+      "name": "Lait frais (1 l)",
+      "price": 1.35,
+      "cat": "Frais",
+      "desc": "Luxlait whole milk from Mersch.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "bread",
+      "name": "Baguette",
+      "price": 1.2,
+      "cat": "Boulangerie",
+      "desc": "Baked on site every morning.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "eggs",
+      "name": "Œufs (6)",
+      "price": 2.1,
+      "cat": "Frais",
+      "desc": "Free-range eggs from the Minett.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "bofferding",
+      "name": "Bofferding (6 × 33 cl)",
+      "price": 5.4,
+      "cat": "Boissons",
+      "desc": "The national pilsner, brewed in Bascharage.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "diekirch",
+      "name": "Diekirch (6 × 33 cl)",
+      "price": 5.2,
+      "cat": "Boissons",
+      "desc": "Amber lager, a Dudelange terrace classic.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "gromperekichelcher",
+      "name": "Gromperekichelcher",
+      "price": 3.2,
+      "cat": "Traiteur",
+      "desc": "Potato fritters with parsley — the national snack.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "kachkeis",
+      "name": "Kachkéis",
+      "price": 2.6,
+      "cat": "Crémerie",
+      "desc": "Soft cooked cheese, best on dark bread with mustard.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "bouneschlupp",
+      "name": "Bouneschlupp (soup)",
+      "price": 3.8,
+      "cat": "Traiteur",
+      "desc": "Green-bean soup with bacon and potato.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "judd",
+      "name": "Judd mat Gaardebounen",
+      "price": 8.9,
+      "cat": "Traiteur",
+      "desc": "Smoked pork collar with broad beans.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "rieslingspascht",
+      "name": "Rieslingspaschtéit",
+      "price": 4.5,
+      "cat": "Boulangerie",
+      "desc": "Pork-and-riesling pie, a Moselle speciality.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "mettwurst",
+      "name": "Mettwurst",
+      "price": 3.1,
+      "cat": "Charcuterie",
+      "desc": "Smoked sausage from the butcher counter.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "viez",
+      "name": "Viez (1 l)",
+      "price": 3.4,
+      "cat": "Boissons",
+      "desc": "Cloudy apple cider from the Gutland orchards.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "moselle",
+      "name": "Moselle Riesling",
+      "price": 9.8,
+      "cat": "Boissons",
+      "desc": "Dry white from the Luxembourg Moselle.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "kugelhopf",
+      "name": "Kugelhopf",
+      "price": 4.9,
+      "cat": "Boulangerie",
+      "desc": "Rum-soaked brioche with almonds.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "bretzel",
+      "name": "Bretzel",
+      "price": 1.1,
+      "cat": "Boulangerie",
+      "desc": "Salted, still warm.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "chocolate",
+      "name": "Chocolat de Diddeleng",
+      "price": 3.6,
+      "cat": "Épicerie",
+      "desc": "Dark chocolate stamped with the rolling mill.",
+      "vendor": "delhaize"
+    },
+    {
+      "id": "milk",
+      "name": "Lait frais (1 l)",
+      "price": 1.35,
+      "cat": "Frais",
+      "desc": "Luxlait whole milk from Mersch.",
+      "vendor": "match"
+    },
+    {
+      "id": "bread",
+      "name": "Baguette",
+      "price": 1.2,
+      "cat": "Boulangerie",
+      "desc": "Baked on site every morning.",
+      "vendor": "match"
+    },
+    {
+      "id": "eggs",
+      "name": "Œufs (6)",
+      "price": 2.1,
+      "cat": "Frais",
+      "desc": "Free-range eggs from the Minett.",
+      "vendor": "match"
+    },
+    {
+      "id": "bofferding",
+      "name": "Bofferding (6 × 33 cl)",
+      "price": 5.4,
+      "cat": "Boissons",
+      "desc": "The national pilsner, brewed in Bascharage.",
+      "vendor": "match"
+    },
+    {
+      "id": "diekirch",
+      "name": "Diekirch (6 × 33 cl)",
+      "price": 5.2,
+      "cat": "Boissons",
+      "desc": "Amber lager, a Dudelange terrace classic.",
+      "vendor": "match"
+    },
+    {
+      "id": "gromperekichelcher",
+      "name": "Gromperekichelcher",
+      "price": 3.2,
+      "cat": "Traiteur",
+      "desc": "Potato fritters with parsley — the national snack.",
+      "vendor": "match"
+    },
+    {
+      "id": "kachkeis",
+      "name": "Kachkéis",
+      "price": 2.6,
+      "cat": "Crémerie",
+      "desc": "Soft cooked cheese, best on dark bread with mustard.",
+      "vendor": "match"
+    },
+    {
+      "id": "bouneschlupp",
+      "name": "Bouneschlupp (soup)",
+      "price": 3.8,
+      "cat": "Traiteur",
+      "desc": "Green-bean soup with bacon and potato.",
+      "vendor": "match"
+    },
+    {
+      "id": "judd",
+      "name": "Judd mat Gaardebounen",
+      "price": 8.9,
+      "cat": "Traiteur",
+      "desc": "Smoked pork collar with broad beans.",
+      "vendor": "match"
+    },
+    {
+      "id": "diekirch",
+      "name": "Diekirch (6 × 33 cl)",
+      "price": 5.2,
+      "cat": "Boissons",
+      "desc": "Amber lager, a Dudelange terrace classic.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "gromperekichelcher",
+      "name": "Gromperekichelcher",
+      "price": 3.2,
+      "cat": "Traiteur",
+      "desc": "Potato fritters with parsley — the national snack.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "kachkeis",
+      "name": "Kachkéis",
+      "price": 2.6,
+      "cat": "Crémerie",
+      "desc": "Soft cooked cheese, best on dark bread with mustard.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "bouneschlupp",
+      "name": "Bouneschlupp (soup)",
+      "price": 3.8,
+      "cat": "Traiteur",
+      "desc": "Green-bean soup with bacon and potato.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "judd",
+      "name": "Judd mat Gaardebounen",
+      "price": 8.9,
+      "cat": "Traiteur",
+      "desc": "Smoked pork collar with broad beans.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "rieslingspascht",
+      "name": "Rieslingspaschtéit",
+      "price": 4.5,
+      "cat": "Boulangerie",
+      "desc": "Pork-and-riesling pie, a Moselle speciality.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "mettwurst",
+      "name": "Mettwurst",
+      "price": 3.1,
+      "cat": "Charcuterie",
+      "desc": "Smoked sausage from the butcher counter.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "viez",
+      "name": "Viez (1 l)",
+      "price": 3.4,
+      "cat": "Boissons",
+      "desc": "Cloudy apple cider from the Gutland orchards.",
+      "vendor": "cactus"
+    },
+    {
+      "id": "pizza_margherita",
+      "name": "Pizza Margherita",
+      "price": 11.5,
+      "cat": "Pizza",
+      "desc": "San Marzano, fior di latte, basil.",
+      "vendor": "mamma_mia"
+    },
+    {
+      "id": "pizza_diavola",
+      "name": "Pizza Diavola",
+      "price": 13.5,
+      "cat": "Pizza",
+      "desc": "Spicy salami, chilli honey.",
+      "vendor": "mamma_mia"
+    },
+    {
+      "id": "lasagne",
+      "name": "Lasagne della casa",
+      "price": 14,
+      "cat": "Pasta",
+      "desc": "Twelve layers, ragù cooked since morning.",
+      "vendor": "mamma_mia"
+    },
+    {
+      "id": "carbonara",
+      "name": "Spaghetti Carbonara",
+      "price": 13,
+      "cat": "Pasta",
+      "desc": "Guanciale, pecorino, egg yolk.",
+      "vendor": "mamma_mia"
+    },
+    {
+      "id": "tiramisu",
+      "name": "Tiramisù",
+      "price": 6.5,
+      "cat": "Dessert",
+      "desc": "Mascarpone and espresso.",
+      "vendor": "mamma_mia"
+    },
+    {
+      "id": "bofferding",
+      "name": "Bofferding 33 cl",
+      "price": 3.2,
+      "cat": "Boissons",
+      "desc": "Cold, on the terrace.",
+      "vendor": "mamma_mia"
+    },
+    {
+      "id": "stone_beef",
+      "name": "Bœuf sur pierre (250 g)",
+      "price": 26,
+      "cat": "Spécialité",
+      "desc": "Limousin beef, hot stone, three sauces.",
+      "vendor": "charbonnade"
+    },
+    {
+      "id": "stone_mixed",
+      "name": "Assiette mixte sur pierre",
+      "price": 29.5,
+      "cat": "Spécialité",
+      "desc": "Beef, pork, chicken and gambas.",
+      "vendor": "charbonnade"
+    },
+    {
+      "id": "steak_frites",
+      "name": "Steak-frites",
+      "price": 21,
+      "cat": "Classique",
+      "desc": "Maître d’hôtel butter, endless fries.",
+      "vendor": "charbonnade"
+    },
+    {
+      "id": "bouneschlupp",
+      "name": "Bouneschlupp",
+      "price": 8,
+      "cat": "Entrée",
+      "desc": "The Luxembourgish classic.",
+      "vendor": "charbonnade"
+    },
+    {
+      "id": "moselle",
+      "name": "Moselle Riesling (glass)",
+      "price": 5.5,
+      "cat": "Boissons",
+      "desc": "From the Schlechter estate.",
+      "vendor": "charbonnade"
+    },
+    {
+      "id": "plat_terroir",
+      "name": "Plat du terroir",
+      "price": 24,
+      "cat": "Menu",
+      "desc": "Whatever the market and the forest give today.",
+      "vendor": "parc_leh"
+    },
+    {
+      "id": "truite",
+      "name": "Truite de la Sûre",
+      "price": 22.5,
+      "cat": "Poisson",
+      "desc": "Trout, brown butter, almonds.",
+      "vendor": "parc_leh"
+    },
+    {
+      "id": "judd",
+      "name": "Judd mat Gaardebounen",
+      "price": 19.5,
+      "cat": "Classique",
+      "desc": "Smoked pork neck, broad beans, gromperekichelcher.",
+      "vendor": "parc_leh"
+    },
+    {
+      "id": "kniddelen",
+      "name": "Kniddelen",
+      "price": 16,
+      "cat": "Classique",
+      "desc": "Flour dumplings with bacon cream.",
+      "vendor": "parc_leh"
+    },
+    {
+      "id": "kugelhopf",
+      "name": "Kugelhopf",
+      "price": 6,
+      "cat": "Dessert",
+      "desc": "Warm, with crème anglaise.",
+      "vendor": "parc_leh"
+    },
+    {
+      "id": "croque",
+      "name": "Croque Amarcord",
+      "price": 12.5,
+      "cat": "Brasserie",
+      "desc": "Ham, Gruyère, béchamel, salad.",
+      "vendor": "amarcord"
+    },
+    {
+      "id": "moules",
+      "name": "Moules-frites",
+      "price": 19,
+      "cat": "Brasserie",
+      "desc": "Moselle white wine, celery, cream.",
+      "vendor": "amarcord"
+    },
+    {
+      "id": "escalope",
+      "name": "Escalope à la milanaise",
+      "price": 18.5,
+      "cat": "Brasserie",
+      "desc": "Spätzle and lemon.",
+      "vendor": "amarcord"
+    },
+    {
+      "id": "cafe",
+      "name": "Café complet",
+      "price": 7.5,
+      "cat": "Café",
+      "desc": "Coffee, croissant, juice.",
+      "vendor": "amarcord"
+    },
+    {
+      "id": "mapo",
+      "name": "Mapo tofu",
+      "price": 14.5,
+      "cat": "Sichuan",
+      "desc": "Sichuan pepper, chilli bean paste, minced pork.",
+      "vendor": "chang_man"
+    },
+    {
+      "id": "dumplings",
+      "name": "Dumplings (8)",
+      "price": 9.5,
+      "cat": "Entrée",
+      "desc": "Pork and cabbage, black vinegar.",
+      "vendor": "chang_man"
+    },
+    {
+      "id": "noodles",
+      "name": "Dan dan noodles",
+      "price": 13,
+      "cat": "Nouilles",
+      "desc": "Sesame, chilli oil, peanut.",
+      "vendor": "chang_man"
+    },
+    {
+      "id": "tea",
+      "name": "Jasmine tea",
+      "price": 3,
+      "cat": "Boissons",
+      "desc": "Bottomless pot.",
+      "vendor": "chang_man"
+    },
+    {
+      "id": "entrecote",
+      "name": "Entrecôte (300 g)",
+      "price": 27.5,
+      "cat": "Steak",
+      "desc": "Grilled over beech wood.",
+      "vendor": "steak_house"
+    },
+    {
+      "id": "burger",
+      "name": "Diddeleng Burger",
+      "price": 17,
+      "cat": "Steak",
+      "desc": "Beef, Kachkéis, caramelised onion.",
+      "vendor": "steak_house"
+    },
+    {
+      "id": "salad",
+      "name": "Salade de chèvre chaud",
+      "price": 14,
+      "cat": "Entrée",
+      "desc": "Warm goat cheese, honey, walnuts.",
+      "vendor": "steak_house"
+    },
+    {
+      "id": "bacalhau",
+      "name": "Bacalhau à Brás",
+      "price": 18.5,
+      "cat": "Portugais",
+      "desc": "Salt cod, straw potatoes, onion, egg.",
+      "vendor": "douro"
+    },
+    {
+      "id": "francesinha",
+      "name": "Francesinha",
+      "price": 17,
+      "cat": "Portugais",
+      "desc": "The Porto sandwich, beer sauce, chips.",
+      "vendor": "douro"
+    },
+    {
+      "id": "caldo",
+      "name": "Caldo verde",
+      "price": 6.5,
+      "cat": "Entrée",
+      "desc": "Kale soup with chouriço.",
+      "vendor": "douro"
+    },
+    {
+      "id": "vinho",
+      "name": "Vinho do Douro (glass)",
+      "price": 5,
+      "cat": "Boissons",
+      "desc": "Red, robust, from the Douro valley.",
+      "vendor": "douro"
+    },
+    {
+      "id": "omakase",
+      "name": "Omakase (12 pieces)",
+      "price": 34,
+      "cat": "Sushi",
+      "desc": "Whatever came in this morning.",
+      "vendor": "sushi_ebi"
+    },
+    {
+      "id": "maki",
+      "name": "Salmon maki (8)",
+      "price": 12,
+      "cat": "Sushi",
+      "desc": "Salmon, rice, nori, wasabi.",
+      "vendor": "sushi_ebi"
+    },
+    {
+      "id": "ramen",
+      "name": "Shoyu ramen",
+      "price": 15.5,
+      "cat": "Chaud",
+      "desc": "Pork broth, egg, spring onion.",
+      "vendor": "sushi_ebi"
+    },
+    {
+      "id": "sake",
+      "name": "Sake (glass)",
+      "price": 7,
+      "cat": "Boissons",
+      "desc": "Warm, junmai.",
+      "vendor": "sushi_ebi"
+    },
+    {
+      "id": "fried_chicken",
+      "name": "Korean fried chicken",
+      "price": 16,
+      "cat": "Coréen",
+      "desc": "Double-fried, honey-soy glaze.",
+      "vendor": "gamja"
+    },
+    {
+      "id": "bibimbap",
+      "name": "Bibimbap",
+      "price": 15.5,
+      "cat": "Coréen",
+      "desc": "Stone bowl, beef, seasonal namul.",
+      "vendor": "gamja"
+    },
+    {
+      "id": "kimchi",
+      "name": "Kimchi",
+      "price": 5,
+      "cat": "Entrée",
+      "desc": "House-fermented napa cabbage.",
+      "vendor": "gamja"
+    },
+    {
+      "id": "soju_id",
+      "name": "Soju (glass)",
+      "price": 5.5,
+      "cat": "Boissons",
+      "desc": "Cold, with cucumber.",
+      "vendor": "gamja"
+    }
+  ],
+  "passed": true,
+  "results": [
+    {
+      "label": "three visitable supermarkets",
+      "ok": true,
+      "detail": "delhaize, match, cactus"
+    },
+    {
+      "label": "eight or more restaurants",
+      "ok": true,
+      "detail": "mamma_mia, charbonnade, parc_leh, amarcord, chang_man, steak_house, douro, sushi_ebi, gamja"
+    },
+    {
+      "label": "every item has a name and a positive price",
+      "ok": true,
+      "detail": "0 bad"
+    },
+    {
+      "label": "Delhaize stocks every quest item",
+      "ok": true,
+      "detail": "bread, milk, kachkeis"
+    },
+    {
+      "label": "at least six Luxembourgish products",
+      "ok": true,
+      "detail": "28"
+    },
+    {
+      "label": "menu prices are plausible (€1–€40)",
+      "ok": true,
+      "detail": "avg €9.52"
+    },
+    {
+      "label": "no duplicate item ids across vendors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

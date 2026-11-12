@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-11-12T07:02:33.374Z",
+  "agent": "urbanist",
+  "buildings": 895,
+  "perDistrict": {
+    "neischmelz": 16,
+    "centre": 177,
+    "outskirts": 16,
+    "italien": 314,
+    "burange": 333,
+    "budersberg": 34,
+    "usines": 5
+  },
+  "commercial": 272,
+  "roadKm": 44.91,
+  "trees": 1549,
+  "railClearance": 16.26,
+  "passed": true,
+  "results": [
+    {
+      "label": "building count within budget (400–1600)",
+      "ok": true,
+      "detail": "895"
+    },
+    {
+      "label": "no building on the rail corridor",
+      "ok": true,
+      "detail": "0 offenders"
+    },
+    {
+      "label": "no building inside parks or forest reserves",
+      "ok": true,
+      "detail": "0 offenders"
+    },
+    {
+      "label": "no duplicate lot positions",
+      "ok": true,
+      "detail": "0 pairs"
+    },
+    {
+      "label": "every main quarter is inhabited",
+      "ok": true,
+      "detail": "{\"neischmelz\":16,\"centre\":177,\"outskirts\":16,\"italien\":314,\"burange\":333,\"budersberg\":34,\"usines\":5}"
+    },
+    {
+      "label": "commercial ground floors exist",
+      "ok": true,
+      "detail": "272 shops"
+    },
+    {
+      "label": "street trees planted",
+      "ok": true,
+      "detail": "1549 trees"
+    }
+  ]
+}

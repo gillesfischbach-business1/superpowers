@@ -1,0 +1,213 @@
+{
+  "updated": "2026-11-12T07:02:36.593Z",
+  "running": false,
+  "eventId": 25,
+  "agents": {
+    "cartographer": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:31.292Z",
+      "log": [
+        "Cartographer — reading OpenStreetMap anchors for Dudelange",
+        "  31 anchors · 15 named streets · 24 road polylines overall",
+        "  rail chainage: burange:1336 → ville:2332 → centre:2860 → usines:3553",
+        "  ✔ all anchors inside the playable bbox",
+        "  ✔ at least 15 named streets traced from OSM — 15 named",
+        "  ✔ four CFL stations — Dudelange-Burange / Dudelange-Ville / Dudelange-Centre / Dudelange-Usines",
+        "  ✔ stations in line order Burange → Usines — burange:1336 → ville:2332 → centre:2860 → usines:3553",
+        "  ✔ rail line is longer than 3 km — 5092 m",
+        "  ✔ urban road network over 20 km — 44.91 km",
+        "  ✔ place names kept in Luxembourg spelling",
+        "cartographer: 7/7 gates green",
+        "report → data/reports/cartographer.json"
+      ],
+      "exitCode": 0,
+      "duration": 742,
+      "finishedAt": "2026-11-12T07:02:32.036Z"
+    },
+    "geologist": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:32.038Z",
+      "log": [
+        "Geologist — sampling the Diddelengerbaach valley and the Minett cuesta",
+        "  north–south profile: 285 m … 331 m (EU-DEM mean 317 m)",
+        "  Mont Saint-Jean 411 m · Kalebierg 426 m · border low 262 m · centre 296 m",
+        "  ✔ no NaN terrain samples",
+        "  ✔ Mont Saint-Jean around 417 m — 411 m",
+        "  ✔ town centre in the valley (270–330 m) — 296 m",
+        "  ✔ border low point below 300 m — 262 m",
+        "  ✔ no slope steeper than 45% in the core — 0/600 samples steep",
+        "  ✔ stream defined for the valley",
+        "geologist: 6/6 gates green",
+        "report → data/reports/geologist.json"
+      ],
+      "exitCode": 0,
+      "duration": 682,
+      "finishedAt": "2026-11-12T07:02:32.722Z"
+    },
+    "urbanist": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:32.723Z",
+      "log": [
+        "Urbanist — cutting lots along the real street network",
+        "  895 buildings · 99 streets · 44.91 km",
+        "  neischmelz     16 buildings",
+        "  centre        177 buildings",
+        "  outskirts      16 buildings",
+        "  italien       314 buildings",
+        "  burange       333 buildings",
+        "  budersberg     34 buildings",
+        "  usines          5 buildings",
+        "  ✔ building count within budget (400–1600) — 895",
+        "  ✔ no building on the rail corridor — 0 offenders",
+        "  ✔ no building inside parks or forest reserves — 0 offenders",
+        "  ✔ no duplicate lot positions — 0 pairs",
+        "  ✔ every main quarter is inhabited — {\"neischmelz\":16,\"centre\":177,\"outskirts\":16,\"italien\":314,\"burange\":333,\"budersberg\":34,\"usines\":5}",
+        "  ✔ commercial ground floors exist — 272 shops",
+        "  ✔ street trees planted — 1549 trees",
+        "urbanist: 7/7 gates green",
+        "report → data/reports/urbanist.json"
+      ],
+      "exitCode": 0,
+      "duration": 660,
+      "finishedAt": "2026-11-12T07:02:33.385Z"
+    },
+    "architect": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:33.386Z",
+      "log": [
+        "Architect — facades, roofscapes and furnished interiors",
+        "  7 architectural styles · 32,964 windows · 272 shopfronts",
+        "  interiors: 19 (3 shops, 9 restaurants)",
+        "    neischmelz     16",
+        "    italien       277",
+        "    centre        264",
+        "    outskirts      13",
+        "    burange       286",
+        "    budersberg     34",
+        "    usines          5",
+        "  ✔ at least 6 distinct building styles — neischmelz, italien, centre, outskirts, burange, budersberg, usines",
+        "  ✔ window grid under 60k instances — 32964",
+        "  ✔ at least 15 visitable interiors — 19",
+        "  ✔ every interior is complete",
+        "  ✔ at least 3 supermarkets — delhaize, match, cactus",
+        "  ✔ at least 8 restaurants — 9",
+        "  ✔ gabled roofs dominate the residential quarters — {\"flat\":16,\"gable\":783,\"hip\":91,\"saw\":5}",
+        "architect: 7/7 gates green",
+        "report → data/reports/architect.json"
+      ],
+      "exitCode": 0,
+      "duration": 669,
+      "finishedAt": "2026-11-12T07:02:34.056Z"
+    },
+    "rail-engineer": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:34.057Z",
+      "log": [
+        "Rail engineer — line 60a, four stops, underpasses and tunnels",
+        "  northbound: Ville@55s → Centre@105.8s → Usines@164.4s",
+        "  4 underground passages (3 rail underpasses, 1 road tunnel)",
+        "  ✔ train calls at every downstream stop in order — Dudelange-Ville → Dudelange-Centre → Dudelange-Usines",
+        "  ✔ full northbound run under 15 minutes — 3.0 min",
+        "  ✔ four rail underpasses or tunnels — 4",
+        "  ✔ platform length fits a two-car set — 132 m platforms",
+        "  ✔ rail line has catenary masts — 116 masts",
+        "  ✔ station order strictly monotonic",
+        "rail: 6/6 gates green",
+        "report → data/reports/rail.json"
+      ],
+      "exitCode": 0,
+      "duration": 622,
+      "finishedAt": "2026-11-12T07:02:34.680Z"
+    },
+    "retail-hospitality": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:34.681Z",
+      "log": [
+        "Retail & hospitality — stocking shops and writing menus",
+        "  3 supermarkets · 9 restaurants · 72 purchasable lines",
+        "  Luxembourgish specialities on shelves: Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Kugelhopf, Bofferding (6 × 33 cl), Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Diekirch (6 × 33 cl), Gromperekichelcher, Kachkéis, Bouneschlupp (soup), Judd mat Gaardebounen, Rieslingspaschtéit, Mettwurst, Viez (1 l), Bofferding 33 cl, Bouneschlupp, Judd mat Gaardebounen, Kugelhopf",
+        "  ✔ three visitable supermarkets — delhaize, match, cactus",
+        "  ✔ eight or more restaurants — mamma_mia, charbonnade, parc_leh, amarcord, chang_man, steak_house, douro, sushi_ebi, gamja",
+        "  ✔ every item has a name and a positive price — 0 bad",
+        "  ✔ Delhaize stocks every quest item — bread, milk, kachkeis",
+        "  ✔ at least six Luxembourgish products — 28",
+        "  ✔ menu prices are plausible (€1–€40) — avg €9.52",
+        "  ✔ no duplicate item ids across vendors",
+        "retail: 7/7 gates green",
+        "report → data/reports/retail.json"
+      ],
+      "exitCode": 0,
+      "duration": 32,
+      "finishedAt": "2026-11-12T07:02:34.714Z"
+    },
+    "systems": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:34.715Z",
+      "log": [
+        "Systems engineer — determinism, collisions, saves and the UI contract",
+        "  world hash 13df244e2fae4a9f (895 buildings, 1549 trees)",
+        "  collision push-out 6.38 m · open-ground drift 0.000 m · save round-trip ok",
+        "  6/6 API routes present · 19 interiors wired · 8/8 quests hooked",
+        "  ✔ identical seed produces an identical world — 13df244e2fae4a9f",
+        "  ✔ collision solver pushes a player out of a building — 6.38 m",
+        "  ✔ collision solver leaves open ground alone — 0.000 m",
+        "  ✔ save state round-trips through JSON",
+        "  ✔ all core API routes are declared — /api/health, /api/save/, /api/leaderboard, /api/agents/status, /api/agents/run, /api/agents/stream",
+        "  ✔ save slots are validated against path traversal",
+        "  ✔ every quest is wired into the runtime — 8/8",
+        "  ✔ body payloads are size limited",
+        "  ✔ performance budget: windows + trees under 40k instances — 34513",
+        "systems: 9/9 gates green",
+        "report → data/reports/systems.json"
+      ],
+      "exitCode": 0,
+      "duration": 1198,
+      "finishedAt": "2026-11-12T07:02:35.914Z"
+    },
+    "qa": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:35.915Z",
+      "log": [
+        "QA — the gatekeeper. Reachability, geometry, budgets, content.",
+        "  upstream reports 7/7 · failed 0",
+        "  35 POIs · 22 doors · 19 interiors",
+        "  instances: 32964 windows, 1549 trees, 1729 props → budget 38927",
+        "  ✔ every upstream report exists",
+        "  ✔ every upstream stage passed",
+        "  ✔ no POI is buried inside a building",
+        "  ✔ every entrance is reachable from a street — 0 isolated",
+        "  ✔ spawn point is clear",
+        "  ✔ no NaN geometry — 0 bad values",
+        "  ✔ landmark heights are sane (240–460 m) — 285–426 m",
+        "  ✔ instance budget under 90k — 38927",
+        "  ✔ all landmark interiors exist",
+        "  ✔ quest content is complete — 8 quests",
+        "  ✔ station platforms sit above the rail bed",
+        "  ✔ enough content for a session (buildings > 500, trees > 800)",
+        "qa: 12/12 gates green",
+        "report → data/reports/qa.json",
+        "  QA wrote qa.json"
+      ],
+      "exitCode": 0,
+      "duration": 636,
+      "finishedAt": "2026-11-12T07:02:36.552Z"
+    },
+    "release": {
+      "status": "done",
+      "startedAt": "2026-11-12T07:02:36.553Z",
+      "log": [
+        "Release manager — collecting reports and stamping the build",
+        "  ✔ all eight upstream reports exist",
+        "  ✔ no upstream stage failed",
+        "  ✔ QA gate is green",
+        "  ✔ build report written",
+        "release: 4/4 gates green",
+        "report → data/reports/release.json",
+        "  → docs/build-report.md"
+      ],
+      "exitCode": 0,
+      "duration": 38,
+      "finishedAt": "2026-11-12T07:02:36.592Z"
+    }
+  }
+}

@@ -1,0 +1,156 @@
+[
+  {
+    "id": 1,
+    "ts": "2026-11-12T07:00:28.831Z",
+    "agent": "qa",
+    "kind": "start",
+    "text": "▶ QA · gatekeeper — Fails the build on unreachable POIs, bad geometry, missing interiors or a blown performance budget."
+  },
+  {
+    "id": 2,
+    "ts": "2026-11-12T07:00:29.449Z",
+    "agent": "qa",
+    "kind": "done",
+    "text": "✔ QA · gatekeeper completed in 0.62s"
+  },
+  {
+    "id": 3,
+    "ts": "2026-11-12T07:00:29.450Z",
+    "agent": "release",
+    "kind": "start",
+    "text": "▶ Release manager — Collects every report into docs/build-report.md and stamps the build."
+  },
+  {
+    "id": 4,
+    "ts": "2026-11-12T07:00:29.487Z",
+    "agent": "release",
+    "kind": "done",
+    "text": "✔ Release manager completed in 0.04s"
+  },
+  {
+    "id": 5,
+    "ts": "2026-11-12T07:00:42.543Z",
+    "agent": "cartographer",
+    "kind": "start",
+    "text": "▶ Cartographer — Treats OpenStreetMap anchors as canon: streets, quarters, stations, borders."
+  },
+  {
+    "id": 6,
+    "ts": "2026-11-12T07:00:43.143Z",
+    "agent": "cartographer",
+    "kind": "done",
+    "text": "✔ Cartographer completed in 0.60s"
+  },
+  {
+    "id": 7,
+    "ts": "2026-11-12T07:00:43.144Z",
+    "agent": "geologist",
+    "kind": "start",
+    "text": "▶ Geologist — Builds the valley from EU-DEM 25 m samples, the Diddelengerbaach and the two summits."
+  },
+  {
+    "id": 8,
+    "ts": "2026-11-12T07:00:43.781Z",
+    "agent": "geologist",
+    "kind": "done",
+    "text": "✔ Geologist completed in 0.64s"
+  },
+  {
+    "id": 9,
+    "ts": "2026-11-12T07:00:43.781Z",
+    "agent": "urbanist",
+    "kind": "start",
+    "text": "▶ Urbanist — Cuts building lots along real streets, keeps the rail corridor and parks clear, balances density per quarter."
+  },
+  {
+    "id": 10,
+    "ts": "2026-11-12T07:00:44.421Z",
+    "agent": "urbanist",
+    "kind": "done",
+    "text": "✔ Urbanist completed in 0.64s"
+  },
+  {
+    "id": 11,
+    "ts": "2026-11-12T07:00:44.422Z",
+    "agent": "architect",
+    "kind": "start",
+    "text": "▶ Architect — Gives every lot a style, roof, shopfront and window grid; furnishes the 17 visitable interiors."
+  },
+  {
+    "id": 12,
+    "ts": "2026-11-12T07:00:45.112Z",
+    "agent": "architect",
+    "kind": "done",
+    "text": "✔ Architect completed in 0.69s"
+  },
+  {
+    "id": 13,
+    "ts": "2026-11-12T07:00:45.113Z",
+    "agent": "rail-engineer",
+    "kind": "start",
+    "text": "▶ Rail engineer — Platforms, catenary, underpasses and the shuttle timetable between Bettembourg and Volmerange."
+  },
+  {
+    "id": 14,
+    "ts": "2026-11-12T07:00:45.824Z",
+    "agent": "rail-engineer",
+    "kind": "done",
+    "text": "✔ Rail engineer completed in 0.71s"
+  },
+  {
+    "id": 15,
+    "ts": "2026-11-12T07:00:45.825Z",
+    "agent": "retail-hospitality",
+    "kind": "start",
+    "text": "▶ Retail & hospitality — Stocks the supermarkets with Luxembourgish products and writes the restaurant menus."
+  },
+  {
+    "id": 16,
+    "ts": "2026-11-12T07:00:45.856Z",
+    "agent": "retail-hospitality",
+    "kind": "done",
+    "text": "✔ Retail & hospitality completed in 0.03s"
+  },
+  {
+    "id": 17,
+    "ts": "2026-11-12T07:00:45.857Z",
+    "agent": "systems",
+    "kind": "start",
+    "text": "▶ Systems engineer — Deterministic world build, collision solver, save slots, HUD and the day/night clock."
+  },
+  {
+    "id": 18,
+    "ts": "2026-11-12T07:00:46.994Z",
+    "agent": "systems",
+    "kind": "done",
+    "text": "✔ Systems engineer completed in 1.14s"
+  },
+  {
+    "id": 19,
+    "ts": "2026-11-12T07:00:46.995Z",
+    "agent": "qa",
+    "kind": "start",
+    "text": "▶ QA · gatekeeper — Fails the build on unreachable POIs, bad geometry, missing interiors or a blown performance budget."
+  },
+  {
+    "id": 20,
+    "ts": "2026-11-12T07:00:47.665Z",
+    "agent": "qa",
+    "kind": "done",
+    "text": "✔ QA · gatekeeper completed in 0.67s"
+  },
+  {
+    "id": 21,
+    "ts": "2026-11-12T07:00:47.666Z",
+    "agent": "release",
+    "kind": "start",
+    "text": "▶ Release manager — Collects every report into docs/build-report.md and stamps the build."
+  },
+  {
+    "id": 22,
+    "ts": "2026-11-12T07:00:47.703Z",
+    "agent": "release",
+    "kind": "done",
+    "text": "✔ Release manager completed in 0.04s"
+  }
+]

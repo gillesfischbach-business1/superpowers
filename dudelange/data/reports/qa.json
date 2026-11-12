@@ -1,0 +1,104 @@
+{
+  "generatedAt": "2026-11-12T07:02:36.541Z",
+  "agent": "qa",
+  "upstream": [
+    {
+      "name": "cartographer",
+      "passed": true
+    },
+    {
+      "name": "geologist",
+      "passed": true
+    },
+    {
+      "name": "urbanist",
+      "passed": true
+    },
+    {
+      "name": "architect",
+      "passed": true
+    },
+    {
+      "name": "rail",
+      "passed": true
+    },
+    {
+      "name": "retail",
+      "passed": true
+    },
+    {
+      "name": "systems",
+      "passed": true
+    }
+  ],
+  "blockedPois": [],
+  "unreachableDoors": 0,
+  "nan": 0,
+  "instanceBudget": 38927,
+  "spawnBlocked": false,
+  "quests": 8,
+  "interiors": 19,
+  "passed": true,
+  "results": [
+    {
+      "label": "every upstream report exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "every upstream stage passed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "no POI is buried inside a building",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "every entrance is reachable from a street",
+      "ok": true,
+      "detail": "0 isolated"
+    },
+    {
+      "label": "spawn point is clear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "no NaN geometry",
+      "ok": true,
+      "detail": "0 bad values"
+    },
+    {
+      "label": "landmark heights are sane (240–460 m)",
+      "ok": true,
+      "detail": "285–426 m"
+    },
+    {
+      "label": "instance budget under 90k",
+      "ok": true,
+      "detail": "38927"
+    },
+    {
+      "label": "all landmark interiors exist",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "quest content is complete",
+      "ok": true,
+      "detail": "8 quests"
+    },
+    {
+      "label": "station platforms sit above the rail bed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "enough content for a session (buildings > 500, trees > 800)",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

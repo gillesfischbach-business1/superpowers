@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-11-12T07:02:32.712Z",
+  "agent": "geologist",
+  "min": 284.7,
+  "max": 331.3,
+  "profile": [
+    331.3,
+    295,
+    290.8
+  ],
+  "sampledAt": "centre meridian 6.0845",
+  "peaks": {
+    "montSaintJean": 410.7,
+    "kalebierg": 425.6,
+    "thilleweier": 261.5
+  },
+  "centre": 295.7,
+  "steepSamples": 0,
+  "passed": true,
+  "results": [
+    {
+      "label": "no NaN terrain samples",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "Mont Saint-Jean around 417 m",
+      "ok": true,
+      "detail": "411 m"
+    },
+    {
+      "label": "town centre in the valley (270–330 m)",
+      "ok": true,
+      "detail": "296 m"
+    },
+    {
+      "label": "border low point below 300 m",
+      "ok": true,
+      "detail": "262 m"
+    },
+    {
+      "label": "no slope steeper than 45% in the core",
+      "ok": true,
+      "detail": "0/600 samples steep"
+    },
+    {
+      "label": "stream defined for the valley",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

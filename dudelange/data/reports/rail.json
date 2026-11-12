@@ -1,0 +1,108 @@
+{
+  "generatedAt": "2026-11-12T07:02:34.671Z",
+  "agent": "rail",
+  "stations": [
+    {
+      "name": "Dudelange-Burange",
+      "chainage": 1336,
+      "platforms": 2
+    },
+    {
+      "name": "Dudelange-Ville",
+      "chainage": 2332,
+      "platforms": 2
+    },
+    {
+      "name": "Dudelange-Centre",
+      "chainage": 2860,
+      "platforms": 2
+    },
+    {
+      "name": "Dudelange-Usines",
+      "chainage": 3553,
+      "platforms": 2
+    }
+  ],
+  "northbound": [
+    {
+      "stop": "Dudelange-Ville",
+      "seconds": 55,
+      "km": 1
+    },
+    {
+      "stop": "Dudelange-Centre",
+      "seconds": 105.8,
+      "km": 1.52
+    },
+    {
+      "stop": "Dudelange-Usines",
+      "seconds": 164.4,
+      "km": 2.22
+    }
+  ],
+  "southboundStops": [
+    "Dudelange-Centre",
+    "Dudelange-Ville",
+    "Dudelange-Burange"
+  ],
+  "journeyMinutes": 3,
+  "tunnels": [
+    {
+      "name": "Passage souterrain — Gare de Dudelange-Centre",
+      "kind": "underpass",
+      "src": "model",
+      "length": 34
+    },
+    {
+      "name": "Passage souterrain — Gare de Dudelange-Ville",
+      "kind": "underpass",
+      "src": "model",
+      "length": 30
+    },
+    {
+      "name": "Passage souterrain — Gare de Dudelange-Usines",
+      "kind": "underpass",
+      "src": "model",
+      "length": 30
+    },
+    {
+      "name": "Tunnel de Budersberg",
+      "kind": "tunnel",
+      "src": "model",
+      "length": 260
+    }
+  ],
+  "passed": true,
+  "results": [
+    {
+      "label": "train calls at every downstream stop in order",
+      "ok": true,
+      "detail": "Dudelange-Ville → Dudelange-Centre → Dudelange-Usines"
+    },
+    {
+      "label": "full northbound run under 15 minutes",
+      "ok": true,
+      "detail": "3.0 min"
+    },
+    {
+      "label": "four rail underpasses or tunnels",
+      "ok": true,
+      "detail": "4"
+    },
+    {
+      "label": "platform length fits a two-car set",
+      "ok": true,
+      "detail": "132 m platforms"
+    },
+    {
+      "label": "rail line has catenary masts",
+      "ok": true,
+      "detail": "116 masts"
+    },
+    {
+      "label": "station order strictly monotonic",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

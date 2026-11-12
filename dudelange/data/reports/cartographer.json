@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-11-12T07:02:32.023Z",
+  "agent": "cartographer",
+  "anchors": 31,
+  "namedStreets": 15,
+  "roadPolylines": 24,
+  "railStationOrder": [
+    {
+      "id": "burange",
+      "name": "Dudelange-Burange",
+      "chainage": 1336,
+      "platformY": 291.8
+    },
+    {
+      "id": "ville",
+      "name": "Dudelange-Ville",
+      "chainage": 2332,
+      "platformY": 294.6
+    },
+    {
+      "id": "centre",
+      "name": "Dudelange-Centre",
+      "chainage": 2860,
+      "platformY": 305
+    },
+    {
+      "id": "usines",
+      "name": "Dudelange-Usines",
+      "chainage": 3553,
+      "platformY": 303.5
+    }
+  ],
+  "bbox": {
+    "south": 49.464,
+    "north": 49.498,
+    "west": 6.0545,
+    "east": 6.112
+  },
+  "sources": {
+    "osm": 18,
+    "approx": 13
+  },
+  "passed": true,
+  "results": [
+    {
+      "label": "all anchors inside the playable bbox",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "at least 15 named streets traced from OSM",
+      "ok": true,
+      "detail": "15 named"
+    },
+    {
+      "label": "four CFL stations",
+      "ok": true,
+      "detail": "Dudelange-Burange / Dudelange-Ville / Dudelange-Centre / Dudelange-Usines"
+    },
+    {
+      "label": "stations in line order Burange → Usines",
+      "ok": true,
+      "detail": "burange:1336 → ville:2332 → centre:2860 → usines:3553"
+    },
+    {
+      "label": "rail line is longer than 3 km",
+      "ok": true,
+      "detail": "5092 m"
+    },
+    {
+      "label": "urban road network over 20 km",
+      "ok": true,
+      "detail": "44.91 km"
+    },
+    {
+      "label": "place names kept in Luxembourg spelling",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

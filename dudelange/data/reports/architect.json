@@ -1,0 +1,271 @@
+{
+  "generatedAt": "2026-11-12T07:02:34.047Z",
+  "agent": "architect",
+  "styles": {
+    "neischmelz": 16,
+    "italien": 277,
+    "centre": 264,
+    "outskirts": 13,
+    "burange": 286,
+    "budersberg": 34,
+    "usines": 5
+  },
+  "roofs": {
+    "flat": 16,
+    "gable": 783,
+    "hip": 91,
+    "saw": 5
+  },
+  "windows": 32964,
+  "shopfronts": 272,
+  "interiors": [
+    {
+      "id": "delhaize",
+      "kind": "shop",
+      "size": {
+        "w": 34,
+        "d": 24,
+        "h": 5
+      },
+      "npc": "Mme Schmit",
+      "items": 16
+    },
+    {
+      "id": "match",
+      "kind": "shop",
+      "size": {
+        "w": 34,
+        "d": 24,
+        "h": 5
+      },
+      "npc": "Mr. Wagner",
+      "items": 9
+    },
+    {
+      "id": "cactus",
+      "kind": "shop",
+      "size": {
+        "w": 34,
+        "d": 24,
+        "h": 5
+      },
+      "npc": "Sandra",
+      "items": 8
+    },
+    {
+      "id": "mamma_mia",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Giulia",
+      "items": 6
+    },
+    {
+      "id": "charbonnade",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Marco",
+      "items": 5
+    },
+    {
+      "id": "parc_leh",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Claude",
+      "items": 5
+    },
+    {
+      "id": "amarcord",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Elena",
+      "items": 4
+    },
+    {
+      "id": "chang_man",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Li Wei",
+      "items": 4
+    },
+    {
+      "id": "steak_house",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Steve",
+      "items": 3
+    },
+    {
+      "id": "douro",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Sr. Almeida",
+      "items": 4
+    },
+    {
+      "id": "sushi_ebi",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Kenji",
+      "items": 4
+    },
+    {
+      "id": "gamja",
+      "kind": "restaurant",
+      "size": {
+        "w": 22,
+        "d": 17,
+        "h": 4.4
+      },
+      "npc": "Ji-woo",
+      "items": 4
+    },
+    {
+      "id": "townhall",
+      "kind": "civic",
+      "size": {
+        "w": 38,
+        "d": 19,
+        "h": 6
+      },
+      "npc": "Mme Kremer",
+      "items": 0
+    },
+    {
+      "id": "church",
+      "kind": "church",
+      "size": {
+        "w": 19,
+        "d": 42,
+        "h": 14
+      },
+      "npc": "Père Alphonse",
+      "items": 0
+    },
+    {
+      "id": "cna",
+      "kind": "gallery",
+      "size": {
+        "w": 46,
+        "d": 26,
+        "h": 7
+      },
+      "npc": "Curator Ana",
+      "items": 0
+    },
+    {
+      "id": "rolling_mill",
+      "kind": "industrial",
+      "size": {
+        "w": 32,
+        "d": 120,
+        "h": 20
+      },
+      "npc": "Hervé",
+      "items": 0
+    },
+    {
+      "id": "station",
+      "kind": "station",
+      "size": {
+        "w": 24,
+        "d": 14,
+        "h": 5.4
+      },
+      "npc": "M. Hoffmann",
+      "items": 0
+    },
+    {
+      "id": "hotel",
+      "kind": "hotel",
+      "size": {
+        "w": 20,
+        "d": 14,
+        "h": 4.6
+      },
+      "npc": "Mme Faber",
+      "items": 0
+    },
+    {
+      "id": "school",
+      "kind": "school",
+      "size": {
+        "w": 50,
+        "d": 22,
+        "h": 6.6
+      },
+      "npc": "M. Bernard",
+      "items": 0
+    }
+  ],
+  "problems": [],
+  "passed": true,
+  "results": [
+    {
+      "label": "at least 6 distinct building styles",
+      "ok": true,
+      "detail": "neischmelz, italien, centre, outskirts, burange, budersberg, usines"
+    },
+    {
+      "label": "window grid under 60k instances",
+      "ok": true,
+      "detail": "32964"
+    },
+    {
+      "label": "at least 15 visitable interiors",
+      "ok": true,
+      "detail": "19"
+    },
+    {
+      "label": "every interior is complete",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "label": "at least 3 supermarkets",
+      "ok": true,
+      "detail": "delhaize, match, cactus"
+    },
+    {
+      "label": "at least 8 restaurants",
+      "ok": true,
+      "detail": "9"
+    },
+    {
+      "label": "gabled roofs dominate the residential quarters",
+      "ok": true,
+      "detail": "{\"flat\":16,\"gable\":783,\"hip\":91,\"saw\":5}"
+    }
+  ]
+}

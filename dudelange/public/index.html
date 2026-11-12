@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Diddeleng — an open world of Dudelange</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%231d3557'/><path d='M18 68h64M26 68V46l14-10 14 10v22M56 68V38h16v30' stroke='%23e9c46a' stroke-width='6' fill='none'/></svg>" />
+<script type="importmap">
+  { "imports": { "three": "/vendor/three.module.js" } }
+</script>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="loading">
+  <div class="loading-inner">
+    <div class="brand">DIDDELENG<span>Dudelange · Luxembourg</span></div>
+    <div class="loadbar"><i id="loadfill"></i></div>
+    <div class="loadtext" id="loadtext">Booting the valley…</div>
+    <ul class="loadsteps" id="loadsteps"></ul>
+    <button id="startBtn" class="primary hidden">Enter Dudelange</button>
+    <p class="small">Single-player · real OSM street layout · EU-DEM terrain · 4 CFL stops</p>
+  </div>
+</div>
+
+<div id="hud" class="hidden">
+  <div id="topleft">
+    <div class="place">
+      <div class="district" id="districtName">Centre</div>
+      <div class="cityline">Dudelange · Diddeleng · LU</div>
+    </div>
+    <div class="chips">
+      <span class="chip" id="clock">08:30</span>
+      <span class="chip" id="weather">Clear</span>
+      <span class="chip" id="temp">14 °C</span>
+    </div>
+  </div>
+
+  <div id="topright">
+    <div class="money"><span>€</span><b id="money">120</b></div>
+    <div class="levelwrap">
+      <div class="xp"><i id="xpfill"></i></div>
+      <div class="levelrow"><span id="level">Level 1</span><span id="xp">0 / 100 XP</span></div>
+    </div>
+  </div>
+
+  <div id="objective">
+    <div class="obj-head">Objective</div>
+    <div id="objectiveText">Talk to the tourist desk in the Hôtel de Ville.</div>
+  </div>
+
+  <div id="prompt" class="hidden"><kbd>E</kbd> <span id="promptText"></span></div>
+
+  <div id="rightdock">
+    <canvas id="minimap" width="220" height="220"></canvas>
+    <div class="maplegend"><span id="zoneLabel">Centre</span> · <span id="coords">49.4785, 6.0845</span></div>
+    <div class="compass" id="compass">N</div>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="crosshair"></div>
+  <div id="hint">WASD move · Shift sprint · E interact · M map · J journal · P build agents · Esc menu</div>
+  <div id="speedo" class="hidden"><b>0</b> km/h</div>
+</div>
+
+<div id="panel" class="hidden">
+  <div class="panel-inner">
+    <button class="close" id="panelClose">✕</button>
+    <h2 id="panelTitle">Map</h2>
+    <div id="panelBody"></div>
+  </div>
+</div>
+
+<div id="dialog" class="hidden">
+  <div class="dialog-inner">
+    <div class="speaker" id="dlgSpeaker">Mme Kremer</div>
+    <div class="dlgtext" id="dlgText"></div>
+    <div class="dlgchoices" id="dlgChoices"></div>
+  </div>
+</div>
+
+<div id="trade" class="hidden">
+  <div class="trade-inner">
+    <header>
+      <h3 id="tradeTitle">Proxy Delhaize</h3>
+      <div class="wallet">€ <span id="tradeMoney">120</span></div>
+      <button class="close" id="tradeClose">✕</button>
+    </header>
+    <div class="trade-cols">
+      <div id="tradeList" class="trade-list"></div>
+      <aside class="trade-side">
+        <h4>Basket</h4>
+        <div id="cart"></div>
+        <button id="tradeBuy" class="primary">Pay</button>
+        <p class="small" id="tradeHint">Press E at the till, choose what you need. Paying is instant.</p>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div id="districtBanner" class="hidden"><span id="bannerTitle"></span><small id="bannerSub"></small></div>
+<div id="vignette"></div>
+<div id="flash"></div>
+<div id="errors" class="hidden"></div>
+
+<script type="module" src="/js/game/main.js"></script>
+</body>
+</html>
