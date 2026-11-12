@@ -177,6 +177,7 @@ const server = http.createServer(async (req, res) => {
 
     /* ------------------------------------------------------- static */
     if (pathname === '/agents' || pathname === '/agents/') return serveFile(res, path.join(PUBLIC, 'agents.html'));
+    if (pathname === '/diag' || pathname === '/diag/') return serveFile(res, path.join(PUBLIC, 'diag.html'));
     if (pathname === '/vendor/three.module.js') return serveFile(res, path.join(ROOT, 'node_modules', 'three', 'build', 'three.module.js'));
     if (pathname === '/vendor/three.core.js') return serveFile(res, path.join(ROOT, 'node_modules', 'three', 'build', 'three.core.js'));
 
@@ -202,10 +203,23 @@ function serveFile(res, file) {
   res.writeHead(200, {
     'content-type': type,
     'content-length': stat.size,
-    'cache-control': ext === '.js' || ext === '.css' ? 'public, max-age=60' : 'no-cache'
+    // always revalidate: a cached module is how a fixed build keeps looking broken
+    'cache-control': 'no-cache, must-revalidate'
   });
   fs.createReadStream(file).pipe(res);
 }
+
+let listenTries = 0;
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE' && listenTries < 6) {
+    listenTries += 1;
+    console.log(`  port ${PORT} still held by another process — retry ${listenTries}/6 in 700 ms`);
+    setTimeout(() => server.listen(PORT, HOST), 700);
+    return;
+  }
+  console.error(`  cannot serve on ${HOST}:${PORT} — ${err.message}`);
+  process.exit(1);
+});
 
 server.listen(PORT, HOST, () => {
   console.log(`\n  Diddeleng — Dudelange open world`);

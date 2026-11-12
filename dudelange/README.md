@@ -12,6 +12,7 @@ network access at runtime. Three.js is vendored in `public/vendor/`.
 npm install
 npm start            # http://localhost:5173        the game
                      # http://localhost:5173/agents the build dashboard
+                     # http://localhost:5173/diag   self-check: WebGL, assets, boot
 ```
 
 ## Playing
@@ -122,9 +123,14 @@ Nine specialist agents each own a stage, a script and a set of acceptance gates.
 ```bash
 npm run pipeline          # all nine stages via the CLI
 npm run pipeline:qa       # qa + release only
-npm test                  # 22 invariants (world, cars, trains, forests, pubs, hours, shell, importer)
+npm test                  # 28 invariants (world, cars, trains, forests, pubs, hours, module graph, boot, shell, importer)
 npm run import:places -- dataset.json   # ingest a Google Maps dataset export
 ```
+
+If the page stays empty, open `/diag`: it checks the WebGL 2 context, fetches every file the page
+needs (status + MIME), then boots the game in a frame and reports the loader state. A blank build is
+usually a missing export or a blocked GPU context, and both are now named on screen instead of
+frozen behind a loading bar.
 
 Role briefs live in `agents/roles/`; the machine-readable contract is `agents/manifest.json`.
 Every stage writes `data/reports/<agent>.json`, and the release agent composes

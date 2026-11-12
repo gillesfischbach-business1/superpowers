@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Diddeleng — self check</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 28px 22px 60px; background: #0f1420; color: #dfe6f2;
+         font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: .02em; }
+  p.lead { margin: 0 0 22px; color: #93a0b8; max-width: 62ch; }
+  #out { display: grid; gap: 6px; max-width: 900px; margin-bottom: 20px; }
+  .row { display: grid; grid-template-columns: 22px 132px 1fr; gap: 10px; align-items: baseline;
+         padding: 7px 10px; background: #161d2c; border-radius: 7px; border-left: 3px solid #263048; }
+  .row.ok { border-left-color: #3fb27f; }
+  .row.bad { border-left-color: #e0565b; }
+  .row.warn { border-left-color: #d8a13a; }
+  .mark { font-weight: 700; }
+  .row.ok .mark { color: #3fb27f; }
+  .row.bad .mark { color: #e0565b; }
+  .row.warn .mark { color: #d8a13a; }
+  .label { color: #93a0b8; }
+  .detail { color: #dfe6f2; overflow-wrap: anywhere; }
+  #hint { max-width: 900px; margin: 0 0 18px; padding: 12px 14px; border-radius: 8px;
+          background: #241a1a; border: 1px solid #5a2b2b; color: #f0c9c9; }
+  .hidden { display: none; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: #7d8aa3; margin: 26px 0 8px; }
+  #frame { width: 100%; max-width: 900px; height: 420px; border: 1px solid #263048; border-radius: 8px; background: #000; }
+  a { color: #8fc2ff; }
+</style>
+</head>
+<body>
+<h1>Diddeleng — self check</h1>
+<p class="lead">
+  Runs in your browser, in the same frame the game runs in. If the game refuses to start, the answer is
+  on this page: missing files, wrong MIME type, or a blocked WebGL 2 context.
+</p>
+<div id="hint" class="hidden"></div>
+<div id="out"></div>
+<h2>The game, booting below</h2>
+<iframe id="frame" src="/" title="Diddeleng preview"></iframe>
+<p class="lead" style="margin-top:14px"><a href="/">Open the game full page</a> · <a href="/agents">build dashboard</a></p>
+<script type="module" src="/js/game/diag.js"></script>
+</body>
+</html>
