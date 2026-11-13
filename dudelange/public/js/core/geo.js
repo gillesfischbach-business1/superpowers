@@ -94,12 +94,18 @@ export function terrainHeight(x, z) {
   const ll = unproject(x, z);
   const base = sampleElevation(ll.lat, ll.lon);
   const u = urbanFactor(x, z);
-  const detailAmp = lerp(9, 1.6, u);
+  // A town is not a field: streets, kerbs, doorsteps and shopfronts are all
+  // within centimetres of each other. The valley therefore keeps only a trace
+  // of fractal relief, while the hills around it stay untouched. Before this,
+  // ±3 m of noise sat inside the built-up area and every house, road edge and
+  // crossing floated or sank by a metre or more.
   const n = (fbm(x * 0.0042, z * 0.0042, 4) - 0.5) * 2;
   const micro = (valueNoise(x * 0.05, z * 0.05) - 0.5) * 0.8;
-  const hills = lerp(1, 0.25, u);
+  const detailAmp = lerp(9, 0.30, u);
+  const hills = lerp(1, 0.04, u);
   const slopeBias = (fbm(x * 0.0016 + 11.3, z * 0.0016 - 4.1, 3) - 0.5) * 10 * hills;
-  return base + n * detailAmp + micro * (0.6 + (1 - u)) + slopeBias;
+  const microAmp = lerp(1.4, 0.10, u);
+  return base + n * detailAmp + micro * microAmp + slopeBias;
 }
 
 export function terrainNormal(x, z, eps = 2) {
@@ -161,6 +167,28 @@ export function polylineAt(points, dist) {
 }
 
 /** Closest point on a polyline to (x,z). */
+/**
+ * Metres along the polyline to the point closest to (x, z).
+ *
+ * `closestOnPolyline().dist` is the *perpendicular* distance to the line, which
+ * is what a train station is next to, not where it is along the track. Using it
+ * as a chainage stacked every station at ~0 and broke the timetable.
+ */
+export function chainageAlong(points, x, z) {
+  let acc = 0, best = { d: Infinity, along: 0 };
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1], b = points[i];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len2 = dx * dx + dz * dz;
+    const t = len2 < 1e-9 ? 0 : clamp(((x - a.x) * dx + (z - a.z) * dz) / len2, 0, 1);
+    const px = a.x + dx * t, pz = a.z + dz * t;
+    const d = Math.hypot(x - px, z - pz);
+    if (d < best.d) best = { d, along: acc + Math.sqrt(len2) * t };
+    acc += Math.sqrt(len2);
+  }
+  return best.along;
+}
+
 export function closestOnPolyline(points, x, z) {
   let best = { dist: Infinity, x: 0, z: 0, angle: 0, index: 0 };
   for (let i = 1; i < points.length; i++) {

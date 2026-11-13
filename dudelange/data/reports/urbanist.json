@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-11-12T23:25:54.480Z",
+  "generatedAt": "2026-11-13T15:38:53.035Z",
   "agent": "urbanist",
-  "buildings": 857,
+  "buildings": 854,
   "perDistrict": {
     "neischmelz": 16,
-    "centre": 159,
-    "outskirts": 13,
+    "centre": 157,
+    "outskirts": 15,
     "italien": 307,
-    "burange": 332,
-    "budersberg": 25,
-    "usines": 5
+    "burange": 336,
+    "budersberg": 21,
+    "usines": 2
   },
-  "commercial": 239,
+  "commercial": 240,
   "roadKm": 45.39,
-  "trees": 5213,
+  "trees": 5269,
   "trails": [
     {
       "id": "trail_st_jean",
@@ -92,7 +92,7 @@
     {
       "label": "building count within budget (400–1600)",
       "ok": true,
-      "detail": "857"
+      "detail": "854"
     },
     {
       "label": "no building on the rail corridor",
@@ -112,17 +112,17 @@
     {
       "label": "every main quarter is inhabited",
       "ok": true,
-      "detail": "{\"neischmelz\":16,\"centre\":159,\"outskirts\":13,\"italien\":307,\"burange\":332,\"budersberg\":25,\"usines\":5}"
+      "detail": "{\"neischmelz\":16,\"centre\":157,\"outskirts\":15,\"italien\":307,\"burange\":336,\"budersberg\":21,\"usines\":2}"
     },
     {
       "label": "commercial ground floors exist",
       "ok": true,
-      "detail": "239 shops"
+      "detail": "240 shops"
     },
     {
       "label": "street trees planted",
       "ok": true,
-      "detail": "5213 trees"
+      "detail": "5269 trees"
     },
     {
       "label": "forest trails reach the woods",

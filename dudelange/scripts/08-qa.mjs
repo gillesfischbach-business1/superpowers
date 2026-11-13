@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { loadWorld, writeReport, readReport, Gate, estimateWindows } from './_lib.mjs';
 import { circleHitsBox, closestOnPolyline, terrainHeight } from '../public/js/core/geo.js';
+import { ground, heightField } from '../public/js/core/heightfield.js';
 import { INTERIORS } from '../public/js/core/interiors.js';
 import { QUESTS } from '../public/js/core/quests.js';
 import { parseHours, isOpenAt, describeStatus } from '../public/js/core/hours.js';
@@ -51,6 +52,42 @@ const sampleClosed = venues.find(([, spec]) => /off/.test(spec.hours) || !isOpen
 
 // station sanity
 const badStations = world.rail.stations.filter((s) => !(s.platformY > s.elevation));
+const chainages = world.rail.stations.map((s) => s.railDist);
+const orderedChainages = chainages.every((c, i) => i === 0 || c > chainages[i - 1]);
+const chainageSpread = Math.max(...chainages) - Math.min(...chainages);
+
+// the ground the town is built on: streets cannot climb over hills, and houses
+// must not hang in the air. Both were true before the height field existed.
+// the baked lattice the renderer draws: it must exist, be finite, and cover the
+// ground the player can walk on
+const field = heightField();
+let fieldBad = 0;
+if (field) for (const h of field.heights) if (!Number.isFinite(h)) fieldBad++;
+
+// streets climb, but nothing in this town is a ski jump
+let steepest = 0;
+let steepestRoad = '';
+for (const r of world.roads) {
+  for (let i = 1; i < r.samples.length; i++) {
+    const a = r.samples[i - 1], b = r.samples[i];
+    const len = Math.hypot(b.x - a.x, b.z - a.z);
+    if (len < 0.5) continue;
+    const grade = Math.abs(ground(b.x, b.z) - ground(a.x, a.z)) / len;
+    if (grade > steepest) { steepest = grade; steepestRoad = r.name; }
+  }
+}
+
+const floatingHouses = [];
+const buriedHouses = [];
+for (const b of world.buildings) {
+  const cos = Math.cos(b.rot), sin = Math.sin(b.rot);
+  let lo = Infinity;
+  for (const [lx, lz] of [[-b.w / 2, -b.d / 2], [b.w / 2, -b.d / 2], [-b.w / 2, b.d / 2], [b.w / 2, b.d / 2]]) {
+    lo = Math.min(lo, ground(b.x + lx * cos + lz * sin, b.z - lx * sin + lz * cos));
+  }
+  if (b.baseY > lo + 0.02) floatingHouses.push(b.id);
+  if (lo - b.baseY > 2.5) buriedHouses.push(b.id);
+}
 
 console.log(`  upstream reports ${reports.length - missing.length}/${reports.length} · failed ${failed.length}`);
 console.log(`  ${world.pois.length} POIs · ${world.doors.length} doors · ${Object.keys(INTERIORS).length} interiors`);
@@ -74,6 +111,12 @@ const railDanger = world.cars.filter((c) => closestOnPolyline(world.rail.points,
 const badCars = world.cars.filter((c) => !c.color || !c.district || !Number.isFinite(c.x) || !Number.isFinite(c.z));
 const trailsOffMap = (world.forestPaths || []).filter((t) => t.samples.some((p) => Math.abs(p.x) > 3200 || Math.abs(p.z) > 3200));
 
+gate.check('stations are spread along the line, not stacked at zero', orderedChainages && chainageSpread > 1000, `${chainageSpread.toFixed(0)} m of ${world.rail.length.toFixed(0)} m`);
+gate.check('the height field covers the whole map', !!field && fieldBad === 0 && field.width > 8000,
+  field ? `${(field.width / 1000).toFixed(1)} × ${(field.depth / 1000).toFixed(1)} km, ${fieldBad} bad` : 'missing');
+gate.check('no street climbs steeper than 30%', steepest < 0.30, `steepest ${(steepest * 100).toFixed(0)}% (${steepestRoad})`);
+gate.check('no house hangs above the ground', floatingHouses.length === 0, `${floatingHouses.length} floating`);
+gate.check('no house is buried in a hillside', buriedHouses.length === 0, `${buriedHouses.length} buried`);
 gate.check('quest content is complete', questProblems.length === 0, `${QUESTS.length} quests`);
 gate.check('every pub has a door on the street', pubsInWorld.length >= 3 && pubDoors.length === pubsInWorld.length, `${pubDoors.length}/${pubsInWorld.length} pubs`);
 gate.check('no car is parked on the rail line', railDanger.length === 0, `${railDanger.length} on the tracks`);

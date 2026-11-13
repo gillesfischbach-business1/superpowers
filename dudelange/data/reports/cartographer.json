@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T23:25:53.915Z",
+  "generatedAt": "2026-11-13T15:38:52.418Z",
   "agent": "cartographer",
   "anchors": 40,
   "namedStreets": 16,
@@ -9,25 +9,25 @@
       "id": "burange",
       "name": "Dudelange-Burange",
       "chainage": 1336,
-      "platformY": 291.8
+      "platformY": 292
     },
     {
       "id": "ville",
       "name": "Dudelange-Ville",
       "chainage": 2332,
-      "platformY": 294.6
+      "platformY": 294.8
     },
     {
       "id": "centre",
       "name": "Dudelange-Centre",
       "chainage": 2860,
-      "platformY": 305
+      "platformY": 304.9
     },
     {
       "id": "usines",
       "name": "Dudelange-Usines",
       "chainage": 3553,
-      "platformY": 303.5
+      "platformY": 303.2
     }
   ],
   "bbox": {

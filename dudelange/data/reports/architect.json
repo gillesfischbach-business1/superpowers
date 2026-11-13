@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-11-12T23:25:54.733Z",
+  "generatedAt": "2026-11-13T15:38:53.350Z",
   "agent": "architect",
   "styles": {
     "neischmelz": 16,
-    "italien": 282,
+    "italien": 281,
     "centre": 223,
-    "outskirts": 11,
-    "burange": 295,
-    "budersberg": 25,
-    "usines": 5
+    "outskirts": 13,
+    "burange": 298,
+    "budersberg": 21,
+    "usines": 2
   },
   "roofs": {
     "flat": 16,
-    "gable": 746,
-    "hip": 90,
-    "saw": 5
+    "gable": 740,
+    "hip": 96,
+    "saw": 2
   },
-  "windows": 31224,
-  "shopfronts": 239,
+  "windows": 31034,
+  "shopfronts": 240,
   "interiors": [
     {
       "id": "delhaize",
@@ -339,7 +339,7 @@
     {
       "label": "window grid under 60k instances",
       "ok": true,
-      "detail": "31224"
+      "detail": "31034"
     },
     {
       "label": "at least 15 visitable interiors",
@@ -364,7 +364,7 @@
     {
       "label": "gabled roofs dominate the residential quarters",
       "ok": true,
-      "detail": "{\"flat\":16,\"gable\":746,\"hip\":90,\"saw\":5}"
+      "detail": "{\"flat\":16,\"gable\":740,\"hip\":96,\"saw\":2}"
     }
   ]
 }

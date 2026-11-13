@@ -5,9 +5,10 @@
 import * as THREE from 'three';
 import { buildWorld, resolveCollisions } from '../core/world.js';
 import {
-  terrainHeight, terrainNormal, project, unproject, clamp, lerp,
-  polylineAt, resamplePolyline, polylineLength, closestOnPolyline
+  terrainNormal, project, unproject, clamp, lerp,
+  polylineAt, resamplePolyline, polylineLength, closestOnPolyline, chainageAlong
 } from '../core/geo.js';
+import { ground, groundNormal } from '../core/heightfield.js';
 import { INTERIORS } from '../core/interiors.js';
 import { nextStopIndex as nextStopIndexCore, brakingSpeed } from '../core/train.js';
 import { parseHours, statusAt, describeStatus, formatMinutes, DAY_NAMES } from '../core/hours.js';
@@ -139,6 +140,8 @@ async function init() {
   app.mode = 'menu';
   app.renderer.setAnimationLoop(frame);
   if (window.__diddelengReport) window.__diddelengReport('booted', 'renderer running', '');
+  // Inspection hook: the tests query the live scene graph through this.
+  window.__diddeleng = { app, THREE, placeTrain, terrainHeight: ground, ground };
   app.ui.ready(() => {
     app.mode = 'foot';
     app.audio.resume();
@@ -197,7 +200,7 @@ function setupPlayer() {
   const p = app.player;
   p.x = app.world.spawn.x;
   p.z = app.world.spawn.z;
-  p.y = terrainHeight(p.x, p.z);
+  p.y = ground(p.x, p.z);
   p.yaw = Math.PI * 0.9;
   p.rot = p.yaw;
 
@@ -298,7 +301,7 @@ function setupCars() {
     const car = {
       id: spec.id, color: spec.color, owned: !!spec.owned,
       x: spec.x, z: spec.z, rot: spec.rot,
-      y: terrainHeight(spec.x, spec.z),
+      y: ground(spec.x, spec.z),
       speed: 0, occupied: false, stolen: false,
       group: model.group, wheels: model.wheels,
       collider: spec.collider || null
@@ -319,21 +322,43 @@ function carPrompt(car) {
 }
 
 function setupTraffic() {
-  const palette = ['#e9c46a', '#2a9d8f', '#264653', '#e6e6e6', '#1d1d1d', '#7f8c8d', '#bc4749'];
+  // The town had seven cars spread over 45 km of road — none of them close
+  // enough to see, which is why the streets felt dead. The nearest roads to the
+  // spawn now get traffic first, several cars each, driving on their own side.
+  const palette = ['#e9c46a', '#2a9d8f', '#264653', '#e6e6e6', '#1d1d1d', '#7f8c8d', '#bc4749', '#4361ee', '#f4a261'];
   app.traffic = [];
-  app.world.roads
-    .filter((r) => (r.cls === 'primary' || r.cls === 'secondary') && r.length > 300)
-    .slice(0, 9)
-    .forEach((road, i) => {
-      const car = makeCar(palette[i % palette.length]);
-      const samples = resamplePolyline(road.points, 6);
+  const spawn = app.world.spawn;
+  const roads = app.world.roads
+    .filter((r) => (r.cls === 'primary' || r.cls === 'secondary' || r.cls === 'residential') && r.length > 110)
+    .map((r) => ({ r, d: closestOnPolyline(r.samples, spawn.x, spawn.z).dist }))
+    .sort((a, b) => a.d - b.d);
+
+  const TARGET = 34;
+  for (const { r } of roads) {
+    if (app.traffic.length >= TARGET) break;
+    const samples = resamplePolyline(r.samples, 4);
+    const length = polylineLength(samples);
+    if (length < 60) continue;
+    const per = Math.min(3, Math.max(1, Math.round(length / 420)));
+    for (let k = 0; k < per && app.traffic.length < TARGET; k++) {
+      const n = app.traffic.length;
+      const car = makeCar(palette[n % palette.length]);
       app.scene.add(car.group);
       app.traffic.push({
-        group: car.group, samples, length: polylineLength(samples),
-        dist: (i * 97) % 300, speed: 7 + (i % 4) * 1.6, dir: i % 2 ? -1 : 1,
-        wheels: car.wheels, color: palette[i % palette.length], taken: false
+        group: car.group, samples, length,
+        dist: ((k + 0.35 + (n % 3) * 0.1) / per) * length,
+        speed: 6.5 + ((n * 7) % 9) * 0.55,
+        dir: n % 2 ? -1 : 1,
+        wheels: car.wheels, color: palette[n % palette.length], taken: false
       });
-    });
+    }
+  }
+  // put them on the tarmac before the first frame, not at the origin
+  for (const c of app.traffic) {
+    const at = polylineAt(c.samples, c.dist);
+    c.group.position.set(at.x, ground(at.x, at.z) + 0.05, at.z);
+    c.group.rotation.y = at.angle + (c.dir > 0 ? Math.PI / 2 : -Math.PI / 2);
+  }
 }
 
 /* ------------------------------------------------------------------ train */
@@ -343,7 +368,7 @@ function setupTrain() {
   const blue = new THREE.MeshStandardMaterial({ color: 0x12457a, roughness: 0.5, metalness: 0.25 });
   const glass = new THREE.MeshStandardMaterial({ color: 0x1d2b33, roughness: 0.15, metalness: 0.5 });
   const cars = [];
-  for (let c = 0; c < 2; c++) {
+  for (let c = 0; c < 3; c++) {
     const car = new THREE.Group();
     const body = new THREE.Mesh(new THREE.BoxGeometry(21, 2.5, 2.9), livery);
     body.position.y = 1.9;
@@ -387,13 +412,21 @@ function setupTrain() {
   const railPts = resamplePolyline(app.world.rail.points, 4);
   const total = polylineLength(railPts);
   const stations = app.world.rail.stations
-    .map((s) => ({ ...s, chainage: closestOnPolyline(railPts, s.x, s.z).dist, along: true }))
+    .map((s) => ({ ...s, chainage: chainageAlong(railPts, s.x, s.z), along: true }))
     .sort((a, b) => a.chainage - b.chainage);
+  // Start with the doors open at the platform closest to the spawn: a train
+  // 2.5 km away is a train nobody ever sees.
+  const spawn = app.world.spawn;
+  let nearest = stations[0], bestD = Infinity;
+  for (const st of stations) {
+    const d = Math.hypot(st.x - spawn.x, st.z - spawn.z);
+    if (d < bestD) { bestD = d; nearest = st; }
+  }
   app.train = {
     group, cars, railPts, total, stations,
-    dist: 300, speed: 0, dir: 1, dwell: 6, doorsOpen: false,
-    state: 'dwell', nextStop: 1, boarded: false, startDist: 0, travelled: 0,
-    stopTime: 18
+    dist: nearest.chainage, speed: 0, dir: 1, dwell: 14, doorsOpen: true,
+    state: 'dwell', nextStop: stations.indexOf(nearest), boarded: false,
+    startDist: nearest.chainage, travelled: 0, stopTime: 18
   };
   app.scene.add(group);
   placeTrain();
@@ -405,12 +438,12 @@ function placeTrain() {
     const d = t.dist - i * 23;
     const at = polylineAt(t.railPts, clamp(d, 0, t.total));
     const car = t.cars[i];
-    car.position.set(at.x, terrainHeight(at.x, at.z) + 3.3, at.z);
+    car.position.set(at.x, ground(at.x, at.z) + 3.3, at.z);
     car.rotation.y = at.angle + Math.PI / 2;
     // tilt with the rail direction
     const ahead = polylineAt(t.railPts, clamp(d + 4, 0, t.total));
     const behind = polylineAt(t.railPts, clamp(d - 4, 0, t.total));
-    const slope = (terrainHeight(ahead.x, ahead.z) - terrainHeight(behind.x, behind.z)) / 8;
+    const slope = (ground(ahead.x, ahead.z) - ground(behind.x, behind.z)) / 8;
     car.rotation.z = -Math.atan(slope) * 0.6;
   }
   t.group.updateMatrixWorld();
@@ -510,7 +543,7 @@ function leaveTrain() {
   const p = app.player;
   p.x = st.x + 9;
   p.z = st.z + 5;
-  p.y = terrainHeight(p.x, p.z);
+  p.y = ground(p.x, p.z);
   t.boarded = false;
   app.mode = 'foot';
   app.ui.toast(`You stepped off at ${st.name}.`, 'good');
@@ -532,7 +565,7 @@ function setupNPCs() {
   for (const s of spots) {
     const p = project(s.x, s.lon);
     const person = makePerson({ shirt: s.shirt, pants: '#2f3336', skin: '#e2b48f', hair: '#2b2118' });
-    person.group.position.set(p.x, terrainHeight(p.x, p.z), p.z);
+    person.group.position.set(p.x, ground(p.x, p.z), p.z);
     person.group.rotation.y = Math.random() * Math.PI * 2;
     app.scene.add(person.group);
     app.npcs.push({ ...s, x: p.x, z: p.z, person, radius: 3.4 });
@@ -779,7 +812,7 @@ function carjackTraffic(tr) {
   const car = {
     id: `carjack_${Date.now()}`, color: tr.color || '#264653', owned: false,
     x: pos.x, z: pos.z, rot: tr.group.rotation.y,
-    y: terrainHeight(pos.x, pos.z),
+    y: ground(pos.x, pos.z),
     speed: tr.speed || 0, occupied: false, stolen: true,
     group: tr.group, wheels: tr.wheels, collider: null
   };
@@ -800,7 +833,7 @@ function exitCar() {
   px = solved.x; pz = solved.z;
   app.player.x = px;
   app.player.z = pz;
-  app.player.y = terrainHeight(px, pz);
+  app.player.y = ground(px, pz);
   c.occupied = false;
   c.speed = 0;
   app.mode = 'foot';
@@ -847,10 +880,10 @@ function updateCar(dt) {
   p.distanceDriven += Math.abs(c.speed * dt);
   c.x = solved.x;
   c.z = solved.z;
-  c.y = terrainHeight(c.x, c.z);
+  c.y = ground(c.x, c.z);
   if (c.collider) { c.collider.x = c.x; c.collider.z = c.z; c.collider.rot = c.rot; }
-  const ahead = terrainHeight(c.x + Math.cos(c.rot) * 3, c.z - Math.sin(c.rot) * 3);
-  const behind = terrainHeight(c.x - Math.cos(c.rot) * 3, c.z + Math.sin(c.rot) * 3);
+  const ahead = ground(c.x + Math.cos(c.rot) * 3, c.z - Math.sin(c.rot) * 3);
+  const behind = ground(c.x - Math.cos(c.rot) * 3, c.z + Math.sin(c.rot) * 3);
   const pitch = -Math.atan2(ahead - behind, 6);
   c.group.position.set(c.x, c.y + 0.06, c.z);
   c.group.rotation.set(pitch * 0.7, c.rot, 0, 'YXZ');
@@ -916,7 +949,7 @@ function exitInterior(silent = false) {
   app.scene.add(rainPoints);
   app.player.x = app.savedPos.x + 1.2;
   app.player.z = app.savedPos.z + 1.2;
-  app.player.y = terrainHeight(app.player.x, app.player.z);
+  app.player.y = ground(app.player.x, app.player.z);
   app.player.yaw = app.savedPos.rot;
   playerObj.visible = true;
   app.player.camDist = 7;
@@ -1294,7 +1327,7 @@ function blackout() {
     if (app.mode === 'interior') exitInterior(true);
     p.x = spot.x + 6;
     p.z = spot.z + 9;
-    p.y = terrainHeight(p.x, p.z);
+    p.y = ground(p.x, p.z);
     p.yaw = Math.PI * 0.85;
     p.drunk = 0.25;
     app.ui.setDrunk(p.drunk, drunkLabel(p.drunk));
@@ -1546,10 +1579,10 @@ function updatePlayer(dt, t) {
   p.distance += moved;
   p.x = nx; p.z = nz;
 
-  const ground = terrainHeight(p.x, p.z);
+  const floorY = ground(p.x, p.z);
   p.vy -= 19 * dt;
   p.y += p.vy * dt;
-  if (p.y <= ground) { p.y = ground; p.vy = 0; p.grounded = true; }
+  if (p.y <= floorY) { p.y = floorY; p.vy = 0; p.grounded = true; }
   else p.grounded = false;
   if (app.keys.Space && p.grounded) { p.vy = 6.4; p.grounded = false; }
 
@@ -1585,8 +1618,8 @@ function updateCamera(dt) {
     const car = app.train.cars[0];
     const at = polylineAt(app.train.railPts, clamp(app.train.dist, 0, app.train.total));
     const behind = polylineAt(app.train.railPts, clamp(app.train.dist - 18, 0, app.train.total));
-    cam.position.lerp(new THREE.Vector3(behind.x, terrainHeight(behind.x, behind.z) + 11, behind.z), clamp(dt * 2.2, 0, 1));
-    cam.lookAt(new THREE.Vector3(at.x, terrainHeight(at.x, at.z) + 4, at.z));
+    cam.position.lerp(new THREE.Vector3(behind.x, ground(behind.x, behind.z) + 11, behind.z), clamp(dt * 2.2, 0, 1));
+    cam.lookAt(new THREE.Vector3(at.x, ground(at.x, at.z) + 4, at.z));
     applyDrunkCamera(dt);
     return;
   }
@@ -1599,8 +1632,8 @@ function updateCamera(dt) {
       c.y + 4.4,
       c.z + Math.sin(c.rot) * back
     );
-    const ground = terrainHeight(desired.x, desired.z) + 1.4;
-    if (desired.y < ground) desired.y = ground;
+    const camFloor = ground(desired.x, desired.z) + 1.4;
+    if (desired.y < camFloor) desired.y = camFloor;
     cam.position.lerp(desired, clamp(dt * 5.5, 0, 1));
     cam.lookAt(new THREE.Vector3(c.x + Math.cos(c.rot) * 8, c.y + 1.8, c.z - Math.sin(c.rot) * 8));
     applyDrunkCamera(dt);
@@ -1614,8 +1647,8 @@ function updateCamera(dt) {
     p.y + 1.7 + Math.sin(pitch) * dist + 1.2,
     p.z - Math.cos(yaw) * Math.cos(pitch) * dist
   );
-  const ground = terrainHeight(desired.x, desired.z) + 0.9;
-  if (desired.y < ground) desired.y = ground;
+  const camFloor = ground(desired.x, desired.z) + 0.9;
+  if (desired.y < camFloor) desired.y = camFloor;
   cam.position.lerp(desired, clamp(dt * 9, 0, 1));
   cam.lookAt(target);
   applyDrunkCamera(dt);
@@ -1639,10 +1672,11 @@ function updateTraffic(dt) {
     if (c.dist > c.length) { c.dist = 0; }
     if (c.dist < 0) { c.dist = c.length; }
     const at = polylineAt(c.samples, c.dist);
-    const side = 1.5;
+    // right-hand traffic: the offset flips with the direction of travel
+    const side = 1.9 * c.dir;
     const x = at.x + Math.cos(at.angle) * side;
     const z = at.z - Math.sin(at.angle) * side;
-    c.group.position.set(x, terrainHeight(x, z) + 0.05, z);
+    c.group.position.set(x, ground(x, z) + 0.05, z);
     c.group.rotation.y = at.angle + (c.dir > 0 ? Math.PI / 2 : -Math.PI / 2);
     c.wheels.forEach((w) => { w.rotation.x += c.speed * dt * 3; });
   }
@@ -1740,7 +1774,7 @@ async function loadSave() {
     if (!save) return;
     const s = { state: save };
     const p = app.player;
-    if (Number.isFinite(s.state.x)) { p.x = s.state.x; p.z = s.state.z; p.rot = s.state.rot || p.rot; p.y = terrainHeight?.(p.x, p.z) ?? p.y; }
+    if (Number.isFinite(s.state.x)) { p.x = s.state.x; p.z = s.state.z; p.rot = s.state.rot || p.rot; p.y = ground(p.x, p.z); }
     p.money = s.state.money ?? p.money;
     p.xp = s.state.xp ?? 0;
     p.level = s.state.level ?? 1;

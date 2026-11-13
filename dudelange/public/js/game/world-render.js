@@ -4,7 +4,8 @@
  */
 import * as THREE from 'three';
 import { TEX } from './textures.js';
-import { terrainHeight, polylineAt, resamplePolyline, project, clamp, lerp } from '../core/geo.js';
+import { polylineAt, resamplePolyline, project, clamp, lerp } from '../core/geo.js';
+import { ground, heightField } from '../core/heightfield.js';
 import { INTERIORS } from '../core/interiors.js';
 
 const V3 = THREE.Vector3;
@@ -20,22 +21,26 @@ export function createTown(world, { quality = 'high' } = {}) {
   const litWindows = [];
   const darkWindows = [];
 
+  // Textured materials carry a flat stand-in colour so the off-screen preview
+  // renderer (scripts/preview-render.mjs) can draw a readable picture of the
+  // geometry without a GPU or a canvas.
+  const preview = (mat, color) => { mat.userData.preview = color; return mat; };
   const M = {
-    asphalt: new THREE.MeshStandardMaterial({ map: TEX.asphalt(), color: 0xb8b8b8, roughness: 0.95 }),
-    paving: new THREE.MeshStandardMaterial({ map: TEX.paving(), roughness: 0.9 }),
-    concrete: new THREE.MeshStandardMaterial({ map: TEX.concrete(), roughness: 0.85 }),
-    grass: new THREE.MeshStandardMaterial({ map: TEX.grass(), vertexColors: true, roughness: 1 }),
-    gravel: new THREE.MeshStandardMaterial({ map: TEX.gravel(), roughness: 1 }),
-    ballast: new THREE.MeshStandardMaterial({ map: TEX.ballast(), roughness: 1 }),
+    asphalt: preview(new THREE.MeshStandardMaterial({ map: TEX.asphalt(), color: 0xb8b8b8, roughness: 0.95 }), '#3b3f43'),
+    paving: preview(new THREE.MeshStandardMaterial({ map: TEX.paving(), roughness: 0.9 }), '#a8a49b'),
+    concrete: preview(new THREE.MeshStandardMaterial({ map: TEX.concrete(), roughness: 0.85 }), '#b9b6ae'),
+    grass: preview(new THREE.MeshStandardMaterial({ map: TEX.grass(), vertexColors: true, roughness: 1 }), '#5c7a3f'),
+    gravel: preview(new THREE.MeshStandardMaterial({ map: TEX.gravel(), roughness: 1 }), '#8a7f6b'),
+    ballast: preview(new THREE.MeshStandardMaterial({ map: TEX.ballast(), roughness: 1 }), '#6f6a63'),
     steel: new THREE.MeshStandardMaterial({ color: 0x7e6a56, roughness: 0.6, metalness: 0.6 }),
     rust: new THREE.MeshStandardMaterial({ color: 0x8a4b32, roughness: 0.85, metalness: 0.3 }),
     white: new THREE.MeshStandardMaterial({ color: 0xe8e6df, roughness: 0.7 }),
     dark: new THREE.MeshStandardMaterial({ color: 0x2c2f31, roughness: 0.8 }),
     glass: new THREE.MeshStandardMaterial({ color: 0x9fc4d4, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.75 }),
-    wood: new THREE.MeshStandardMaterial({ map: TEX.door(), roughness: 0.8 }),
-    brick: new THREE.MeshStandardMaterial({ map: TEX.brick(), roughness: 0.95 }),
-    plaster: new THREE.MeshStandardMaterial({ map: TEX.plaster(), roughness: 0.95 }),
-    slate: new THREE.MeshStandardMaterial({ map: TEX.slate(), roughness: 0.9 }),
+    wood: preview(new THREE.MeshStandardMaterial({ map: TEX.door(), roughness: 0.8 }), '#6b4a2f'),
+    brick: preview(new THREE.MeshStandardMaterial({ map: TEX.brick(), roughness: 0.95 }), '#8c4a3a'),
+    plaster: preview(new THREE.MeshStandardMaterial({ map: TEX.plaster(), roughness: 0.95 }), '#d8cfbc'),
+    slate: preview(new THREE.MeshStandardMaterial({ map: TEX.slate(), roughness: 0.9 }), '#4a4a4e'),
     water: new THREE.MeshStandardMaterial({ map: TEX.water(), transparent: true, opacity: 0.86, roughness: 0.15, metalness: 0.35, color: 0x9fc6cf }),
     marked: new THREE.MeshStandardMaterial({ color: 0xf3f0e3, roughness: 0.75 }),
     lamp: new THREE.MeshStandardMaterial({ color: 0xfff3c4, emissive: 0xffdd88, emissiveIntensity: 0.2, roughness: 0.4 }),
@@ -45,23 +50,19 @@ export function createTown(world, { quality = 'high' } = {}) {
   };
 
   // ------------------------------------------------------------------ terrain
-  const bounds = world.meta.bbox;
-  const nw = project(bounds.north, bounds.west);
-  const se = project(bounds.south, bounds.east);
-  const width = (se.x - nw.x) * 2.2, depth = (se.z - nw.z) * 2.2;
-  const segX = quality === 'high' ? 230 : 150;
-  const segZ = quality === 'high' ? 210 : 140;
-  const geo = new THREE.PlaneGeometry(width, depth, segX, segZ);
-  geo.rotateX(-Math.PI / 2);
-  geo.translate(nw.x + (se.x - nw.x) / 2, 0, nw.z + (se.z - nw.z) / 2);
+  // The mesh is built from the baked height field — the exact lattice that
+  // ground() interpolates — so streets, kerbs and foundations can never be
+  // swallowed by the grass.
+  const field = heightField();
+  if (!field) throw new Error('height field missing: build the world before the town');
+  const geo = terrainGeometry(field);
   const pos = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), z = pos.getZ(i);
-    const h = terrainHeight(x, z);
-    pos.setY(i, h);
-    const slope = Math.abs(terrainHeight(x + 3, z) - terrainHeight(x - 3, z)) +
-      Math.abs(terrainHeight(x, z + 3) - terrainHeight(x, z - 3));
+    const h = pos.getY(i);
+    const slope = Math.abs(ground(x + 3, z) - ground(x - 3, z)) +
+      Math.abs(ground(x, z + 3) - ground(x, z - 3));
     const n = Math.sin(x * 0.013) * Math.cos(z * 0.011) * 0.5 + 0.5;
     let r = 0.42 + n * 0.09, g = 0.55 + n * 0.13, b = 0.28 + n * 0.07;
     if (slope > 2.4) { r = 0.44; g = 0.41; b = 0.35; }
@@ -80,7 +81,9 @@ export function createTown(world, { quality = 'high' } = {}) {
     new THREE.CircleGeometry(9000, 48).rotateX(-Math.PI / 2),
     new THREE.MeshStandardMaterial({ color: 0x5e7a45, roughness: 1 })
   );
-  far.position.set(nw.x + (se.x - nw.x) / 2, 236, nw.z + (se.z - nw.z) / 2);
+  let lowest = Infinity;
+  for (let i = 0; i < field.heights.length; i++) if (field.heights[i] < lowest) lowest = field.heights[i];
+  far.position.set(field.x0 + field.width / 2, lowest - 6, field.z0 + field.depth / 2);
   far.receiveShadow = true;
   town.add(far);
 
@@ -112,7 +115,7 @@ export function createTown(world, { quality = 'high' } = {}) {
     if (road.cls === 'primary' || road.cls === 'secondary') {
       for (let d = 4; d < road.length - 4; d += 7.5) {
         const at = polylineAt(road.samples, d);
-        markings.push({ x: at.x, z: at.z, rot: at.angle, len: 3.2, wid: 0.16, y: terrainHeight(at.x, at.z) + 0.26 });
+        markings.push({ x: at.x, z: at.z, rot: at.angle, len: 3.2, wid: 0.16, y: ground(at.x, at.z) + 0.26 });
       }
     }
     if (road.cls === 'motorway') {
@@ -121,13 +124,34 @@ export function createTown(world, { quality = 'high' } = {}) {
           const at = polylineAt(road.samples, d);
           markings.push({
             x: at.x + Math.cos(at.angle) * laneOff, z: at.z - Math.sin(at.angle) * laneOff,
-            rot: at.angle, len: 4, wid: 0.18, y: terrainHeight(at.x, at.z) + 0.26
+            rot: at.angle, len: 4, wid: 0.18, y: ground(at.x, at.z) + 0.26
           });
         }
       }
     }
   }
   town.add(roadGroup, curbGroup);
+
+  // ------------------------------------------------------- squares & forecourts
+  // Every landmark used to sit straight on the grass, and the player spawned on
+  // a lawn in the middle of town. A paved apron (and a proper square at the
+  // spawn) is the difference between "a model of a town" and a town.
+  const pavingSpots = [];
+  for (const l of world.landmarks) {
+    if (l.kind === 'park' || l.kind === 'nature' || l.kind === 'water') continue;
+    pavingSpots.push({ x: l.x, z: l.z, w: l.size.w + 11, d: l.size.d + 11, rot: l.rotation || 0 });
+  }
+  pavingSpots.push({ x: world.spawn.x, z: world.spawn.z, w: 42, d: 34, rot: 0 });
+  const pavingGroup = new THREE.Group();
+  for (const spot of pavingSpots) {
+    const patch = buildGroundPatch(spot.x, spot.z, spot.w, spot.d, spot.rot, 0.12);
+    if (!patch) continue;
+    const mesh = new THREE.Mesh(patch, M.paving);
+    mesh.receiveShadow = true;
+    mesh.name = 'paving';
+    pavingGroup.add(mesh);
+  }
+  town.add(pavingGroup);
   const markMesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), M.marked, markings.length);
   markMesh.frustumCulled = false;
   markings.forEach((m, i) => {
@@ -175,7 +199,7 @@ export function createTown(world, { quality = 'high' } = {}) {
   const pools = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), poolMat, Math.max(1, lampPools.length));
   pools.frustumCulled = false;
   lampPools.forEach((p, i) => {
-    dummy.position.set(p.x, terrainHeight(p.x, p.z) + 0.24, p.z);
+    dummy.position.set(p.x, ground(p.x, p.z) + 0.24, p.z);
     dummy.rotation.set(-Math.PI / 2, 0, 0);
     dummy.scale.set(13, 13, 1);
     dummy.updateMatrix();
@@ -234,6 +258,77 @@ export function createTown(world, { quality = 'high' } = {}) {
 
 /* ------------------------------------------------------------------ helpers */
 
+/**
+ * Triangles exactly as ground() interpolates them: cell (i,j) splits into
+ * (a, c, b) and (b, c, d) — both wound counter-clockwise seen from above.
+ */
+function terrainGeometry(field) {
+  const { cols, rows, step, x0, z0, heights } = field;
+  const w = cols + 1;
+  const positions = new Float32Array(w * (rows + 1) * 3);
+  const uvs = new Float32Array(w * (rows + 1) * 2);
+  let k = 0, u = 0;
+  for (let j = 0; j <= rows; j++) {
+    for (let i = 0; i <= cols; i++) {
+      const x = x0 + i * step, z = z0 + j * step;
+      positions[k++] = x;
+      positions[k++] = heights[j * w + i];
+      positions[k++] = z;
+      uvs[u++] = x / 14;
+      uvs[u++] = z / 14;
+    }
+  }
+  const idx = new Uint32Array(cols * rows * 6);
+  let t = 0;
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const a = j * w + i, b = a + 1, c = (j + 1) * w + i, d = c + 1;
+      idx[t++] = a; idx[t++] = c; idx[t++] = b;
+      idx[t++] = b; idx[t++] = c; idx[t++] = d;
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  return g;
+}
+
+/**
+ * A rectangular patch of ground that follows the terrain, cell by cell.
+ * Used for squares and building forecourts, which must not float off a slope.
+ */
+function buildGroundPatch(cx, cz, w, d, rot, lift) {
+  const nx = Math.max(2, Math.min(16, Math.round(w / 3)));
+  const nz = Math.max(2, Math.min(16, Math.round(d / 3)));
+  const cos = Math.cos(rot), sin = Math.sin(rot);
+  const verts = [], uvs = [], idx = [];
+  for (let j = 0; j <= nz; j++) {
+    for (let i = 0; i <= nx; i++) {
+      const lx = (i / nx - 0.5) * w;
+      const lz = (j / nz - 0.5) * d;
+      const x = cx + lx * cos + lz * sin;
+      const z = cz - lx * sin + lz * cos;
+      verts.push(x, ground(x, z) + lift, z);
+      uvs.push((i / nx) * (w / 8), (j / nz) * (d / 8));
+    }
+  }
+  const stride = nx + 1;
+  for (let j = 0; j < nz; j++) {
+    for (let i = 0; i < nx; i++) {
+      const a = j * stride + i, b = a + 1, c = (j + 1) * stride + i, dd = c + 1;
+      idx.push(a, c, b, b, c, dd);
+    }
+  }
+  if (!verts.length) return null;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
 function buildRibbon(points, width, lift, extraLift = 0) {
   if (points.length < 2) return null;
   const verts = [], uvs = [], idx = [];
@@ -245,9 +340,9 @@ function buildRibbon(points, width, lift, extraLift = 0) {
     const len = Math.hypot(dx, dz) || 1;
     const nx = dz / len, nz = -dx / len;
     if (i > 0) distance += Math.hypot(p.x - points[i - 1].x, p.z - points[i - 1].z);
-    const h1 = terrainHeight(p.x + nx * width / 2, p.z + nz * width / 2);
-    const h2 = terrainHeight(p.x - nx * width / 2, p.z - nz * width / 2);
-    const y = Math.max(h1, h2, terrainHeight(p.x, p.z)) + lift + extraLift;
+    const h1 = ground(p.x + nx * width / 2, p.z + nz * width / 2);
+    const h2 = ground(p.x - nx * width / 2, p.z - nz * width / 2);
+    const y = Math.max(h1, h2, ground(p.x, p.z)) + lift + extraLift;
     verts.push(p.x + nx * width / 2, y, p.z + nz * width / 2);
     verts.push(p.x - nx * width / 2, y, p.z - nz * width / 2);
     uvs.push(0, distance / 12, 1, distance / 12);
@@ -276,7 +371,7 @@ function buildRibbonOffset(points, offset, width, lift, side) {
     const nx = (dz / len) * side, nz = (-dx / len) * side;
     if (i > 0) distance += Math.hypot(p.x - points[i - 1].x, p.z - points[i - 1].z);
     const cx = p.x + nx * offset, cz = p.z + nz * offset;
-    const y = terrainHeight(cx, cz) + lift;
+    const y = ground(cx, cz) + lift;
     verts.push(cx + nx * width / 2, y, cz + nz * width / 2);
     verts.push(cx - nx * width / 2, y, cz - nz * width / 2);
     uvs.push(0, distance / 6, 1, distance / 6);
@@ -348,6 +443,65 @@ function buildBuildings(world, M, litWindows, darkWindows) {
   makeBodies(groups.plaster, M.plaster);
   makeBodies(groups.brick, M.brick);
   makeBodies(groups.concrete, M.concrete);
+
+  // A stone plinth under every house. Lots are levelled to their lowest corner,
+  // so on any slope the uphill side is buried and the downhill side would hang
+  // in the air. The skirt reaches below the ground on every corner, which is
+  // what a real foundation does — and it reads as a proper basement wall.
+  const skirt = new THREE.InstancedMesh(boxGeo, M.concrete, world.buildings.length);
+  skirt.frustumCulled = false;
+  skirt.receiveShadow = true;
+  world.buildings.forEach((b, i) => {
+    const cos = Math.cos(b.rot), sin = Math.sin(b.rot);
+    let lo = Infinity, hi = -Infinity;
+    for (const [lx, lz] of [[-b.w / 2, -b.d / 2], [b.w / 2, -b.d / 2], [-b.w / 2, b.d / 2], [b.w / 2, b.d / 2]]) {
+      const h = ground(b.x + lx * cos + lz * sin, b.z - lx * sin + lz * cos);
+      if (h < lo) lo = h;
+      if (h > hi) hi = h;
+    }
+    const depth = (hi - b.baseY) + 1.4;
+    dummy.position.set(b.x, b.baseY + 0.06 - depth / 2, b.z);
+    dummy.rotation.set(0, b.rot, 0);
+    dummy.scale.set(b.d + 0.5, depth, b.w + 0.5);
+    dummy.updateMatrix();
+    skirt.setMatrixAt(i, dummy.matrix);
+  });
+  skirt.instanceMatrix.needsUpdate = true;
+  group.add(skirt);
+
+  // front hedges: a low green band between the pavement and the house wall is
+  // most of what makes a residential street read as lived-in
+  const hedges = [];
+  for (const b of world.buildings) {
+    if (b.shop || b.h > 16) continue;
+    if ((b.seed % 3) !== 0) continue;
+    const side = b.side || 1;
+    const cos = Math.cos(b.rot), sin = Math.sin(b.rot);
+    const lx = -side * (b.d / 2 + 2.1);
+    hedges.push({
+      x: b.x + lx * cos,
+      z: b.z - lx * sin,
+      rot: b.rot,
+      len: Math.max(3, b.w * 0.72),
+      y: b.baseY
+    });
+  }
+  if (hedges.length) {
+    const hedgeMesh = new THREE.InstancedMesh(boxGeo, M.foliage, hedges.length);
+    hedgeMesh.frustumCulled = false;
+    hedgeMesh.castShadow = true;
+    hedgeMesh.receiveShadow = true;
+    hedges.forEach((h, i) => {
+      const y = ground(h.x, h.z);
+      dummy.position.set(h.x, y + 0.55, h.z);
+      dummy.rotation.set(0, h.rot, 0);
+      dummy.scale.set(0.55, 1.1, h.len);
+      dummy.updateMatrix();
+      hedgeMesh.setMatrixAt(i, dummy.matrix);
+    });
+    hedgeMesh.instanceMatrix.needsUpdate = true;
+    group.add(hedgeMesh);
+  }
 
   const gables = [], flats = [], chimneys = [], doors = [], shopfronts = [], awnings = [];
   const winDark = [], winLit = [];
@@ -615,16 +769,16 @@ function buildProps(world, M, lampPools) {
     // trail head marker
     const head = trail.samples[0];
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.1, 0.14), M.wood);
-    post.position.set(head.x, terrainHeight(head.x, head.z) + 1.05, head.z);
+    post.position.set(head.x, ground(head.x, head.z) + 1.05, head.z);
     const sign = makeSign(trail.name, { bg: '#3c2f22', fg: '#f3e7cb', size: 40 });
-    sign.position.set(head.x, terrainHeight(head.x, head.z) + 2.2, head.z);
+    sign.position.set(head.x, ground(head.x, head.z) + 2.2, head.z);
     sign.rotation.y = 0.4;
     group.add(post, sign);
   }
 
   // glades: a ring of stones, a log seat and a lantern
   for (const c of world.clearings || []) {
-    const y = terrainHeight(c.x, c.z);
+    const y = ground(c.x, c.z);
     const ring = new THREE.Group();
     for (let i = 0; i < 7; i++) {
       const a = (i / 7) * Math.PI * 2;
@@ -711,7 +865,7 @@ function buildWater(world, M) {
     group.add(mesh);
   }
   const pond = new THREE.Mesh(new THREE.CircleGeometry(world.water.pond.r, 26).rotateX(-Math.PI / 2), M.water);
-  pond.position.set(world.water.pond.x, terrainHeight(world.water.pond.x, world.water.pond.z) - 0.35, world.water.pond.z);
+  pond.position.set(world.water.pond.x, ground(world.water.pond.x, world.water.pond.z) - 0.35, world.water.pond.z);
   group.add(pond);
   // rocks along the stream
   const rockGeo = new THREE.DodecahedronGeometry(0.45, 0);
@@ -721,7 +875,7 @@ function buildWater(world, M) {
   const pts = resamplePolyline(world.water.stream.points, 18);
   for (const p of pts) {
     for (let s = 0; s < 3; s++) {
-      dummy.position.set(p.x + (Math.random() - 0.5) * 5, terrainHeight(p.x, p.z) - 0.1, p.z + (Math.random() - 0.5) * 5);
+      dummy.position.set(p.x + (Math.random() - 0.5) * 5, ground(p.x, p.z) - 0.1, p.z + (Math.random() - 0.5) * 5);
       dummy.rotation.set(Math.random(), Math.random(), Math.random());
       dummy.scale.setScalar(0.5 + Math.random());
       dummy.updateMatrix();
@@ -747,7 +901,7 @@ function makeSign(text, opts = {}) {
 function buildRail(world, M, interactables) {
   const group = new THREE.Group();
   const pts = world.rail.samples;
-  const railY = (x, z) => terrainHeight(x, z) + 3.1;
+  const railY = (x, z) => ground(x, z) + 3.1;
 
   const ballast = buildRibbonElevated(pts, 5.6, (x, z) => railY(x, z) + 0.05);
   if (ballast) {
@@ -825,12 +979,29 @@ function buildRail(world, M, interactables) {
     const at = polylineAt(pts, st.railDist);
     const cos = Math.cos(at.angle), sin = Math.sin(at.angle);
     const platformY = railY(st.x, st.z) + 0.55;
+    const SPAN = 132;
+    // The line runs on a 3 m embankment, so a platform is a retaining wall, not
+    // a slab in mid-air. Find the lowest ground along the platform and carry the
+    // wall down past it.
+    let lowest = Infinity;
+    for (let d = -SPAN / 2; d <= SPAN / 2; d += 8) {
+      const at = polylineAt(pts, clamp(st.railDist + d, 0, world.rail.length));
+      lowest = Math.min(lowest, ground(at.x, at.z));
+    }
+    const baseBottom = lowest - 1.2;
+    const baseHeight = Math.max(1.2, platformY - baseBottom);
     const g = new THREE.Group();
     for (const side of [-1, 1]) {
-      const plat = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.55, 132), M.concrete);
-      plat.position.set(side * 4.2, platformY - 0.55 + 0.27, 0);
+      const plat = new THREE.Mesh(new THREE.BoxGeometry(4.2, baseHeight, SPAN), M.concrete);
+      plat.position.set(side * 4.2, baseBottom + baseHeight / 2, 0);
+      plat.castShadow = true;
       plat.receiveShadow = true;
       g.add(plat);
+      // a stair down to the street on the town side
+      const stair = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.28, 3.2), M.paving);
+      stair.position.set(side * 4.2, baseBottom + baseHeight - 1.6, 30);
+      stair.rotation.x = 0.36;
+      g.add(stair);
       const tactile = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.03, 130), new THREE.MeshStandardMaterial({ color: 0xe8c547, roughness: 0.8 }));
       tactile.position.set(side * 2.5, platformY + 0.02, 0);
       g.add(tactile);
@@ -868,12 +1039,12 @@ function buildRail(world, M, interactables) {
     }
     // station building + ticket hall door
     const hall = new THREE.Mesh(new THREE.BoxGeometry(12, 4.6, 9), M.plaster);
-    hall.position.set(-8.5, terrainHeight(st.x, st.z) + 2.3, 6);
+    hall.position.set(-8.5, ground(st.x, st.z) + 2.3, 6);
     hall.castShadow = true;
     const hallRoof = new THREE.Mesh(new THREE.BoxGeometry(12.8, 0.4, 9.8), M.slate);
-    hallRoof.position.set(-8.5, terrainHeight(st.x, st.z) + 4.7, 6);
+    hallRoof.position.set(-8.5, ground(st.x, st.z) + 4.7, 6);
     const hallSign = makeSign(st.name, { bg: '#f4f1e8', fg: '#0b3d6b', size: 40 });
-    hallSign.position.set(-8.5, terrainHeight(st.x, st.z) + 3.6, 10.55);
+    hallSign.position.set(-8.5, ground(st.x, st.z) + 3.6, 10.55);
     g.add(hall, hallRoof, hallSign);
 
     g.position.set(at.x, 0, at.z);
@@ -966,7 +1137,7 @@ function buildEmbankment(points, topOffset, bottomOffset, side, railY) {
     const topX = p.x + nx * topOffset, topZ = p.z + nz * topOffset;
     const botX = p.x + nx * bottomOffset, botZ = p.z + nz * bottomOffset;
     verts.push(topX, railY(p.x, p.z), topZ);
-    verts.push(botX, terrainHeight(botX, botZ) - 0.4, botZ);
+    verts.push(botX, ground(botX, botZ) - 0.4, botZ);
     if (i < points.length - 1) {
       const a = i * 2;
       idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
@@ -1017,7 +1188,7 @@ function buildLandmarks(world, M, doors, interactables, lampPools) {
       const lx = dx * cosR - dz * sinR;
       const lz = dx * sinR + dz * cosR;
       const door = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 2.6), M.wood);
-      door.position.set(lx, terrainHeight(doorX, doorZ) - l.baseY + 1.3, lz);
+      door.position.set(lx, ground(doorX, doorZ) - l.baseY + 1.3, lz);
       door.rotation.y = doorRot - (l.rotation || 0);
       g.add(door);
       const sign = makeSign(l.name, { bg: '#20242a', fg: '#f6f2e8', size: 40 });
@@ -1040,7 +1211,7 @@ function buildLandmarks(world, M, doors, interactables, lampPools) {
       box.castShadow = true;
       playground.add(box);
     }
-    playground.position.set(parc.x - 22, terrainHeight(parc.x - 22, parc.z + 16), parc.z + 16);
+    playground.position.set(parc.x - 22, ground(parc.x - 22, parc.z + 16), parc.z + 16);
     group.add(playground);
     const posts = new THREE.Group();
     for (let i = 0; i < 8; i++) {
@@ -1053,7 +1224,7 @@ function buildLandmarks(world, M, doors, interactables, lampPools) {
       posts.add(post, new THREE.Line(ropeGeo, new THREE.LineBasicMaterial({ color: 0x3c2f23 })));
     }
     const pc = project(49.4866, 6.0990);
-    posts.position.set(pc.x, terrainHeight(pc.x, pc.z), pc.z);
+    posts.position.set(pc.x, ground(pc.x, pc.z), pc.z);
     group.add(posts);
   }
   return { group };

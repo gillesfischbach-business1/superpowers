@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-12T23:25:55.488Z",
+  "generatedAt": "2026-11-13T15:38:54.184Z",
   "agent": "systems",
-  "worldHash": "957aea222dba6349",
-  "collisionPushOut": 5.11,
+  "worldHash": "120275c8ec5309ef",
+  "collisionPushOut": 6.13,
   "drift": 0,
   "saveRoundTrip": true,
   "routes": [
@@ -45,21 +45,21 @@
     "trail_north"
   ],
   "instances": {
-    "windows": 31224,
-    "trees": 5213,
-    "buildings": 857
+    "windows": 31034,
+    "trees": 5269,
+    "buildings": 854
   },
   "passed": true,
   "results": [
     {
       "label": "identical seed produces an identical world",
       "ok": true,
-      "detail": "957aea222dba6349"
+      "detail": "120275c8ec5309ef"
     },
     {
       "label": "collision solver pushes a player out of a building",
       "ok": true,
-      "detail": "5.11 m"
+      "detail": "6.13 m"
     },
     {
       "label": "collision solver leaves open ground alone",
@@ -124,7 +124,7 @@
     {
       "label": "tree trunks are solid but the woods stay passable",
       "ok": true,
-      "detail": "3897 trunks · 5213 trees"
+      "detail": "3897 trunks · 5269 trees"
     },
     {
       "label": "overnight opening hours wrap past midnight",
@@ -174,7 +174,7 @@
     {
       "label": "performance budget: windows + trees under 40k instances",
       "ok": true,
-      "detail": "36437"
+      "detail": "36303"
     }
   ]
 }

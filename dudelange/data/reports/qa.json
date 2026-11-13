@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-12T23:25:55.771Z",
+  "generatedAt": "2026-11-13T15:38:54.493Z",
   "agent": "qa",
-  "clientModules": 12,
+  "clientModules": 13,
   "hours": {
     "openNoon": 24,
     "openLate": 9,
@@ -40,7 +40,7 @@
   "blockedPois": [],
   "unreachableDoors": 0,
   "nan": 0,
-  "instanceBudget": 40699,
+  "instanceBudget": 40542,
   "spawnBlocked": false,
   "quests": 11,
   "cars": 34,
@@ -87,12 +87,37 @@
     {
       "label": "instance budget under 90k",
       "ok": true,
-      "detail": "40699"
+      "detail": "40542"
     },
     {
       "label": "all landmark interiors exist",
       "ok": true,
       "detail": ""
+    },
+    {
+      "label": "stations are spread along the line, not stacked at zero",
+      "ok": true,
+      "detail": "2217 m of 5092 m"
+    },
+    {
+      "label": "the height field covers the whole map",
+      "ok": true,
+      "detail": "9.2 × 8.3 km, 0 bad"
+    },
+    {
+      "label": "no street climbs steeper than 30%",
+      "ok": true,
+      "detail": "steepest 24% (Chemin du Mont Saint-Jean)"
+    },
+    {
+      "label": "no house hangs above the ground",
+      "ok": true,
+      "detail": "0 floating"
+    },
+    {
+      "label": "no house is buried in a hillside",
+      "ok": true,
+      "detail": "0 buried"
     },
     {
       "label": "quest content is complete",
@@ -127,12 +152,12 @@
     {
       "label": "every client import resolves to a real export",
       "ok": true,
-      "detail": "12 modules"
+      "detail": "13 modules"
     },
     {
       "label": "the page loads the whole client bundle",
       "ok": true,
-      "detail": "12 modules reachable"
+      "detail": "13 modules reachable"
     },
     {
       "label": "the client bundle has no import cycles",

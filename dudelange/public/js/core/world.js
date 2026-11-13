@@ -6,11 +6,12 @@
  * always produces byte-identical output.
  */
 import {
-  project, unproject, terrainHeight, resamplePolyline, polylineLength, polylineAt,
+  project, unproject, resamplePolyline, polylineLength, polylineAt,
   closestOnPolyline, pointInPolygon, mulberry32, hash2, clamp, lerp, randRange,
   pick, obbContains, circleHitsBox
 } from './geo.js';
 import { META, ROADS, RAIL, LANDMARKS, DISTRICTS } from './town-data.js';
+import { buildHeightField, ground } from './heightfield.js';
 
 const ROAD_WIDTH = { motorway: 20, primary: 12, secondary: 9.5, residential: 7, foot: 3.2 };
 const SIDEWALK = { motorway: 0, primary: 2.4, secondary: 2.2, residential: 1.8, foot: 0 };
@@ -166,6 +167,9 @@ function districtAt(x, z, districtsMetric) {
 /** Public: build the complete world description. */
 export function buildWorld({ seed = 20261112 } = {}) {
   const rng = mulberry32(seed);
+  // Bake the ground first: every placement below asks the same lattice the
+  // renderer will draw, so nothing floats and nothing sinks.
+  buildHeightField(META.bbox);
   const districtsMetric = DISTRICTS.map((d) => ({
     ...d, poly: metricPolygon(d.polygon), centre: polygonCentre(metricPolygon(d.polygon))
   }));
@@ -215,7 +219,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
     const p = project(s.lat, s.lon);
     const near = closestOnPolyline(railPts, p.x, p.z);
     const d = distanceAlong(railPts, near.x, near.z);
-    return { ...s, x: p.x, z: p.z, railDist: d, elevation: terrainHeight(p.x, p.z) };
+    return { ...s, x: p.x, z: p.z, railDist: d, elevation: ground(p.x, p.z) };
   });
   // tune station chainage so the train always stops in order
   stations.sort((a, b) => a.railDist - b.railDist);
@@ -228,7 +232,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
     const p = project(l.lat, l.lon);
     return {
       ...l, x: p.x, z: p.z,
-      baseY: terrainHeight(p.x, p.z),
+      baseY: ground(p.x, p.z),
       district: districtAt(p.x, p.z, districtsMetric)
     };
   });
@@ -243,8 +247,28 @@ export function buildWorld({ seed = 20261112 } = {}) {
   const colliders = [];
   let colliderGrid = new SpatialGrid(40);
 
+  /**
+   * Levelling that cannot float.
+   *
+   * Every caller used to invent its own base height — the lot generator took the
+   * lowest corner, the Nei Schmelz blocks took the centre — and the centre-based
+   * ones hung in the air wherever the plot sloped. The height is therefore
+   * derived here, from the four corners, for every building that enters the
+   * world, whatever path it came from.
+   */
+  const levelPlot = (b) => {
+    const cos = Math.cos(b.rot), sin = Math.sin(b.rot);
+    let lowest = Infinity;
+    for (const [lx, lz] of [[-b.w / 2, -b.d / 2], [b.w / 2, -b.d / 2], [-b.w / 2, b.d / 2], [b.w / 2, b.d / 2]]) {
+      lowest = Math.min(lowest, ground(b.x + lx * cos + lz * sin, b.z - lx * sin + lz * cos));
+    }
+    b.baseY = Math.min(b.baseY ?? Infinity, lowest) - 0.4;
+    return b;
+  };
+
   const addBuilding = (b) => {
     if (b.w < 4 || b.d < 4) return false;
+    levelPlot(b);
     const obb = { x: b.x, z: b.z, hw: b.d / 2, hd: b.w / 2, rot: b.rot };
     for (const other of buildingGrid.query(b.x, b.z, Math.max(b.w, b.d) + 8)) {
       // near-identical centres slip past a corner-inside test, so guard the gap too
@@ -301,7 +325,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
           { x: cx - w / 2, z: cz - depth / 2 }, { x: cx + w / 2, z: cz - depth / 2 },
           { x: cx + w / 2, z: cz + depth / 2 }, { x: cx - w / 2, z: cz + depth / 2 }
         ];
-        const hs = corners.map((c) => terrainHeight(c.x, c.z));
+        const hs = corners.map((c) => ground(c.x, c.z));
         const baseY = Math.min(...hs) - 0.4;
         if (Math.max(...hs) - Math.min(...hs) > 8.5) continue;
 
@@ -346,7 +370,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
         if (railDistance(x, z) < 16) continue;
         addBuilding({
           id: `b${uid++}`, x, z, rot: c.rot, side: 1, w: c.w, d: c.d, h: c.h,
-          floors: Math.round(c.h / 3.3), baseY: terrainHeight(x, z) - 0.4,
+          floors: Math.round(c.h / 3.3), baseY: ground(x, z) - 0.4,
           style: 'neischmelz', district: 'neischmelz', road: 'neischmelz_block',
           wall: pick(rng, STYLE_SETS.neischmelz.wall), roof: pick(rng, STYLE_SETS.neischmelz.roof),
           roofType: 'flat', pitch: 0.05, shop: rng() < 0.25,
@@ -431,7 +455,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
     if (treeGrid.query(x, z, 4).some((t) => Math.hypot(t.x - x, t.z - z) < 4)) return false;
     if (kind === 'deciduous' && nearTrail(x, z)) return false;
     if (kind === 'deciduous' && clearings.some((c) => Math.hypot(c.x - x, c.z - z) < c.r)) return false;
-    const tree = { x, z, y: terrainHeight(x, z), scale, kind, rot: rng() * Math.PI * 2, variant: Math.floor(rng() * 3) };
+    const tree = { x, z, y: ground(x, z), scale, kind, rot: rng() * Math.PI * 2, variant: Math.floor(rng() * 3) };
     trees.push(tree);
     treeGrid.insert(x, z, tree);
     // trunks are solid, but you can always walk between them
@@ -475,7 +499,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
       const z = f.centre.z + Math.sin(a2) * f.rz * r2;
       if (nearTrail(x, z, -1.6)) continue;
       if (nearRoad(x, z, 40) < 3) continue;
-      undergrowth.push({ x, z, y: terrainHeight(x, z), scale: randRange(rng, 0.7, 1.5), rot: rng() * Math.PI * 2, kind: rng() < 0.7 ? 'fern' : 'bush' });
+      undergrowth.push({ x, z, y: ground(x, z), scale: randRange(rng, 0.7, 1.5), rot: rng() * Math.PI * 2, kind: rng() < 0.7 ? 'fern' : 'bush' });
       placed++;
     }
   }
@@ -508,12 +532,12 @@ export function buildWorld({ seed = 20261112 } = {}) {
       const x = at.x + Math.cos(at.angle) * side * off;
       const z = at.z - Math.sin(at.angle) * side * off;
       if (landmarkAt(x, z, 1)) continue;
-      props.push({ type: 'lamp', x, z, rot: at.angle, y: terrainHeight(x, z) });
+      props.push({ type: 'lamp', x, z, rot: at.angle, y: ground(x, z) });
       if (rng() < 0.22) {
-        props.push({ type: 'bench', x: x + Math.cos(at.angle) * side * 1.6, z: z - Math.sin(at.angle) * side * 1.6, rot: at.angle + Math.PI, y: terrainHeight(x, z) });
+        props.push({ type: 'bench', x: x + Math.cos(at.angle) * side * 1.6, z: z - Math.sin(at.angle) * side * 1.6, rot: at.angle + Math.PI, y: ground(x, z) });
       }
       if (rng() < 0.12) {
-        props.push({ type: 'bin', x: x + Math.cos(at.angle) * side * 1.1, z: z - Math.sin(at.angle) * side * 1.1, rot: at.angle, y: terrainHeight(x, z) });
+        props.push({ type: 'bin', x: x + Math.cos(at.angle) * side * 1.1, z: z - Math.sin(at.angle) * side * 1.1, rot: at.angle, y: ground(x, z) });
       }
     }
   }
@@ -528,7 +552,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
     }
     const car = {
       id: `car_${cars.length}`, x, z, rot, color, owned,
-      y: terrainHeight(x, z), district: districtAt(x, z, districtsMetric), parked: true
+      y: ground(x, z), district: districtAt(x, z, districtsMetric), parked: true
     };
     cars.push(car);
     carGrid.insert(x, z, car);
@@ -558,11 +582,11 @@ export function buildWorld({ seed = 20261112 } = {}) {
   }
   // bus stops at the stations + town hall
   for (const s of stations) {
-    props.push({ type: 'bus_stop', x: s.x + 18, z: s.z + 12, rot: 0.2, y: terrainHeight(s.x + 18, s.z + 12) });
+    props.push({ type: 'bus_stop', x: s.x + 18, z: s.z + 12, rot: 0.2, y: ground(s.x + 18, s.z + 12) });
   }
   for (const l of landmarks) {
     if (l.kind === 'supermarket' || l.kind === 'restaurant') {
-      props.push({ type: 'terrace', x: l.x + Math.cos(l.rotation || 0) * (l.size.d / 2 + 3), z: l.z - Math.sin(l.rotation || 0) * (l.size.d / 2 + 3), rot: l.rotation || 0, y: terrainHeight(l.x, l.z), w: Math.min(16, l.size.w * 0.6) });
+      props.push({ type: 'terrace', x: l.x + Math.cos(l.rotation || 0) * (l.size.d / 2 + 3), z: l.z - Math.sin(l.rotation || 0) * (l.size.d / 2 + 3), rot: l.rotation || 0, y: ground(l.x, l.z), w: Math.min(16, l.size.w * 0.6) });
     }
   }
 
@@ -620,7 +644,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
     const door = facingDoor(l, Math.min(l.size.w, l.size.d) / 2 + 1.2);
     doors.push({
       id: l.id, name: l.name, interior: l.interior,
-      x: door.x, z: door.z, rot: door.rot, y: terrainHeight(door.x, door.z) + 1.5,
+      x: door.x, z: door.z, rot: door.rot, y: ground(door.x, door.z) + 1.5,
       distanceToRoad: +door.distanceToRoad.toFixed(1), source: 'landmark'
     });
   }
@@ -645,7 +669,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
 
   // ---------------------------------------------------------------- spawn
   const spawnPoint = project(49.47835, 6.08410);
-  const spawn = { x: spawnPoint.x, z: spawnPoint.z, y: terrainHeight(spawnPoint.x, spawnPoint.z), rot: Math.PI * 0.85 };
+  const spawn = { x: spawnPoint.x, z: spawnPoint.z, y: ground(spawnPoint.x, spawnPoint.z), rot: Math.PI * 0.85 };
 
   // cars placed after the collider grid exists would not be grabbable for push-out
   for (const c of cars) if (colliderGrid) colliderGrid.insert(c.x, c.z, c.collider);
@@ -761,7 +785,7 @@ function buildTunnels(railPts, roads) {
       x: at.x, z: at.z,
       rot: at.angle + Math.PI / 2,
       length: c.len, width: 7.5, height: 3.4,
-      y: terrainHeight(at.x, at.z),
+      y: ground(at.x, at.z),
       src: 'model'
     });
   }
@@ -776,7 +800,7 @@ function buildTunnels(railPts, roads) {
       x: at.x, z: at.z,
       rot: at.angle,
       length: 260, width: 9, height: 6.4,
-      y: terrainHeight(at.x, at.z),
+      y: ground(at.x, at.z),
       src: 'model'
     });
   }

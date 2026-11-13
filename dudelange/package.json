@@ -1,7 +1,7 @@
 {
   "name": "diddeleng",
   "version": "1.0.0",
-  "description": "Diddeleng — a single-player open world of Dudelange, Luxembourg, built from real OSM geometry and EU-DEM terrain.",
+  "description": "Diddeleng \u2014 a single-player open world of Dudelange, Luxembourg, built from real OSM geometry and EU-DEM terrain.",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
@@ -12,7 +12,8 @@
     "import:places": "node scripts/import-places.mjs",
     "serve": "node scripts/serve-forever.mjs --port 5173",
     "pack": "node scripts/pack.mjs",
-    "build:standalone": "node scripts/build-standalone.mjs"
+    "build:standalone": "node scripts/build-standalone.mjs",
+    "preview": "node scripts/preview-render.mjs"
   },
   "keywords": [],
   "author": "",

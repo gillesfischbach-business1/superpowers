@@ -140,9 +140,10 @@ Nine specialist agents each own a stage, a script and a set of acceptance gates.
 ```bash
 npm run pipeline          # all nine stages via the CLI
 npm run pipeline:qa       # qa + release only
-npm test                  # 32 invariants (world, cars, trains, forests, pubs, hours, module graph, boot,
-                          #   failed-boot diagnostics, 400 frames of play, single-file boot + play,
-                          #   shell, importer)
+npm test                  # 33 invariants (world, cars, trains, forests, pubs, hours, module graph, boot,
+                          #   failed-boot diagnostics, 400 frames of play, live traffic + train + ground
+                          #   contact, single-file boot + play, shell, importer)
+npm run preview -- --out docs/preview/street.png --x 33 --z 28 --yaw 1.8   # off-screen render, no GPU
 npm run import:places -- dataset.json   # ingest a Google Maps dataset export
 ```
 
@@ -162,6 +163,20 @@ phase it died in, and a live probe of the frame (`WebGL 2: yes/no`, `storage`, `
 link to the single-file build. The same payload is beaconed to `POST /api/errors`, so
 `GET /api/errors` replays the last 25 client failures with their diagnostics — no console access,
 no guessing.
+
+## The ground is the authority
+
+`scripts/preview-render.mjs` draws the live scene with a CPU rasteriser (there is no headless WebGL
+here), which is how the geometry gets checked visually: `docs/preview/` holds a street, a station and
+an aerial view. It found the bug that made the town look wrong — the terrain mesh could only sample
+`terrainHeight()` every 40 m, so between vertices the drawn ground was up to 1.5 m away from the
+height every road, house and kerb was placed at. Grass swallowed the streets and houses hung in the
+air.
+
+The fix is `public/js/core/heightfield.js`: one baked lattice, the renderer builds its triangles from
+those nodes, and `ground(x, z)` interpolates the same triangles. Everything placed in the world asks
+`ground`, so nothing can disagree with what is on screen. The QA pipeline now refuses to release a
+build where a house floats, is buried, or a street climbs steeper than 30%.
 
 Role briefs live in `agents/roles/`; the machine-readable contract is `agents/manifest.json`.
 Every stage writes `data/reports/<agent>.json`, and the release agent composes
