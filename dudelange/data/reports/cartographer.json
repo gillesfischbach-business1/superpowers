@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T15:38:52.418Z",
+  "generatedAt": "2026-11-17T10:54:38.535Z",
   "agent": "cartographer",
   "anchors": 40,
   "namedStreets": 16,
@@ -70,7 +70,7 @@
     {
       "label": "urban road network over 20 km",
       "ok": true,
-      "detail": "45.39 km"
+      "detail": "46.39 km"
     },
     {
       "label": "place names kept in Luxembourg spelling",

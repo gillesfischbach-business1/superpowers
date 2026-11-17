@@ -168,7 +168,7 @@ no guessing.
 
 `scripts/preview-render.mjs` draws the live scene with a CPU rasteriser (there is no headless WebGL
 here), which is how the geometry gets checked visually: `docs/preview/` holds a street, a station and
-an aerial view. It found the bug that made the town look wrong — the terrain mesh could only sample
+an aerial view (`--alt` sets the height of the aerial rig). It found the bug that made the town look wrong — the terrain mesh could only sample
 `terrainHeight()` every 40 m, so between vertices the drawn ground was up to 1.5 m away from the
 height every road, house and kerb was placed at. Grass swallowed the streets and houses hung in the
 air.
@@ -177,6 +177,42 @@ The fix is `public/js/core/heightfield.js`: one baked lattice, the renderer buil
 those nodes, and `ground(x, z)` interpolates the same triangles. Everything placed in the world asks
 `ground`, so nothing can disagree with what is on screen. The QA pipeline now refuses to release a
 build where a house floats, is buried, or a street climbs steeper than 30%.
+
+## The town is not a grid
+
+The first town generator invented its side streets: two fixed bearings, 128 m apart, repeated over
+three district rectangles. It looked like a model village — because it was one — and it contradicted
+the twenty traced OpenStreetMap streets running through it at completely different angles.
+
+`public/js/core/fabric.js` grows the fabric from the real streets instead:
+
+- the traced streets are the skeleton and are never moved;
+- a side street is an **offset** of a real street, at a plot depth (42-135 m), drifting in and out
+  the way real frontages do, so every lane inherits the bends and grain of the road it belongs to;
+- a second and third generation of offsets fills the blocks of the dense quarters only;
+- short cross lanes tie each lane back to its parent every 90-140 m, which is how a valley town is
+  actually put together — a comb, not a lattice;
+- a lane is cut where the town stops (`urbanWeight`), where the hillside is steeper than 11%, where
+  the rail corridor runs, and inside the protected zones and forests.
+
+`urbanWeight(x, z)` is the single answer to "how much town is here": quarter density × distance from a
+real street × the quarter's reach. Street generation and house placement both ask it, so the built-up
+edge of the model is one shape instead of seven different guesses.
+
+Houses are laid as **continuous frontage** rather than independent random lots: gables 1.2-4.5 m
+apart in the centre and the Cité Italienne, front gardens of 0.6-2.2 m from the kerb there against
+5-11 m in the outskirts. The palettes are matched against photographs of the real streets — see
+`docs/reference/README.md` for the sources: pale plaster and slate roofs in the centre, saturated
+pastel cottages — turquoise, coral, ochre, lilac — in the Cité Italienne, never brick.
+
+Before and after, same seed:
+
+| | grid (before) | fabric (after) |
+| --- | --- | --- |
+| streets | 25 real + 75 invented lattice lines | 25 real + ~180 offsets and cross lanes |
+| road length | 45.4 km | 46.4 km |
+| buildings | 854 | 1503 |
+| buildings outside a quarter | 363 | 16 |
 
 Role briefs live in `agents/roles/`; the machine-readable contract is `agents/manifest.json`.
 Every stage writes `data/reports/<agent>.json`, and the release agent composes
@@ -225,7 +261,7 @@ never edits the world by itself, and it flags places that fall outside the curre
 
 ```
 public/            index.html, agents.html, css, vendored three
-public/js/core/    town-data (real data), geo, world (generation), interiors, quests, train, hours
+public/js/core/    town-data (real data), geo, fabric (street grain), world (generation), interiors, quests, train, hours
 public/js/game/    textures, world-render, ui, audio, main
 server/            zero-dependency http server + pipeline orchestrator
 scripts/           the nine agent stage scripts, shared _lib, import-places

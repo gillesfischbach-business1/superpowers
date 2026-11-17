@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-13T15:38:54.493Z",
+  "generatedAt": "2026-11-17T10:54:42.257Z",
   "agent": "qa",
-  "clientModules": 13,
+  "clientModules": 14,
   "hours": {
     "openNoon": 24,
     "openLate": 9,
@@ -40,7 +40,7 @@
   "blockedPois": [],
   "unreachableDoors": 0,
   "nan": 0,
-  "instanceBudget": 40542,
+  "instanceBudget": 58693,
   "spawnBlocked": false,
   "quests": 11,
   "cars": 34,
@@ -87,7 +87,7 @@
     {
       "label": "instance budget under 90k",
       "ok": true,
-      "detail": "40542"
+      "detail": "58693"
     },
     {
       "label": "all landmark interiors exist",
@@ -152,12 +152,12 @@
     {
       "label": "every client import resolves to a real export",
       "ok": true,
-      "detail": "13 modules"
+      "detail": "14 modules"
     },
     {
       "label": "the page loads the whole client bundle",
       "ok": true,
-      "detail": "13 modules reachable"
+      "detail": "14 modules reachable"
     },
     {
       "label": "the client bundle has no import cycles",

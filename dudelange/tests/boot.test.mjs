@@ -18,8 +18,9 @@ test('the game boots through world build and reaches the renderer', async () => 
 
   try {
     await import('../public/js/game/main.js');
-    // let the async init() chain settle
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // let the async init() chain settle (the town got denser: ~1500 buildings
+    // and ~200 streets, which is a ~1.7 s build under the stub)
+    await new Promise((resolve) => setTimeout(resolve, 4000));
   } finally {
     console.error = realError;
   }

@@ -1,39 +1,39 @@
 {
-  "generatedAt": "2026-11-13T15:38:53.035Z",
+  "generatedAt": "2026-11-17T10:54:39.629Z",
   "agent": "urbanist",
-  "buildings": 854,
+  "buildings": 1503,
   "perDistrict": {
-    "neischmelz": 16,
-    "centre": 157,
-    "outskirts": 15,
-    "italien": 307,
-    "burange": 336,
-    "budersberg": 21,
-    "usines": 2
+    "neischmelz": 50,
+    "centre": 411,
+    "outskirts": 16,
+    "italien": 603,
+    "burange": 369,
+    "budersberg": 45,
+    "usines": 9
   },
-  "commercial": 240,
-  "roadKm": 45.39,
-  "trees": 5269,
+  "commercial": 391,
+  "roadKm": 46.39,
+  "trees": 5160,
   "trails": [
     {
       "id": "trail_st_jean",
       "name": "Sentier du Mont Saint-Jean",
-      "length": 431.7
+      "length": 433.1
     },
     {
       "id": "trail_parc",
       "name": "Sentier du Parc Le’h",
-      "length": 289.9
+      "length": 286.7
     },
     {
       "id": "trail_etang",
       "name": "Sentier de l’Étang",
-      "length": 244
+      "length": 243.6
     },
     {
       "id": "trail_north",
       "name": "Sentier de la vallée",
-      "length": 993
+      "length": 1105.6
     }
   ],
   "clearings": 8,
@@ -86,13 +86,13 @@
       "src": "osm"
     }
   ],
-  "railClearance": 13.1,
+  "railClearance": 13.28,
   "passed": true,
   "results": [
     {
       "label": "building count within budget (400–1600)",
       "ok": true,
-      "detail": "854"
+      "detail": "1503"
     },
     {
       "label": "no building on the rail corridor",
@@ -112,17 +112,17 @@
     {
       "label": "every main quarter is inhabited",
       "ok": true,
-      "detail": "{\"neischmelz\":16,\"centre\":157,\"outskirts\":15,\"italien\":307,\"burange\":336,\"budersberg\":21,\"usines\":2}"
+      "detail": "{\"neischmelz\":50,\"centre\":411,\"outskirts\":16,\"italien\":603,\"burange\":369,\"budersberg\":45,\"usines\":9}"
     },
     {
       "label": "commercial ground floors exist",
       "ok": true,
-      "detail": "240 shops"
+      "detail": "391 shops"
     },
     {
       "label": "street trees planted",
       "ok": true,
-      "detail": "5269 trees"
+      "detail": "5160 trees"
     },
     {
       "label": "forest trails reach the woods",

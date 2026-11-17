@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-13T15:38:54.541Z",
+  "generatedAt": "2026-11-17T10:54:42.306Z",
   "agent": "release",
-  "commit": "a7ea745",
+  "commit": "38466a1",
   "stages": [
     {
       "id": "cartographer",

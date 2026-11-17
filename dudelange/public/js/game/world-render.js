@@ -26,7 +26,7 @@ export function createTown(world, { quality = 'high' } = {}) {
   // geometry without a GPU or a canvas.
   const preview = (mat, color) => { mat.userData.preview = color; return mat; };
   const M = {
-    asphalt: preview(new THREE.MeshStandardMaterial({ map: TEX.asphalt(), color: 0xb8b8b8, roughness: 0.95 }), '#3b3f43'),
+    asphalt: preview(new THREE.MeshStandardMaterial({ map: TEX.asphalt(), color: 0xb8b8b8, roughness: 0.95 }), '#5f6266'),
     paving: preview(new THREE.MeshStandardMaterial({ map: TEX.paving(), roughness: 0.9 }), '#a8a49b'),
     concrete: preview(new THREE.MeshStandardMaterial({ map: TEX.concrete(), roughness: 0.85 }), '#b9b6ae'),
     grass: preview(new THREE.MeshStandardMaterial({ map: TEX.grass(), vertexColors: true, roughness: 1 }), '#5c7a3f'),

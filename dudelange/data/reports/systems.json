@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-13T15:38:54.184Z",
+  "generatedAt": "2026-11-17T10:54:41.675Z",
   "agent": "systems",
-  "worldHash": "120275c8ec5309ef",
-  "collisionPushOut": 6.13,
+  "worldHash": "e5f8f142e1192a96",
+  "collisionPushOut": 5.85,
   "drift": 0,
   "saveRoundTrip": true,
   "routes": [
@@ -45,21 +45,21 @@
     "trail_north"
   ],
   "instances": {
-    "windows": 31034,
-    "trees": 5269,
-    "buildings": 854
+    "windows": 47324,
+    "trees": 5160,
+    "buildings": 1503
   },
   "passed": true,
   "results": [
     {
       "label": "identical seed produces an identical world",
       "ok": true,
-      "detail": "120275c8ec5309ef"
+      "detail": "e5f8f142e1192a96"
     },
     {
       "label": "collision solver pushes a player out of a building",
       "ok": true,
-      "detail": "6.13 m"
+      "detail": "5.85 m"
     },
     {
       "label": "collision solver leaves open ground alone",
@@ -119,12 +119,12 @@
     {
       "label": "forest trails are surrounded by trees (walkable woods)",
       "ok": true,
-      "detail": "3 forest trails · 33/28/62 trees near each"
+      "detail": "3 forest trails · 24/22/48 trees near each"
     },
     {
       "label": "tree trunks are solid but the woods stay passable",
       "ok": true,
-      "detail": "3897 trunks · 5269 trees"
+      "detail": "3939 trunks · 5160 trees"
     },
     {
       "label": "overnight opening hours wrap past midnight",
@@ -172,9 +172,9 @@
       "detail": ""
     },
     {
-      "label": "performance budget: windows + trees under 40k instances",
+      "label": "performance budget: windows + trees under 60k instances",
       "ok": true,
-      "detail": "36303"
+      "detail": "52484"
     }
   ]
 }

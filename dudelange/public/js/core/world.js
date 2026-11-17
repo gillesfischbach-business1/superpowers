@@ -12,21 +12,37 @@ import {
 } from './geo.js';
 import { META, ROADS, RAIL, LANDMARKS, DISTRICTS } from './town-data.js';
 import { buildHeightField, ground } from './heightfield.js';
+import { createRoadIndex, generateInfillStreets, urbanWeight } from './fabric.js';
 
 const ROAD_WIDTH = { motorway: 20, primary: 12, secondary: 9.5, residential: 7, foot: 3.2 };
 const SIDEWALK = { motorway: 0, primary: 2.4, secondary: 2.2, residential: 1.8, foot: 0 };
 const SETBACK = { motorway: 12, primary: 6, secondary: 4, residential: 3, foot: 2 };
 
+/**
+ * Distance from the kerb to the front wall, per quarter.
+ *
+ * Dudelange's centre is built hard on the pavement; only the outskirts have
+ * front gardens. One global setback made every street look suburban.
+ */
+const FRONT_GARDEN = {
+  centre: [0.6, 2.2], italien: [0.6, 2.2], burange: [2.5, 6],
+  budersberg: [3, 7], neischmelz: [2.5, 5], usines: [1.5, 4], outskirts: [5, 11]
+};
+
 const STYLE_SETS = {
+  // Rue de la Gare: pale plaster town houses, 3-4 storeys, slate roofs, shops
+  // at street level (photo references in docs/reference/).
   centre: {
-    wall: ['#e6d8bf', '#dcc9a8', '#e9ddc9', '#d3bd9b', '#efe6d6', '#cbb693'],
-    roof: ['#5a5148', '#4c443c', '#6a5a4c', '#54463c'],
+    wall: ['#e6d8bf', '#dcc9a8', '#e9ddc9', '#e8d3c4', '#efe6d6', '#dfc7b4', '#cfd8d2'],
+    roof: ['#4a4f57', '#3f444b', '#565b62', '#4d4a45'],
     floors: [3, 4], pitch: 0.62, shopChance: 0.55
   },
+  // Cité Italienne: narrow lanes of 2-storey terraced cottages painted in
+  // saturated pastels — turquoise, coral, ochre, lilac — never brick.
   italien: {
-    wall: ['#a4543c', '#9c4a35', '#b06a4f', '#8f4531', '#a85c41'],
-    roof: ['#6b4a3a', '#5c4033', '#7a5240'],
-    floors: [2, 3], pitch: 0.5, shopChance: 0.34
+    wall: ['#6fb8a8', '#d9644a', '#e89a86', '#b09cc0', '#e0b761', '#a8ccb0', '#efe3d0', '#d9a68f'],
+    roof: ['#7a5040', '#6b4738', '#8a5f4a'],
+    floors: [2, 2], pitch: 0.5, shopChance: 0.12
   },
   burange: {
     wall: ['#f0ece4', '#e6e0d5', '#dcd6c8', '#efe9de', '#e2d9c9'],
@@ -88,77 +104,6 @@ function roadTouchesProtected(x, z, margin = 0) {
   return null;
 }
 
-/** Build side streets inside each district polygon, aligned to the main axes. */
-function generateStreets(rng) {
-  const streets = [];
-  let nameIdx = 0;
-  const districts = DISTRICTS.filter((d) => ['centre', 'italien', 'burange'].includes(d.id));
-  for (const d of districts) {
-    const poly = metricPolygon(d.polygon);
-    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-    for (const p of poly) {
-      minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-      minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
-    }
-    const angles = d.id === 'centre' || d.id === 'italien' ? [0.06, 1.63] : [0.28, 1.86];
-    const spacing = d.id === 'centre' || d.id === 'italien' ? 128 : 168;
-    for (let ai = 0; ai < 2; ai++) {
-      const angle = angles[ai];
-      const dirX = Math.sin(angle), dirZ = Math.cos(angle);
-      const nX = Math.cos(angle), nZ = -Math.sin(angle);
-      const diag = Math.hypot(maxX - minX, maxZ - minZ);
-      const cx = (minX + maxX) / 2, cz = (minZ + maxZ) / 2;
-      for (let off = -diag / 2; off <= diag / 2; off += spacing) {
-        const pts = [];
-        for (let s = -diag / 2; s <= diag / 2; s += 12) {
-          const x = cx + nX * off + dirX * s;
-          const z = cz + nZ * off + dirZ * s;
-          if (pointInPolygon(x, z, poly)) pts.push({ x, z });
-          else if (pts.length) break;
-        }
-        if (pts.length < 4) continue;
-        const length = polylineLength(pts);
-        if (length < 90) continue;
-        // slice long lines into 2-3 named streets so the map feels real
-        const chunks = Math.max(1, Math.min(3, Math.round(length / 260)));
-        let start = 0;
-        for (let c = 0; c < chunks; c++) {
-          const len = length / chunks;
-          const seg = slicePolyline(pts, start, start + len);
-          start += len;
-          if (seg.length < 3) continue;
-          streets.push({
-            id: `gen_${streets.length}`,
-            name: GENERATED_NAMES[nameIdx++ % GENERATED_NAMES.length],
-            cls: 'residential',
-            src: 'model',
-            points: seg
-          });
-        }
-      }
-    }
-  }
-  return streets;
-}
-
-function slicePolyline(points, from, to) {
-  const out = [];
-  let acc = 0;
-  for (let i = 1; i < points.length; i++) {
-    const a = points[i - 1], b = points[i];
-    const seg = Math.hypot(b.x - a.x, b.z - a.z);
-    if (acc + seg < from) { acc += seg; continue; }
-    if (acc > to) break;
-    if (!out.length) {
-      const t = clamp((from - acc) / seg, 0, 1);
-      out.push({ x: lerp(a.x, b.x, t), z: lerp(a.z, b.z, t) });
-    }
-    out.push({ ...b });
-    acc += seg;
-  }
-  return out;
-}
-
 function districtAt(x, z, districtsMetric) {
   for (const d of districtsMetric) if (pointInPolygon(x, z, d.poly)) return d.id;
   return 'outskirts';
@@ -188,7 +133,34 @@ export function buildWorld({ seed = 20261112 } = {}) {
       lanes: r.cls === 'motorway' ? 4 : r.cls === 'foot' ? 0 : r.cls === 'primary' ? 2 : 2
     });
   }
-  const generated = generateStreets(rng);
+  // The side streets are grown from the real ones (see core/fabric.js): the
+  // town's grain comes out of the traced streets, not out of a lattice.
+  const railPts = RAIL.points.map(([lat, lon]) => project(lat, lon));
+  const roadIndex = createRoadIndex(roads);
+  let bounds = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
+  for (const r of roads) {
+    for (const p of r.points) {
+      bounds.minX = Math.min(bounds.minX, p.x); bounds.maxX = Math.max(bounds.maxX, p.x);
+      bounds.minZ = Math.min(bounds.minZ, p.z); bounds.maxZ = Math.max(bounds.maxZ, p.z);
+    }
+  }
+  const fabricCtx = {
+    roadIndex,
+    roads,
+    bounds: { minX: bounds.minX - 120, maxX: bounds.maxX + 120, minZ: bounds.minZ - 120, maxZ: bounds.maxZ + 120 },
+    quarterAt: (x, z) => districtAt(x, z, districtsMetric),
+    blocked: (x, z) => protectedZone(x, z) || closestOnPolyline(railPts, x, z).dist < 16,
+    // Lanes are cut where the hillside is too steep to build a street on: the
+    // real town keeps its side streets on the valley floor and the terraces.
+    crossSlope: (x, z) => {
+      const gx = (ground(x + 7, z) - ground(x - 7, z)) / 14;
+      const gz = (ground(x, z + 7) - ground(x, z - 7)) / 14;
+      return Math.hypot(gx, gz);
+    }
+  };
+  const generated = generateInfillStreets(
+    fabricCtx, rng, (i) => GENERATED_NAMES[i % GENERATED_NAMES.length]
+  );
   for (const g of generated) {
     const samples = resamplePolyline(g.points, 8);
     roads.push({
@@ -212,7 +184,6 @@ export function buildWorld({ seed = 20261112 } = {}) {
   };
 
   // ---------------------------------------------------------------- rail
-  const railPts = RAIL.points.map(([lat, lon]) => project(lat, lon));
   const railSamples = resamplePolyline(railPts, 6);
   const railLength = polylineLength(railPts);
   const stations = RAIL.stations.map((s) => {
@@ -225,6 +196,32 @@ export function buildWorld({ seed = 20261112 } = {}) {
   stations.sort((a, b) => a.railDist - b.railDist);
   for (let i = 0; i < stations.length; i++) {
     stations[i].platformY = stations[i].elevation + 2.6;
+  }
+
+  // Every station gets an approach: a short residential street from the
+  // forecourt to the nearest real street. The traced streets leave Burange
+  // station 60+ m out in the fields, and a station you cannot walk to is not
+  // a station.
+  for (const st of stations) {
+    let best = null;
+    for (const r of roads) {
+      if (r.id.startsWith('station_access_')) continue;
+      for (const sp of r.samples) {
+        const d = Math.hypot(sp.x - st.x, sp.z - st.z);
+        if (d > 20 && (!best || d < best.d)) best = { d, x: sp.x, z: sp.z, road: r.id };
+      }
+    }
+    if (!best || best.d < 42) continue;
+    const points = [{ x: st.x, z: st.z }, { x: best.x, z: best.z }];
+    const samples = resamplePolyline(points, 8);
+    const access = {
+      id: `station_access_${st.id}`, name: `Accès ${st.name}`,
+      cls: 'residential', src: 'model', points, samples,
+      width: ROAD_WIDTH.residential, sidewalk: SIDEWALK.residential,
+      length: polylineLength(points), lanes: 2
+    };
+    roads.push(access);
+    for (const sp of samples) roadGrid.insert(sp.x, sp.z, { x: sp.x, z: sp.z, w: access.width, id: access.id });
   }
 
   // ---------------------------------------------------------------- landmarks
@@ -284,53 +281,73 @@ export function buildWorld({ seed = 20261112 } = {}) {
   };
 
   const commercialStreets = new Set(['zoufftgen', 'liberation', 'gdc', 'commerce']);
-  const DENSITY = { centre: 1.0, italien: 0.92, burange: 0.55, budersberg: 0.16, neischmelz: 0.35, usines: 0.22, outskirts: 0.07 };
+  const DENSITY = { centre: 1.0, italien: 0.92, burange: 0.5, budersberg: 0.12, neischmelz: 0.35, usines: 0.25, outskirts: 0.03 };
   const townCentre = project(49.4787, 6.0846);
   const railDistance = (x, z) => closestOnPolyline(railPts, x, z).dist;
   let uid = 0;
+
+  /**
+   * Street frontage, walked continuously.
+   *
+   * Houses are placed as a row along each side of a street, closing up to each
+   * other in the dense quarters (2-5 m between gables, as in a real terraced
+   * street) and standing apart in the outskirts. Previously every lot was an
+   * independent random step, which left gaps of 20-40 m everywhere and made the
+   * town read as scattered pavilions instead of streets.
+   */
+  const DENSE = new Set(['centre', 'italien']);
   for (const road of roads) {
     if (road.cls === 'motorway' || road.cls === 'foot') continue;
-    if (road.length < 40) continue;
+    if (road.length < 30) continue;
+    const fromFabric = road.src === 'model';
     for (const side of [-1, 1]) {
-      let d = 18;
-      while (d < road.length - 14) {
-        const step = randRange(rng, 22, 40);
+      let d = Math.max(8, road.width / 2 + road.sidewalk);
+      while (d < road.length - 8) {
         const at = polylineAt(road.samples, d);
-        d += step;
         const nx = Math.cos(at.angle) * side;
         const nz = -Math.sin(at.angle) * side;
         const dist = districtAt(at.x, at.z, districtsMetric);
-        if (protectedZone(at.x, at.z)) continue;
+        if (protectedZone(at.x, at.z)) { d += 8; continue; }
 
-        const setback = road.width / 2 + road.sidewalk + (SETBACK[road.cls] ?? 3) * randRange(rng, 0.7, 1.3);
+        // how much town is here decides whether there is a row at all
+        const urban = urbanWeight(at.x, at.z, fabricCtx);
+        if (urban < 0.1) { d += 12; continue; }
+        if (rng() > (DENSITY[dist] ?? 0.1) * (fromFabric ? 1 : 0.75)) { d += 10; continue; }
+
+        const garden = FRONT_GARDEN[dist] ?? [3, 6];
+        const setback = road.width / 2 + road.sidewalk + randRange(rng, garden[0], garden[1])
+          + (road.cls === 'primary' ? 1.5 : 0);
         const style = pickStyle(dist, at.x, at.z, road, rng, commercialStreets);
         const set = STYLE_SETS[style];
-        const w = randRange(rng, 10, style === 'usines' ? 34 : 20);
-        const depth = randRange(rng, 9, style === 'usines' ? 26 : 15);
-        const floors = Math.round(randRange(rng, set.floors[0], set.floors[1] + 0.99));
-        const h = floors * 3.15 + randRange(rng, 1.2, 2.6);
-        const cx = at.x + nx * (setback + depth / 2);
-        const cz = at.z + nz * (setback + depth / 2);
-        if (landmarkAt(cx, cz, 8)) continue;
-        if (nearRoad(cx, cz, 10) < 3) continue;
-        if (railDistance(cx, cz) < 13) continue;
-        if (stations.some((st) => Math.hypot(st.x - cx, st.z - cz) < 46)) continue;
-        if (rng() > (DENSITY[dist] ?? 0.1)) continue;
-        const centreDist = Math.hypot(cx - townCentre.x, cz - townCentre.z);
-        if (centreDist > 1850 && !['burange', 'budersberg'].includes(dist)) continue;
-        if (['burange'].includes(dist) && rng() < 0.18 && centreDist > 1200) continue;
+        const dense = DENSE.has(dist);
+        const w = style === 'usines'
+          ? randRange(rng, 18, 34)
+          : dense ? randRange(rng, 8, 16) : randRange(rng, 10, 20);
+        const depth = style === 'usines' ? randRange(rng, 12, 26) : dense ? randRange(rng, 9, 14) : randRange(rng, 8, 14);
+        const mid = polylineAt(road.samples, d + w / 2);
+        const cx = mid.x + nx * (setback + depth / 2);
+        const cz = mid.z + nz * (setback + depth / 2);
+        const gap = dense ? randRange(rng, 1.2, 4.5) : randRange(rng, 5, 16);
 
-        // footprint corners must sit on reasonably level ground
+        const skip = landmarkAt(cx, cz, 6)
+          || nearRoad(cx, cz, 12) < 2.5
+          || railDistance(cx, cz) < 13
+          || stations.some((st) => Math.hypot(st.x - cx, st.z - cz) < 46)
+          || Math.hypot(cx - townCentre.x, cz - townCentre.z) > 1850 && !['burange', 'budersberg'].includes(dist);
+        if (skip) { d += 7; continue; }
+
         const corners = [
           { x: cx - w / 2, z: cz - depth / 2 }, { x: cx + w / 2, z: cz - depth / 2 },
           { x: cx + w / 2, z: cz + depth / 2 }, { x: cx - w / 2, z: cz + depth / 2 }
         ];
         const hs = corners.map((c) => ground(c.x, c.z));
         const baseY = Math.min(...hs) - 0.4;
-        if (Math.max(...hs) - Math.min(...hs) > 8.5) continue;
+        if (Math.max(...hs) - Math.min(...hs) > 5.5) { d += 7; continue; }
 
+        const floors = Math.round(randRange(rng, set.floors[0], set.floors[1] + 0.99));
+        const h = floors * 3.15 + randRange(rng, 1.2, 2.6);
         const shop = rng() < set.shopChance;
-        const building = {
+        const placed = addBuilding({
           id: `b${uid++}`,
           x: cx, z: cz, rot: at.angle, side,
           w, d: depth, h, floors, baseY,
@@ -344,8 +361,8 @@ export function buildWorld({ seed = 20261112 } = {}) {
           chimney: rng() < 0.6,
           floorsLit: [],
           seed: Math.floor(rng() * 100000)
-        };
-        addBuilding(building);
+        });
+        d += placed ? w + gap : 6;
       }
     }
   }

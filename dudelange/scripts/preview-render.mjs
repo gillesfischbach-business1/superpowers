@@ -9,7 +9,7 @@
  * is about.
  *
  *   node scripts/preview-render.mjs [--out shot.png] [--w 900] [--h 560]
- *                                   [--mode foot|top|aerial] [--yaw 0] [--pitch 0]
+ *                                   [--mode foot|top|aerial] [--yaw 0] [--pitch 0] [--alt 80]
  *                                   [--x N] [--z N] [--dist 7]
  */
 import fs from 'node:fs';
@@ -136,7 +136,8 @@ if (mode === 'top') {
   cam.up.set(0, 0, -1);
   cam.lookAt(p.x, p.y, p.z);
 } else if (mode === 'aerial') {
-  cam.position.set(p.x - Math.sin(yaw) * 120, p.y + 80, p.z - Math.cos(yaw) * 120);
+  const alt = Number(arg('alt', 80));
+  cam.position.set(p.x - Math.sin(yaw) * alt * 1.5, p.y + alt, p.z - Math.cos(yaw) * alt * 1.5);
   cam.lookAt(p.x, p.y + 2, p.z);
 } else {
   // exactly the third-person rig the game uses
