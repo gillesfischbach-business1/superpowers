@@ -13,85 +13,11 @@ import {
 import { META, ROADS, RAIL, LANDMARKS, DISTRICTS } from './town-data.js';
 import { buildHeightField, ground } from './heightfield.js';
 import { createRoadIndex, generateInfillStreets, urbanWeight } from './fabric.js';
-
-const ROAD_WIDTH = { motorway: 20, primary: 12, secondary: 9.5, residential: 7, foot: 3.2 };
-const SIDEWALK = { motorway: 0, primary: 2.4, secondary: 2.2, residential: 1.8, foot: 0 };
-const SETBACK = { motorway: 12, primary: 6, secondary: 4, residential: 3, foot: 2 };
-
-/**
- * Distance from the kerb to the front wall, per quarter.
- *
- * Dudelange's centre is built hard on the pavement; only the outskirts have
- * front gardens. One global setback made every street look suburban.
- */
-const FRONT_GARDEN = {
-  centre: [0.6, 2.2], italien: [0.6, 2.2], burange: [2.5, 6],
-  budersberg: [3, 7], neischmelz: [2.5, 5], usines: [1.5, 4], outskirts: [5, 11]
-};
-
-const STYLE_SETS = {
-  // Rue de la Gare: pale plaster town houses, 3-4 storeys, slate roofs, shops
-  // at street level (photo references in docs/reference/).
-  centre: {
-    wall: ['#e6d8bf', '#dcc9a8', '#e9ddc9', '#e8d3c4', '#efe6d6', '#dfc7b4', '#cfd8d2'],
-    roof: ['#4a4f57', '#3f444b', '#565b62', '#4d4a45'],
-    floors: [3, 4], pitch: 0.62, shopChance: 0.55
-  },
-  // Cité Italienne: narrow lanes of 2-storey terraced cottages painted in
-  // saturated pastels — turquoise, coral, ochre, lilac — never brick.
-  italien: {
-    wall: ['#6fb8a8', '#d9644a', '#e89a86', '#b09cc0', '#e0b761', '#a8ccb0', '#efe3d0', '#d9a68f'],
-    roof: ['#7a5040', '#6b4738', '#8a5f4a'],
-    floors: [2, 2], pitch: 0.5, shopChance: 0.12
-  },
-  burange: {
-    wall: ['#f0ece4', '#e6e0d5', '#dcd6c8', '#efe9de', '#e2d9c9'],
-    roof: ['#7a4b3a', '#6b4433', '#5d3d30', '#84614a'],
-    floors: [2, 2], pitch: 0.72, shopChance: 0.08
-  },
-  budersberg: {
-    wall: ['#e8e2d2', '#d9d0bb', '#cfc4ab', '#efe8d8'],
-    roof: ['#5d4636', '#4f3c2f', '#6a5240'],
-    floors: [2, 2], pitch: 0.85, shopChance: 0.05
-  },
-  neischmelz: {
-    wall: ['#dcdcd8', '#c9c9c2', '#b9a58c', '#8fa3a8', '#e5e2dc'],
-    roof: ['#585f60', '#4a5152'],
-    floors: [3, 5], pitch: 0.05, shopChance: 0.12
-  },
-  usines: {
-    wall: ['#9aa0a1', '#8b8f8d', '#a8a29a', '#7f8785'],
-    roof: ['#5c6363', '#4b5252'],
-    floors: [1, 2], pitch: 0.12, shopChance: 0.05
-  },
-  outskirts: {
-    wall: ['#efe9dc', '#e3dbc9', '#d8cfba', '#f2ece0'],
-    roof: ['#6d4b38', '#5b3f2f', '#7c5a44'],
-    floors: [2, 3], pitch: 0.7, shopChance: 0.04
-  }
-};
-
-const GENERATED_NAMES = [
-  'Rue Alexander Fleming', 'Rue Louis Pasteur', 'Rue de la Fontaine', 'Rue des Romains',
-  'Rue du Moulin', 'Rue de l’Usine', 'Rue des Martyrs', 'Rue du Parc', 'Rue des Champs',
-  'Rue de l’École', 'Rue de la Chapelle', 'Rue des Prés', 'Rue du Stade',
-  'Rue de l’Industrie', 'Rue des Acacias', 'Rue des Tilleuls', 'Rue des Cerisiers',
-  'Rue du Cimetière', 'Rue des Roseaux', 'Rue de la Gare', 'Rue des Vergers',
-  'Rue du Lavoir', 'Rue des Houblonnières', 'Rue de la Bruyère', 'Rue des Aulnes',
-  'Rue du Château d’Eau', 'Rue des Ciments', 'Rue de la Minette', 'Rue du Verger',
-  'Rue des Sources', 'Rue de la Frontière', 'Rue des Pins', 'Rue des Peupliers'
-];
-
-/** Zones where the generator must not put ordinary houses. */
-const PROTECTED = [
-  { id: 'parc_leh', polygon: [[49.4838, 6.0955], [49.4876, 6.0955], [49.4880, 6.1045], [49.4840, 6.1050]] },
-  { id: 'mont_st_jean', polygon: [[49.4855, 6.0540], [49.4945, 6.0540], [49.4945, 6.0680], [49.4855, 6.0680]] },
-  { id: 'kalebierg', polygon: [[49.4630, 6.0500], [49.4710, 6.0500], [49.4710, 6.0680], [49.4630, 6.0680]] },
-  { id: 'works_core', polygon: [[49.4710, 6.0782], [49.4750, 6.0782], [49.4752, 6.0842], [49.4712, 6.0852]] },
-  { id: 'stade', polygon: [[49.4888, 6.0876], [49.4920, 6.0876], [49.4920, 6.0920], [49.4888, 6.0920]] },
-  { id: 'pond', polygon: [[49.4796, 6.0810], [49.4810, 6.0810], [49.4810, 6.0829], [49.4796, 6.0829]] },
-  { id: 'cemetery', polygon: [[49.4808, 6.0796], [49.4820, 6.0796], [49.4820, 6.0810], [49.4808, 6.0810]] }
-];
+import {
+  ROAD_WIDTH, SIDEWALK, PROTECTED, GENERATED_NAMES,
+  FORESTS, TRAIL_ANCHORS, COMMERCIAL_STREETS, TOWN_CENTRE
+} from './world/style.js';
+import { raiseFrontage } from './world/buildings.js';
 
 function metricPolygon(poly) {
   return poly.map(([lat, lon]) => project(lat, lon));
@@ -239,6 +165,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
   });
 
   // ---------------------------------------------------------------- buildings
+  const railDistance = (x, z) => closestOnPolyline(railPts, x, z).dist;
   const buildings = [];
   const buildingGrid = new SpatialGrid(28);
   const colliders = [];
@@ -280,142 +207,18 @@ export function buildWorld({ seed = 20261112 } = {}) {
     return true;
   };
 
-  const commercialStreets = new Set(['zoufftgen', 'liberation', 'gdc', 'commerce']);
-  const DENSITY = { centre: 1.0, italien: 0.92, burange: 0.5, budersberg: 0.12, neischmelz: 0.35, usines: 0.25, outskirts: 0.03 };
-  const townCentre = project(49.4787, 6.0846);
-  const railDistance = (x, z) => closestOnPolyline(railPts, x, z).dist;
   let uid = 0;
-
-  /**
-   * Street frontage, walked continuously.
-   *
-   * Houses are placed as a row along each side of a street, closing up to each
-   * other in the dense quarters (2-5 m between gables, as in a real terraced
-   * street) and standing apart in the outskirts. Previously every lot was an
-   * independent random step, which left gaps of 20-40 m everywhere and made the
-   * town read as scattered pavilions instead of streets.
-   */
-  const DENSE = new Set(['centre', 'italien']);
-  for (const road of roads) {
-    if (road.cls === 'motorway' || road.cls === 'foot') continue;
-    if (road.length < 30) continue;
-    const fromFabric = road.src === 'model';
-    for (const side of [-1, 1]) {
-      let d = Math.max(8, road.width / 2 + road.sidewalk);
-      while (d < road.length - 8) {
-        const at = polylineAt(road.samples, d);
-        const nx = Math.cos(at.angle) * side;
-        const nz = -Math.sin(at.angle) * side;
-        const dist = districtAt(at.x, at.z, districtsMetric);
-        if (protectedZone(at.x, at.z)) { d += 8; continue; }
-
-        // how much town is here decides whether there is a row at all
-        const urban = urbanWeight(at.x, at.z, fabricCtx);
-        if (urban < 0.1) { d += 12; continue; }
-        if (rng() > (DENSITY[dist] ?? 0.1) * (fromFabric ? 1 : 0.75)) { d += 10; continue; }
-
-        const garden = FRONT_GARDEN[dist] ?? [3, 6];
-        const setback = road.width / 2 + road.sidewalk + randRange(rng, garden[0], garden[1])
-          + (road.cls === 'primary' ? 1.5 : 0);
-        const style = pickStyle(dist, at.x, at.z, road, rng, commercialStreets);
-        const set = STYLE_SETS[style];
-        const dense = DENSE.has(dist);
-        const w = style === 'usines'
-          ? randRange(rng, 18, 34)
-          : dense ? randRange(rng, 8, 16) : randRange(rng, 10, 20);
-        const depth = style === 'usines' ? randRange(rng, 12, 26) : dense ? randRange(rng, 9, 14) : randRange(rng, 8, 14);
-        const mid = polylineAt(road.samples, d + w / 2);
-        const cx = mid.x + nx * (setback + depth / 2);
-        const cz = mid.z + nz * (setback + depth / 2);
-        const gap = dense ? randRange(rng, 1.2, 4.5) : randRange(rng, 5, 16);
-
-        const skip = landmarkAt(cx, cz, 6)
-          || nearRoad(cx, cz, 12) < 2.5
-          || railDistance(cx, cz) < 13
-          || stations.some((st) => Math.hypot(st.x - cx, st.z - cz) < 46)
-          || Math.hypot(cx - townCentre.x, cz - townCentre.z) > 1850 && !['burange', 'budersberg'].includes(dist);
-        if (skip) { d += 7; continue; }
-
-        const corners = [
-          { x: cx - w / 2, z: cz - depth / 2 }, { x: cx + w / 2, z: cz - depth / 2 },
-          { x: cx + w / 2, z: cz + depth / 2 }, { x: cx - w / 2, z: cz + depth / 2 }
-        ];
-        const hs = corners.map((c) => ground(c.x, c.z));
-        const baseY = Math.min(...hs) - 0.4;
-        if (Math.max(...hs) - Math.min(...hs) > 5.5) { d += 7; continue; }
-
-        const floors = Math.round(randRange(rng, set.floors[0], set.floors[1] + 0.99));
-        const h = floors * 3.15 + randRange(rng, 1.2, 2.6);
-        const shop = rng() < set.shopChance;
-        const placed = addBuilding({
-          id: `b${uid++}`,
-          x: cx, z: cz, rot: at.angle, side,
-          w, d: depth, h, floors, baseY,
-          style, district: dist, road: road.id,
-          wall: pick(rng, set.wall),
-          roof: pick(rng, set.roof),
-          roofType: style === 'usines' || style === 'neischmelz' ? (rng() < 0.5 ? 'flat' : 'saw') : (rng() < 0.88 ? 'gable' : 'hip'),
-          pitch: set.pitch,
-          shop,
-          awning: shop ? pick(rng, ['#b23a48', '#2a6f97', '#3f7d20', '#d98f2b', '#6d597a']) : null,
-          chimney: rng() < 0.6,
-          floorsLit: [],
-          seed: Math.floor(rng() * 100000)
-        });
-        d += placed ? w + gap : 6;
-      }
-    }
-  }
-
-  // ------------------------------------------------ Nei Schmelz new quarter
-  // Modern apartment blocks of the Nei Schmelz eco-district (model layout).
-  const clusters = [
-    { lat: 49.47560, lon: 6.08620, rows: 2, cols: 3, w: 32, d: 15, gapX: 13, gapZ: 22, h: 15, rot: 0.12 },
-    { lat: 49.47060, lon: 6.08640, rows: 2, cols: 2, w: 30, d: 14, gapX: 14, gapZ: 22, h: 12, rot: -0.1 },
-    { lat: 49.47210, lon: 6.08760, rows: 1, cols: 3, w: 26, d: 13, gapX: 12, gapZ: 20, h: 10, rot: 0.3 }
-  ];
-  for (const c of clusters) {
-    const o = project(c.lat, c.lon);
-    const ax = { x: Math.cos(c.rot), z: -Math.sin(c.rot) };
-    const az = { x: Math.sin(c.rot), z: Math.cos(c.rot) };
-    for (let r = 0; r < c.rows; r++) {
-      for (let col = 0; col < c.cols; col++) {
-        const ox = (col - (c.cols - 1) / 2) * (c.w + c.gapX);
-        const oz = (r - (c.rows - 1) / 2) * (c.d + c.gapZ);
-        const x = o.x + ax.x * ox + az.x * oz;
-        const z = o.z + ax.z * ox + az.z * oz;
-        if (railDistance(x, z) < 16) continue;
-        addBuilding({
-          id: `b${uid++}`, x, z, rot: c.rot, side: 1, w: c.w, d: c.d, h: c.h,
-          floors: Math.round(c.h / 3.3), baseY: ground(x, z) - 0.4,
-          style: 'neischmelz', district: 'neischmelz', road: 'neischmelz_block',
-          wall: pick(rng, STYLE_SETS.neischmelz.wall), roof: pick(rng, STYLE_SETS.neischmelz.roof),
-          roofType: 'flat', pitch: 0.05, shop: rng() < 0.25,
-          awning: null, chimney: false, floorsLit: [], seed: Math.floor(rng() * 100000)
-        });
-      }
-    }
-  }
-
-  const FORESTS = [
-    { id: 'mont_st_jean', centre: project(49.4898, 6.0615), rx: 620, rz: 520, count: 1350 },
-    { id: 'kalebierg', centre: project(49.4670, 6.0570), rx: 560, rz: 460, count: 900 },
-    { id: 'parc_leh', centre: project(49.4862, 6.0995), rx: 250, rz: 200, count: 620 },
-    { id: 'north_woods', centre: project(49.4960, 6.0700), rx: 560, rz: 340, count: 760 },
-    { id: 'east_ridge', centre: project(49.4700, 6.1000), rx: 380, rz: 460, count: 620 },
-    { id: 'valley_belt', centre: project(49.4680, 6.0700), rx: 320, rz: 280, count: 420 }
-  ];
+  const nextId = () => `b${uid++}`;
+  const built = raiseFrontage({
+    rng, roads, districtsMetric, districtAt, protectedZone, urbanWeight, fabricCtx,
+    commercialStreets: COMMERCIAL_STREETS, landmarkAt, nearRoad, railDistance, stations, townCentre: TOWN_CENTRE,
+    addBuilding, nextId
+  });
+  uid = built.uid;
 
   // ---------------------------------------------------------- forest trails
   // Footpaths that make the woods properly walkable: each one leaves the nearest
   // street, passes a viewpoint or landmark, and carries on into the trees.
-  const trailAnchors = [
-    { id: 'trail_st_jean', name: 'Sentier du Mont Saint-Jean', landmark: 'mont_st_jean', forest: 'mont_st_jean', dist: 430 },
-    { id: 'trail_kalebierg', name: 'Sentier du Kalebierg', landmark: 'kalebierg', forest: 'kalebierg', dist: 390 },
-    { id: 'trail_parc', name: 'Sentier du Parc Le’h', landmark: 'parc_leh_rest', forest: 'parc_leh', dist: 280 },
-    { id: 'trail_etang', name: 'Sentier de l’Étang', landmark: 'etang', forest: 'valley_belt', dist: 250, kind: 'park' },
-    { id: 'trail_north', name: 'Sentier de la vallée', landmark: null, forest: 'north_woods', start: [49.4948, 6.0742], dist: 560 }
-  ];
   const nearestStreet = (x, z) => {
     let best = { d: Infinity, x, z };
     for (const r of roads) {
@@ -428,7 +231,7 @@ export function buildWorld({ seed = 20261112 } = {}) {
   };
   const forestPaths = [];
   const clearings = [];
-  for (const spec of trailAnchors) {
+  for (const spec of TRAIL_ANCHORS) {
     const lm = spec.landmark ? landmarks.find((l) => l.id === spec.landmark) : null;
     const anchor = lm ? { x: lm.x, z: lm.z } : project(spec.start[0], spec.start[1]);
     const street = nearestStreet(anchor.x, anchor.z);
@@ -727,16 +530,6 @@ function protectedZone(x, z) {
   return PROTECTED.some((p) => p.metric && pointInPolygon(x, z, p.metric));
 }
 
-function pickStyle(district, x, z, road, rng, commercialStreets) {
-  if (district === 'neischmelz') return 'neischmelz';
-  if (district === 'usines') return 'usines';
-  if (district === 'budersberg') return 'budersberg';
-  if (district === 'burange') return rng() < 0.12 ? 'centre' : 'burange';
-  if (district === 'italien') return rng() < 0.82 ? 'italien' : 'centre';
-  if (district === 'centre') return rng() < 0.86 ? 'centre' : 'italien';
-  if (commercialStreets.has(road.id)) return rng() < 0.5 ? 'centre' : 'italien';
-  return 'outskirts';
-}
 
 function polygonCentre(poly) {
   let x = 0, z = 0;

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-17T10:54:42.257Z",
+  "generatedAt": "2026-11-17T10:57:54.940Z",
   "agent": "qa",
-  "clientModules": 14,
+  "clientModules": 16,
   "hours": {
     "openNoon": 24,
     "openLate": 9,
@@ -152,12 +152,12 @@
     {
       "label": "every client import resolves to a real export",
       "ok": true,
-      "detail": "14 modules"
+      "detail": "16 modules"
     },
     {
       "label": "the page loads the whole client bundle",
       "ok": true,
-      "detail": "14 modules reachable"
+      "detail": "16 modules reachable"
     },
     {
       "label": "the client bundle has no import cycles",

@@ -195,6 +195,11 @@ the twenty traced OpenStreetMap streets running through it at completely differe
 - a lane is cut where the town stops (`urbanWeight`), where the hillside is steeper than 11%, where
   the rail corridor runs, and inside the protected zones and forests.
 
+The generator is split along that pipeline: `core/fabric.js` grows the streets, `core/world/style.js`
+holds the looks and the densities, `core/world/buildings.js` raises the frontage, and
+`core/world.js` is the orchestrator that bakes the ground, hands the stages their context and returns
+the world. The split is behaviour-preserving: the world hash of seed `20261112` did not change.
+
 `urbanWeight(x, z)` is the single answer to "how much town is here": quarter density × distance from a
 real street × the quarter's reach. Street generation and house placement both ask it, so the built-up
 edge of the model is one shape instead of seven different guesses.
@@ -261,7 +266,9 @@ never edits the world by itself, and it flags places that fall outside the curre
 
 ```
 public/            index.html, agents.html, css, vendored three
-public/js/core/    town-data (real data), geo, fabric (street grain), world (generation), interiors, quests, train, hours
+public/js/core/    town-data (real data), geo, fabric (street grain), world (generation),
+                   world/style (looks, densities), world/buildings (street frontage),
+                   interiors, quests, train, hours
 public/js/game/    textures, world-render, ui, audio, main
 server/            zero-dependency http server + pipeline orchestrator
 scripts/           the nine agent stage scripts, shared _lib, import-places

@@ -1,11 +1,11 @@
 {
-  "updated": "2026-11-17T10:54:42.310Z",
+  "updated": "2026-11-17T10:57:54.995Z",
   "running": false,
-  "eventId": 53,
+  "eventId": 54,
   "agents": {
     "cartographer": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:38.020Z",
+      "startedAt": "2026-11-17T10:57:50.781Z",
       "log": [
         "Cartographer — reading OpenStreetMap anchors for Dudelange",
         "  40 anchors · 16 named streets · 25 road polylines overall",
@@ -21,12 +21,12 @@
         "report → data/reports/cartographer.json"
       ],
       "exitCode": 0,
-      "duration": 517,
-      "finishedAt": "2026-11-17T10:54:38.540Z"
+      "duration": 497,
+      "finishedAt": "2026-11-17T10:57:51.280Z"
     },
     "geologist": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:38.542Z",
+      "startedAt": "2026-11-17T10:57:51.282Z",
       "log": [
         "Geologist — sampling the Diddelengerbaach valley and the Minett cuesta",
         "  north–south profile: 285 m … 331 m (EU-DEM mean 317 m)",
@@ -41,12 +41,12 @@
         "report → data/reports/geologist.json"
       ],
       "exitCode": 0,
-      "duration": 516,
-      "finishedAt": "2026-11-17T10:54:39.060Z"
+      "duration": 500,
+      "finishedAt": "2026-11-17T10:57:51.783Z"
     },
     "urbanist": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:39.061Z",
+      "startedAt": "2026-11-17T10:57:51.784Z",
       "log": [
         "Urbanist — cutting lots along the real street network",
         "  1503 buildings · 205 streets · 46.39 km",
@@ -78,12 +78,12 @@
         "report → data/reports/urbanist.json"
       ],
       "exitCode": 0,
-      "duration": 572,
-      "finishedAt": "2026-11-17T10:54:39.634Z"
+      "duration": 586,
+      "finishedAt": "2026-11-17T10:57:52.372Z"
     },
     "architect": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:39.635Z",
+      "startedAt": "2026-11-17T10:57:52.373Z",
       "log": [
         "Architect — facades, roofscapes and furnished interiors",
         "  7 architectural styles · 47,324 windows · 391 shopfronts",
@@ -106,12 +106,12 @@
         "report → data/reports/architect.json"
       ],
       "exitCode": 0,
-      "duration": 505,
-      "finishedAt": "2026-11-17T10:54:40.141Z"
+      "duration": 492,
+      "finishedAt": "2026-11-17T10:57:52.867Z"
     },
     "rail-engineer": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:40.142Z",
+      "startedAt": "2026-11-17T10:57:52.868Z",
       "log": [
         "Rail engineer — line 60a, four stops, underpasses and tunnels",
         "  northbound: Burange@60.3s → Ville@132.5s → Centre@182.5s",
@@ -128,12 +128,12 @@
         "report → data/reports/rail.json"
       ],
       "exitCode": 0,
-      "duration": 503,
-      "finishedAt": "2026-11-17T10:54:40.646Z"
+      "duration": 505,
+      "finishedAt": "2026-11-17T10:57:53.374Z"
     },
     "retail-hospitality": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:40.647Z",
+      "startedAt": "2026-11-17T10:57:53.375Z",
       "log": [
         "Retail & hospitality — stocking shops and writing menus",
         "  3 supermarkets · 9 restaurants · 9 pubs · 72 purchasable lines",
@@ -167,11 +167,11 @@
       ],
       "exitCode": 0,
       "duration": 38,
-      "finishedAt": "2026-11-17T10:54:40.687Z"
+      "finishedAt": "2026-11-17T10:57:53.415Z"
     },
     "systems": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:40.688Z",
+      "startedAt": "2026-11-17T10:57:53.416Z",
       "log": [
         "Systems engineer — determinism, collisions, saves and the UI contract",
         "  world hash e5f8f142e1192a96 (1503 buildings, 5160 trees)",
@@ -209,18 +209,18 @@
         "report → data/reports/systems.json"
       ],
       "exitCode": 0,
-      "duration": 1002,
-      "finishedAt": "2026-11-17T10:54:41.691Z"
+      "duration": 982,
+      "finishedAt": "2026-11-17T10:57:54.399Z"
     },
     "qa": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:41.693Z",
+      "startedAt": "2026-11-17T10:57:54.401Z",
       "log": [
         "QA — the gatekeeper. Reachability, geometry, budgets, content.",
         "  upstream reports 7/7 · failed 0",
         "  44 POIs · 31 doors · 28 interiors",
         "  34 cars · 4 trails · 8 glades",
-        "  client bundle: 14 modules · 0 broken imports · 0 cycles · entry wired",
+        "  client bundle: 16 modules · 0 broken imports · 0 cycles · entry wired",
         "  hours: 24/28 open Tue noon · 9 open Fri 23:00 · 0 unparseable",
         "  instances: 47324 windows, 5160 trees, 1700 props → budget 58693",
         "  ✔ every upstream report exists",
@@ -243,8 +243,8 @@
         "  ✔ every car has a colour, a quarter and finite coordinates — 34 cars",
         "  ✔ forest trails stay inside the world bounds — 4 trails",
         "  ✔ station platforms sit above the rail bed",
-        "  ✔ every client import resolves to a real export — 14 modules",
-        "  ✔ the page loads the whole client bundle — 14 modules reachable",
+        "  ✔ every client import resolves to a real export — 16 modules",
+        "  ✔ the page loads the whole client bundle — 16 modules reachable",
         "  ✔ the client bundle has no import cycles — none",
         "  ✔ every visitable interior runs on a real schedule — 28 venues",
         "  ✔ the town is open at lunchtime — 24 open Tue 12:00",
@@ -256,12 +256,12 @@
         "  QA wrote qa.json"
       ],
       "exitCode": 0,
-      "duration": 574,
-      "finishedAt": "2026-11-17T10:54:42.268Z"
+      "duration": 547,
+      "finishedAt": "2026-11-17T10:57:54.949Z"
     },
     "release": {
       "status": "done",
-      "startedAt": "2026-11-17T10:54:42.269Z",
+      "startedAt": "2026-11-17T10:57:54.950Z",
       "log": [
         "Release manager — collecting reports and stamping the build",
         "  ✔ all eight upstream reports exist",
@@ -273,8 +273,8 @@
         "  → docs/build-report.md"
       ],
       "exitCode": 0,
-      "duration": 39,
-      "finishedAt": "2026-11-17T10:54:42.309Z"
+      "duration": 43,
+      "finishedAt": "2026-11-17T10:57:54.994Z"
     }
   }
 }
